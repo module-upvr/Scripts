@@ -116,23 +116,8 @@ function Saken.Config()
             require(Surv.Config).CrouchSpeed = 15
             require(Surv.Config).CrouchRunSpeed = 30
         end
-    end
-
-    local TT = require(game:GetService("ReplicatedStorage").Assets.Survivors.TwoTime.Behavior) 
-    local Util = require(game:GetService("ReplicatedStorage").Modules.Util) 
-    local Debris = game:GetService("Debris") 
-    local TS = game:GetService("TweenService") 
-    local isCrouched = false
-
-    TT.Abilities.Dagger.Callback = function(arg1) 
-        if not isCrouched then
-            arg1.Animations.Stab:Play(0.3) 
-            task.delay(0.2, function() 
-                local Vel = Util:ApplyVelocity(arg1.Rig, 135)
-                Debris:AddItem(Vel, 0.2)
-            end) 
-        end
-    end
+	end
+end
 
     function Saken.Function() 
         local ragdolls = require(game:GetService("ReplicatedStorage").Modules.Ragdolls) 
