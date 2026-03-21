@@ -196,7 +196,7 @@ function Saken.Function()
     local DH = require(game:GetService("ReplicatedStorage").Modules.DataHandler) 
     
     DH.Get = function(p7, p8, p9) 
-        return p8 or game.Players.LocalPlayer:WaitForChild("PlayerData")
+        return PL.PlayerData
     end
 
     blind.Applied = function() end
