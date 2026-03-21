@@ -239,6 +239,10 @@ local Landing = game:GetService("ReplicatedStorage").Systems.Character.Miscellan
 
 local blind = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Blindness) 
 
+local DH = require(game:GetService("ReplicatedStorage").Modules.DataHandler) 
+
+DH.Get = function(P, P, P) 
+end
 blind.Applied = function(arg1)
 end
 
