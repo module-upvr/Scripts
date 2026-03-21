@@ -30,7 +30,7 @@ function Saken.Esp()
 
     updateESP() 
     Player.CharacterAdded:Connect(function() 
-        wait(2.6) 
+        task.wait(2.6) 
         updateESP()
     end) 
 end
@@ -57,12 +57,10 @@ function Saken.AutoGen()
 
     getgenv().loop = Run.Heartbeat:Connect(function()
         local ui = PlayerG:FindFirstChild("PuzzleUI")
-        
         if ui then
             if nextActionTime == 0 then
                 nextActionTime = os.clock() + delayTime
             end
-
             if os.clock() >= nextActionTime then
                 solvgen() 
                 nextActionTime = os.clock() + delayTime
@@ -79,7 +77,6 @@ function Saken.Config()
     local Killers = game:GetService("ReplicatedStorage").Assets.Killers:GetChildren() 
     local Survivors = game:GetService("ReplicatedStorage").Assets.Survivors:GetChildren()
     local guest = game:GetService("ReplicatedStorage").Assets.Skins.Survivors.Guest1337:GetChildren() 
-    local slasher = game:GetService("ReplicatedStorage").Assets.Skins.Killers.Slasher:GetChildren() 
     local Sprinting = require(game:GetService("ReplicatedStorage").Systems.Character.Game.Sprinting)
 
     Sprinting.DefaultConfig.MinStamina = -5400
@@ -116,150 +113,111 @@ function Saken.Config()
             require(Surv.Config).CrouchSpeed = 15
             require(Surv.Config).CrouchRunSpeed = 30
         end
-	end
+    end
 end
 
-    function Saken.Function() 
-        local ragdolls = require(game:GetService("ReplicatedStorage").Modules.Ragdolls) 
-        local sounds = require(game:GetService("ReplicatedStorage").Modules.Sounds)
-        local PL = game:GetService("Players").LocalPlayer
-        local PlaySound = function(D, P, N) 
-            if not P:FindFirstChild(N) then
-                local S = Instance.new("Sound", P)
-                S.Name = N
-                S.SoundId = D
-                S:Play() 
+function Saken.Function() 
+    local ragdolls = require(game:GetService("ReplicatedStorage").Modules.Ragdolls) 
+    local PL = game:GetService("Players").LocalPlayer
+    local PlaySound = function(D, P, N) 
+        if not P:FindFirstChild(N) then
+            local S = Instance.new("Sound", P)
+            S.Name = N
+            S.SoundId = D
+            S:Play() 
+        else
+            P[N]:Play() 
+        end
+    end
+
+    local function AnimSaken() 
+        local PC = PL.Character
+        if not PC then return end
+        
+        local Invis = Instance.new("Animation", PC) 
+        Invis.AnimationId = "rbxassetid://75804462760596"
+        Invis.Name = "Invisible"
+
+        local Jerk = Instance.new("Animation", PC)
+        Jerk.AnimationId = "rbxassetid://72042024"
+        Jerk.Name = "Goon"
+
+        local Block = Instance.new("Animation", PC) 
+        Block.AnimationId = "rbxassetid://72722244508749"
+        Block.Name = "FakeBlock"
+
+        local Animator = PC:WaitForChild("Humanoid"):WaitForChild("Animator")
+        local JerkAnim = Animator:LoadAnimation(Jerk) 
+        JerkAnim.Looped = true
+        local BlockAnim = Animator:LoadAnimation(Block) 
+
+        local Gui = Instance.new("ScreenGui", PL.PlayerGui) 
+        local TextButton = Instance.new("TextButton", Gui) 
+        TextButton.Size = UDim2.new(0.1, 0, 0.1, 0) 
+        TextButton.Text = "Goon"
+
+        local TextButton2 = Instance.new("TextButton", Gui) 
+        TextButton2.Size = UDim2.new(0.1, 0, 0.1, 0) 
+        TextButton2.Position = UDim2.new(0.1, 0, 0, 0) 
+        TextButton2.Text = "FakeBlock"
+
+        local TextButton3 = Instance.new("TextButton", Gui) 
+        TextButton3.Size = UDim2.new(0.1, 0, 0.1, 0) 
+        TextButton3.Position = UDim2.new(0.2, 0, 0, 0) 
+        TextButton3.Text = "Ragdoll"
+
+        local Bool, Bool2 = false, false
+
+        TextButton3.MouseButton1Click:Connect(function() 
+            if not Bool2 then
+                PC.Humanoid.PlatformStand = true
+                PlaySound("rbxassetid://82176913611683", PC.PrimaryPart, "Blood") 
+                PlaySound("rbxassetid://1080611063", PC.PrimaryPart, "ScoutScream") 
+                Bool2 = true
+                pcall(function() ragdolls.EnableRagdoll(PC) end) 
             else
-                P[N]:Play() 
+                ragdolls.DisableRagdoll(PC)
+                PC.Humanoid.PlatformStand = false
+                Bool2 = false
             end
-        end
+        end) 
 
-        local function AnimSaken() 
-            local PC = PL.Character
-            local Invis = Instance.new("Animation", PC) 
-            Invis.AnimationId = "rbxassetid://75804462760596"
-            Invis.Name = "Invisible"
+        TextButton2.MouseButton1Click:Connect(function() BlockAnim:Play() end) 
 
-            local Jerk = Instance.new("Animation", PC)
-            Jerk.AnimationId = "rbxassetid://72042024"
-            Jerk.Name = "Goon"
-
-            local Block = Instance.new("Animation", PC) 
-            Block.AnimationId = "rbxassetid://72722244508749"
-            Block.Name = "FakeBlock"
-
-            local Animator = PC:WaitForChild("Humanoid").Animator
-            local JerkAnim = Animator:LoadAnimation(Jerk) 
-            JerkAnim.Looped = true
-            local BlockAnim = Animator:LoadAnimation(Block) 
-
-            local Gui = Instance.new("ScreenGui", PL.PlayerGui) 
-            local TextButton = Instance.new("TextButton", Gui) 
-            TextButton.Size = UDim2.new(0.1, 0, 0.1, 0) 
-            TextButton.Text = "Goon"
-
-            local TextButton2 = Instance.new("TextButton", Gui) 
-            TextButton2.Size = UDim2.new(0.1, 0, 0.1, 0) 
-            TextButton2.Position = UDim2.new(0.1, 0, 0, 0) 
-            TextButton2.Text = "FakeBlock"
-
-            local TextButton3 = Instance.new("TextButton", Gui) 
-            TextButton3.Size = UDim2.new(0.1, 0, 0.1, 0) 
-            TextButton3.Position = UDim2.new(0.2, 0, 0, 0) 
-            TextButton3.Text = "Ragdoll"
-
-            local Bool = false
-            local Bool2 = false
-
-            TextButton3.MouseButton1Click:Connect(function() 
-                if not Bool2 then
-                    PC.Humanoid.PlatformStand = true
-                    PlaySound("rbxassetid://82176913611683", PC.PrimaryPart, "Blood") 
-                    PlaySound("rbxassetid://1080611063", PC.PrimaryPart, "ScoutScream") 
-                    Bool2 = true
-                    local suc = pcall(function() ragdolls.EnableRagdoll(PC) end) 
-                else
-                    ragdolls.DisableRagdoll(PC)
-                    PC.Humanoid.PlatformStand = false
-                    Bool2 = false
-                end
-            end) 
-
-            TextButton2.MouseButton1Click:Connect(function() 
-                BlockAnim:Play() 
-            end) 
-
-            TextButton.MouseButton1Click:Connect(function() 
-                if not Bool then
-                    JerkAnim:Play() 
-                    Bool = true
-                else
-                    JerkAnim:Stop() 
-                    Bool = false
-                end
-            end) 
-        end
-
-        AnimSaken() 
-        PL.CharacterAdded:Connect(AnimSaken) 
-
-        local Landing = game:GetService("ReplicatedStorage").Systems.Character.Miscellaneous:FindFirstChild("SlowOnLanding") 
-        local blind = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Blindness) 
-        local DH = require(game:GetService("ReplicatedStorage").Modules.DataHandler) 
-        local v_u_2 = game:GetService("Players")
-
-        DH.Get = function(p7, p8, p9) 
-            if p8 ~= nil or p9 ~= nil then
-                return p8 or v_u_2.LocalPlayer:WaitForChild("PlayerData")
-            end
-            if p7.PlayerData then
-                return p7.PlayerData
-            end
-            local v10 = v_u_2.LocalPlayer:WaitForChild("PlayerData")
-            p7.PlayerData = v10
-            return v10
-        end
-
-        blind.Applied = function(arg1)
-        end
-
-        local Undetect = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Undetectable) 
-        Undetect.Applied = function(arg1) 
-            local Char = arg1.Character
-            if Char then
-                local InvisAnim = Char.Humanoid.Animator:LoadAnimation(Char.Invisible) 
-                InvisAnim:Play(0) 
-                InvisAnim:AdjustSpeed(0) 
-            end
-        end
-
-        Undetect.Removed = function(arg1)
-            local Char = arg1.Character
-            if Char then
-                for _, v in ipairs(Char.Humanoid.Animator:GetPlayingAnimationTracks()) do
-                    if string.find(v.Animation.AnimationId, "rbxassetid://75804462760596")then
-                        v:Stop(0) 
-                    end
-                end
-            end
-        end
-            
-        local Direct = game:GetService("ReplicatedStorage").Systems.Character.QualityOfLife:FindFirstChild("DirectionalSpeed") 
-        local ChatSystem = game:GetService("ReplicatedStorage").Systems.Character.Miscellaneous:FindFirstChild("DisableChatWhenIngame") 
-
-        if Landing then
-            Landing:Destroy() 
-            Direct:Destroy() 
-            ChatSystem:Destroy() 
-        end
-
-        local Chat = game:GetService("TextChatService").ChatWindowConfiguration
-        spawn(function() 
-            while wait() do 
-                Chat.Enabled = true 
-            end 
+        TextButton.MouseButton1Click:Connect(function() 
+            if not Bool then JerkAnim:Play() Bool = true else JerkAnim:Stop() Bool = false end
         end) 
     end
+
+    AnimSaken() 
+    PL.CharacterAdded:Connect(AnimSaken) 
+
+    local blind = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Blindness) 
+    local DH = require(game:GetService("ReplicatedStorage").Modules.DataHandler) 
+    
+    DH.Get = function(p7, p8, p9) 
+        return p8 or game.Players.LocalPlayer:WaitForChild("PlayerData")
+    end
+
+    blind.Applied = function() end
+
+    local Undetect = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Undetectable) 
+    Undetect.Applied = function(arg1) 
+        if arg1.Character then
+            local InvisAnim = arg1.Character.Humanoid.Animator:LoadAnimation(arg1.Character.Invisible) 
+            InvisAnim:Play(0) 
+            InvisAnim:AdjustSpeed(0) 
+        end
+    end
+
+    local Landing = game:GetService("ReplicatedStorage").Systems.Character.Miscellaneous:FindFirstChild("SlowOnLanding") 
+    if Landing then Landing:Destroy() end
+
+    task.spawn(function() 
+        while task.wait() do 
+            game:GetService("TextChatService").ChatWindowConfiguration.Enabled = true 
+        end 
+    end) 
 end
 
 return Saken
