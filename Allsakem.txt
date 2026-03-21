@@ -241,8 +241,20 @@ local blind = require(game:GetService("ReplicatedStorage").Modules.StatusEffects
 
 local DH = require(game:GetService("ReplicatedStorage").Modules.DataHandler) 
 
-DH.Get = function(P, P, P) 
+local v_u_2 = game:GetService("Players")
+
+DH.Get = function(p7, p8, p9) 
+  if p8 ~= nil or p9 ~= nil then
+		return p8 or v_u_2.LocalPlayer:WaitForChild("PlayerData")
+	end
+	if p7.PlayerData then
+		return p7.PlayerData
+	end
+	local v10 = v_u_2.LocalPlayer:WaitForChild("PlayerData")
+	p7.PlayerData = v10
+	return v10
 end
+
 blind.Applied = function(arg1)
 end
 
