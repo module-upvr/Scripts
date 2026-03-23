@@ -83,9 +83,9 @@ function Saken.Config()
 
     for _, Kill in pairs(Killers) do 
         require(Kill.Config).Speed =  13
-        require(Kill.Config).SprintSpeed = 32
+        require(Kill.Config).SprintSpeed = 30.75
         if Kill.Name == "Noli" then
-            require(Kill.Config).VoidRushDashSpeed = 100
+            require(Kill.Config).VoidRushDashSpeed = 50
             require(Kill.Config).VoidRushTurnSpeed = math.huge
             require(Kill.Config).VoidRushInitialTurnDuration = 0
             require(Kill.Config).VoidRushInitialTurnMult = 0
