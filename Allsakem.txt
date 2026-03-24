@@ -199,7 +199,7 @@ function Saken.Function()
 
     AnimSaken(PL.Character) 
     PL.CharacterAdded:Connect(function(Rig2)
-        Rig2:Wait() 
+        task.wait(2.6) 
         AnimSaken(Rig2)
     end) 
 
