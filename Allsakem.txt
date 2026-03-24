@@ -192,12 +192,7 @@ function Saken.Function()
     AnimSaken() 
     PL.CharacterAdded:Connect(AnimSaken) 
 
-    local blind = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Blindness) 
-    local DH = require(game:GetService("ReplicatedStorage").Modules.DataHandler) 
-    
-    DH.Get = function(p7, p8, p9) 
-        return PL.PlayerData
-    end
+    local blind = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Blindness)
 
     blind.Applied = function() end
 
