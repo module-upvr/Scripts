@@ -83,7 +83,7 @@ function Saken.Config()
 
     for _, Kill in pairs(Killers) do 
         require(Kill.Config).Speed =  13
-        require(Kill.Config).SprintSpeed = 30.75
+        require(Kill.Config).SprintSpeed = 32
         if Kill.Name == "Noli" then
             require(Kill.Config).VoidRushDashSpeed = 150
             require(Kill.Config).VoidRushTurnSpeed = math.huge
@@ -91,6 +91,9 @@ function Saken.Config()
             require(Kill.Config).VoidRushInitialTurnMult = 0
         elseif Kill.Name == "Slasher" then
             require(Kill.Config).EnragedSpeed = 30
+        elseif Kill.Name == "1x1x1x1" then
+            require(Kill.Config).Speed =  13
+            require(Kill.Config).SprintSpeed = 30.75
         end
     end 
 
@@ -108,8 +111,6 @@ function Saken.Config()
         elseif Surv.Name == "Veeronica" then
             require(Surv.Config).Sk8TurnControl = 6
         elseif Surv.Name == "TwoTime" then
-            require(Surv.Config).DaggerLungeForce = 300
-            require(Surv.Config).DaggerUncrouchedLungeForce = 250
             require(Surv.Config).CrouchSpeed = 15
             require(Surv.Config).CrouchRunSpeed = 30
         end
