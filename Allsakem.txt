@@ -137,7 +137,7 @@ function Saken.Function()
         local PC = Rig
         if not PC then return end
 
-        task.delay(1, function() PC.SpeedMultipliers.DirectionalMovement:Destroy() end)
+     PC:WaitForChild("SpeedMultipliers"):WaitForChild("DirectionalMovement"):Destroy() 
         
         local Invis = Instance.new("Animation", PC) 
         Invis.AnimationId = "rbxassetid://75804462760596"
@@ -200,7 +200,6 @@ function Saken.Function()
     AnimSaken(PL.Character) 
     PL.CharacterAdded:Connect(function(Rig) 
         AnimSaken(Rig)
-        Rig:WaitForChild("SpeedMultipliers"):WaitForChild("DirectionalMovement"):Destroy() 
     end) 
 
     local blind = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Blindness)
