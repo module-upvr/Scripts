@@ -199,6 +199,7 @@ function Saken.Function()
 
     AnimSaken(PL.Character) 
     PL.CharacterAdded:Connect(function(Rig2)
+        Rig2:Wait() 
         AnimSaken(Rig2)
     end) 
 
@@ -217,9 +218,7 @@ function Saken.Function()
 
     local Landing = require(game:GetService("ReplicatedStorage").Systems.Character.Miscellaneous.SlowOnLanding)
     for _, v in pairs(Landing) do
-        if typeof(v) == "function" then
-            v = function() end
-        end
+        v = nil
     end
 
     
