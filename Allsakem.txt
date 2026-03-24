@@ -198,9 +198,9 @@ function Saken.Function()
     end
 
     AnimSaken(PL.Character) 
-    PL.CharacterAdded:Connect(function(Rig2)
-        task.wait(2.6) 
-        AnimSaken(Rig2)
+    PL.CharacterAdded:Connect(function(Rig) 
+        AnimSaken(Rig)
+        Rig:WaitForChild("SpeedMultipliers"):WaitForChild("DirectionalMovement"):Destroy() 
     end) 
 
     local blind = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Blindness)
@@ -222,7 +222,7 @@ function Saken.Function()
     end
 
     
-local ChatConfig = game:GetService("TextChatService").ChatWindowConfiguration
+    local ChatConfig = game:GetService("TextChatService").ChatWindowConfiguration
 
     ChatConfig.Enabled = true
 
