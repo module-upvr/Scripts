@@ -53,17 +53,19 @@ function Saken.AutoGen()
     end
 
     local nextActionTime = 0
-    local delayTime = 3.5
+    local delayTime = function() 
+        return Random.new():NextNumber(2.5, 3.5) 
+    end
 
     getgenv().loop = Run.Heartbeat:Connect(function()
         local ui = PlayerG:FindFirstChild("PuzzleUI")
         if ui then
             if nextActionTime == 0 then
-                nextActionTime = os.clock() + delayTime
+                nextActionTime = os.clock() + delayTime() 
             end
             if os.clock() >= nextActionTime then
                 solvgen() 
-                nextActionTime = os.clock() + delayTime
+                nextActionTime = os.clock() + delayTime() 
             end
         else
             if nextActionTime ~= 0 then
@@ -85,7 +87,7 @@ function Saken.Config()
         require(Kill.Config).Speed =  13
         require(Kill.Config).SprintSpeed = 32
         if Kill.Name == "Noli" then
-            require(Kill.Config).VoidRushDashSpeed = 150
+            require(Kill.Config).VoidRushDashSpeed = 70
             require(Kill.Config).VoidRushTurnSpeed = math.huge
             require(Kill.Config).VoidRushInitialTurnDuration = 0
             require(Kill.Config).VoidRushInitialTurnMult = 0
