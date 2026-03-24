@@ -133,9 +133,11 @@ function Saken.Function()
         end
     end
 
-    local function AnimSaken() 
-        local PC = PL.Character
+    local function AnimSaken(Rig) 
+        local PC = Rig
         if not PC then return end
+
+        task.delay(1, function() PC.SpeedMultipliers.DirectionalMovement:Destroy() end)
         
         local Invis = Instance.new("Animation", PC) 
         Invis.AnimationId = "rbxassetid://75804462760596"
@@ -155,6 +157,9 @@ function Saken.Function()
         local BlockAnim = Animator:LoadAnimation(Block) 
 
         local Gui = Instance.new("ScreenGui", PL.PlayerGui) 
+        Gui.Name = "SakenGui"
+        Gui.ResetOnSpawn = true
+
         local TextButton = Instance.new("TextButton", Gui) 
         TextButton.Size = UDim2.new(0.1, 0, 0.1, 0) 
         TextButton.Text = "Goon"
@@ -192,8 +197,10 @@ function Saken.Function()
         end) 
     end
 
-    AnimSaken() 
-    PL.CharacterAdded:Connect(AnimSaken) 
+    AnimSaken(PL.Character) 
+    PL.CharacterAdded:Connect(function(Rig2)
+        AnimSaken(Rig2)
+    end) 
 
     local blind = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Blindness)
 
@@ -208,14 +215,23 @@ function Saken.Function()
         end
     end
 
-    local Landing = game:GetService("ReplicatedStorage").Systems.Character.Miscellaneous:FindFirstChild("SlowOnLanding") 
-    if Landing then Landing:Destroy() end
+    local Landing = require(game:GetService("ReplicatedStorage").Systems.Character.Miscellaneous.SlowOnLanding)
+    for _, v in pairs(Landing) do
+        if typeof(v) == "function" then
+            v = function() end
+        end
+    end
 
-    task.spawn(function() 
-        while task.wait() do 
-            game:GetService("TextChatService").ChatWindowConfiguration.Enabled = true 
-        end 
-    end) 
+    
+local ChatConfig = game:GetService("TextChatService").ChatWindowConfiguration
+
+    ChatConfig.Enabled = true
+
+    ChatConfig:GetPropertyChangedSignal("Enabled"):Connect(function()
+        if not ChatConfig.Enabled then
+            ChatConfig.Enabled = true
+        end
+    end)
 end
 
 return Saken
