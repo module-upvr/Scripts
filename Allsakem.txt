@@ -122,16 +122,6 @@ end
 function Saken.Function() 
     local ragdolls = require(game:GetService("ReplicatedStorage").Modules.Ragdolls) 
     local PL = game:GetService("Players").LocalPlayer
-    local PlaySound = function(D, P, N) 
-        if not P:FindFirstChild(N) then
-            local S = Instance.new("Sound", P)
-            S.Name = N
-            S.SoundId = D
-            S:Play() 
-        else
-            P[N]:Play() 
-        end
-    end
 
     local function AnimSaken(Rig) 
         local PC = Rig
@@ -180,8 +170,7 @@ function Saken.Function()
         TextButton3.MouseButton1Click:Connect(function() 
             if not Bool2 then
                 PC.Humanoid.PlatformStand = true
-                PlaySound("rbxassetid://82176913611683", PC.PrimaryPart, "Blood") 
-                PlaySound("rbxassetid://1080611063", PC.PrimaryPart, "ScoutScream") 
+                require(game:GetService("ReplicatedStorage").Modules.Sounds):Play("ragdolledLol", {Parent = game:GetService("Players").LocalPlayer.Character.PrimaryPart}) 
                 Bool2 = true
                 pcall(function() ragdolls.EnableRagdoll(PC) end) 
             else
