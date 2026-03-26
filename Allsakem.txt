@@ -206,6 +206,7 @@ function Saken.Function()
     local blind = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Blindness)
 
     blind.Applied = function() end
+    blind.Removed = function() end
 
     local Undetect = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Undetectable) 
     Undetect.Applied = function(arg1) 
@@ -215,6 +216,26 @@ function Saken.Function()
             InvisAnim:AdjustSpeed(0) 
         end
     end
+
+    Undetect.Removed = function(arg1)
+        if arg1.Character then
+            local Humanoid = arg1.Character:FindFirstChildOfClass("Humanoid")
+            local Animator = Humanoid and Humanoid:FindFirstChildOfClass("Animator")
+            
+            if Animator then
+                -- Ambil ID dari objek animasi yang Anda gunakan di fungsi Applied
+                local targetId = arg1.Character.Invisible.AnimationId
+                
+                for _, track in pairs(Animator:GetPlayingAnimationTracks()) do
+                    -- Cek apakah AnimationId track mengandung targetId
+                    if track.Animation and string.find(track.Animation.AnimationId, targetId) then
+                        track:Stop()
+                    end
+                end
+            end
+        end
+    end
+
 
     local Landing = game:GetService("ReplicatedStorage").Systems.Character.Miscellaneous.SlowOnLanding
     Landing:Destroy() 
