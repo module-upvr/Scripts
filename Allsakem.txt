@@ -170,7 +170,7 @@ function Saken.Function()
         TextButton3.MouseButton1Click:Connect(function() 
             if not Bool2 then
                 PC.Humanoid.PlatformStand = true
-                require(game:GetService("ReplicatedStorage").Modules.Sounds):Play("ragdolledLol", {Parent = game:GetService("Players").LocalPlayer.Character.PrimaryPart}) 
+                require(game:GetService("ReplicatedStorage").Modules.Sounds):Play("ragdolledLol", {Parent = PC.PrimaryPart}) 
                 Bool2 = true
                 pcall(function() ragdolls.EnableRagdoll(PC) end) 
             else
