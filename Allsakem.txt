@@ -21,13 +21,18 @@ local crouchThread = nil
 function Saken.Esp() 
     local function createESP(object, color)
         local highlight = Instance.new("Highlight")
-        highlight.FillTransparency = 0.91
+        local h, s, v = color:ToHSV()
+        local brighterColor = Color3.fromHSV(h, s, math.clamp(v + 0.2, 0, 1))
+
+        highlight.FillTransparency = 0.9
         highlight.OutlineTransparency = 0.85
         highlight.FillColor = color
-        highlight.OutlineColor = Color3.new(1,1,1)
+        highlight.OutlineColor = brighterColor -- Otomatis jadi versi terang
         highlight.Parent = object
+    
         return highlight
     end
+
 
     local function updateESP()
         for _, v in ipairs(workspace.Map.Ingame:GetDescendants()) do
@@ -103,7 +108,7 @@ end
 function Saken.Config() 
     Sprinting.DefaultConfig.MinStamina = -5400
 
-    for _, Kill in pairs(Killers) do 
+    for _, Kill in ipairs(Killers) do 
         require(Kill.Config).Speed =  13
         require(Kill.Config).SprintSpeed = 32
         if Kill.Name == "Noli" then
@@ -119,13 +124,13 @@ function Saken.Config()
         end
     end 
 
-    for _, Surv in pairs(Survivors) do 
+    for _, Surv in ipairs(Survivors) do 
         require(Surv.Config).Speed = 16
         require(Surv.Config).SprintSpeed = 30
         if Surv.Name == "Guest1337" then
             require(Surv.Config).Animations.Block = "rbxassetid://107327732473479"
             require(Surv.Config).PunchDashForce = 110
-            for i, v in pairs(guest) do
+            for _, v in ipairs(guest) do
                 if require(v.Config).Animations then
                     require(v.Config).Animations.Block = "rbxassetid://0000"
                 end
