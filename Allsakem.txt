@@ -14,6 +14,7 @@ local ChatConfig = game:GetService("TextChatService").ChatWindowConfiguration
 local Landing = game:GetService("ReplicatedStorage").Systems.Character.Miscellaneous.SlowOnLanding
 local Able = require(game:GetService("ReplicatedStorage").Assets.Survivors.TwoTime.Behavior).Abilities
 local Util = require(game:GetService("ReplicatedStorage").Modules.Util)
+local PlayerFolder = game.workspace.Players
 
 local IsCr = false
 local crouchThread = nil
@@ -31,7 +32,26 @@ function Saken.Esp()
     
         return highlight
     end
+-- Fungsi utama (sudah pakai rekursi dari sebelumnya)
+local plrESP
+plrESP = function(object, color)
+    -- Hindari double ESP
+    if object:FindFirstChild("SakenLight") then return end
 
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "SakenLight"
+    highlight.FillTransparency = 0.9
+    highlight.FillColor = color
+    highlight.Parent = object
+
+    -- Rekursi jika ESP dihancurkan secara paksa
+    highlight.Destroying:Connect(function()
+        task.wait(0.5)
+        if object and object:IsDescendantOf(game) then
+            createESP(object, color)
+        end
+    end)
+end
 
     local function updateESP()
         for _, v in ipairs(workspace.Map.Ingame:GetDescendants()) do
@@ -49,13 +69,13 @@ function Saken.Esp()
         for _, v in ipairs(workspace.Players.Survivors:GetChildren()) do
             if v:GetAttribute("Username") ~= Player.Name then
                 if v:FindFirstChild("Sakenlight") then v.Highlight:Destroy() end
-                createESP(v, Color3.new(0, 1, 0)) 
+                plrESP(v, Color3.new(0, 1, 0)) 
             end
         end
         for _, v in ipairs(workspace.Players.Killers:GetChildren()) do
             if v:GetAttribute("Username") ~= Player.Name then
                 if v:FindFirstChild("Sakenlight") then v.Highlight:Destroy() end
-                createESP(v, Color3.new(1, 0, 0))
+                plrESP(v, Color3.new(1, 0, 0))
             end
         end
     end
@@ -65,9 +85,17 @@ function Saken.Esp()
         task.wait(2.6) 
         updateESP()
     end) 
-    while task.wait(0.67) do
-        updateESP() 
-    end
+
+    PlayerFolder.Survivors.ChildAdded:Connect(function(v)
+        if v.Name ~= LocalPlayer.Name then
+            plrESP(v, Color3.new(0, 1, 0))
+        end
+    end)
+    PlayerFolder.Killers.ChildAdded:Connect(function(v)
+        if v.Name ~= LocalPlayer.Name then
+            plrESP(v, Color3.new(1, 0, 0))
+        end
+    end)
 end
 
 function Saken.AutoGen() 
