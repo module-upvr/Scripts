@@ -1,8 +1,24 @@
 local Saken = {}
 
-function Saken.Esp() 
-    local Player = game:GetService("Players").LocalPlayer
+local Player = game:GetService("Players").LocalPlayer
+local Run = game:GetService("RunService")
+local PlayerG = Player.PlayerGui
+local Killers = game:GetService("ReplicatedStorage").Assets.Killers:GetChildren() 
+local Survivors = game:GetService("ReplicatedStorage").Assets.Survivors:GetChildren()
+local guest = game:GetService("ReplicatedStorage").Assets.Skins.Survivors.Guest1337:GetChildren() 
+local Sprinting = require(game:GetService("ReplicatedStorage").Systems.Character.Game.Sprinting)
+local ragdolls = require(game:GetService("ReplicatedStorage").Modules.Ragdolls) 
+local blind = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Blindness)
+local Undetect = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Undetectable)
+local ChatConfig = game:GetService("TextChatService").ChatWindowConfiguration
+local Landing = game:GetService("ReplicatedStorage").Systems.Character.Miscellaneous.SlowOnLanding
+local Able = require(game:GetService("ReplicatedStorage").Assets.Survivors.TwoTime.Behavior).Abilities
+local Util = require(game:GetService("ReplicatedStorage").Modules.Util)
 
+local IsCr = false
+local crouchThread = nil
+
+function Saken.Esp() 
     local function createESP(object, color)
         local highlight = Instance.new("Highlight")
         highlight.FillTransparency = 0.85
@@ -36,11 +52,8 @@ function Saken.Esp()
 end
 
 function Saken.AutoGen() 
-    local Run = game:GetService("RunService")
-    local PlayerG = game:GetService("Players").LocalPlayer.PlayerGui
-    local function solvgen() 
-        local Map = workspace.Map.Ingame.Map
-        for _, v in pairs(Map:GetDescendants()) do
+    local function solvgen()
+        for _, v in pairs(workspace.Map.Ingame.Map:GetDescendants()) do
             if v:IsA("RemoteEvent") then
                 v:FireServer() 
             end
@@ -54,7 +67,7 @@ function Saken.AutoGen()
 
     local nextActionTime = 0
     local delayTime = function() 
-        return Random.new():NextNumber(2.5, 3.5) 
+        return Random.new():NextNumber(2.5, 3) 
     end
 
     getgenv().loop = Run.Heartbeat:Connect(function()
@@ -76,11 +89,6 @@ function Saken.AutoGen()
 end
 
 function Saken.Config() 
-    local Killers = game:GetService("ReplicatedStorage").Assets.Killers:GetChildren() 
-    local Survivors = game:GetService("ReplicatedStorage").Assets.Survivors:GetChildren()
-    local guest = game:GetService("ReplicatedStorage").Assets.Skins.Survivors.Guest1337:GetChildren() 
-    local Sprinting = require(game:GetService("ReplicatedStorage").Systems.Character.Game.Sprinting)
-
     Sprinting.DefaultConfig.MinStamina = -5400
 
     for _, Kill in pairs(Killers) do 
@@ -117,17 +125,63 @@ function Saken.Config()
             require(Surv.Config).CrouchRunSpeed = 30
         end
     end
+    local function stopTimer()
+        if crouchThread then
+            task.cancel(crouchThread)
+            crouchThread = nil
+        end
+    end
+
+    local function DoLunge(arg1)
+        local Lunge = Util:ApplyVelocity(arg1.Rig, 310)
+        game.TweenService:Create(Lunge, TweenInfo.new(0.2), {
+    	 					["LineVelocity"] = Lunge.LineVelocity / 3
+      					}):Play()
+    			  		game.Debris:AddItem(Lunge, 0.2) 
+    end
+
+    Able.Dagger.Callback = function(arg1)
+        local Anims = arg1.Animations
+        if IsCr then
+            Anims.LungeStart:Play(0)
+            task.delay(Anims.LungeStart.Length, function()
+                Anims.LungeLoop:Play(0)
+            end) 
+            task.delay(0.6, function()
+                Anims.LungeEnd:Play() 
+                Anims.LungeStart:Stop(0)
+                Anims.LungeLoop:Stop(0) 
+            end) 
+            IsCr = false
+            stopTimer()
+        else
+            Anims.Stab:Play(0)
+            task.delay(0.15, function() 
+                DoLunge(arg1) 
+            end) 
+        end
+    end
+
+    Able.Crouch.Callback = function(arg1)
+        stopTimer() 
+        
+        IsCr = true
+    
+        crouchThread = task.delay(15, function()
+            if IsCr then
+                IsCr = false
+                crouchThread = nil
+            end
+        end)
+    end
 end
 
 function Saken.Function() 
-    local ragdolls = require(game:GetService("ReplicatedStorage").Modules.Ragdolls) 
-    local PL = game:GetService("Players").LocalPlayer
-
     local function AnimSaken(Rig) 
         local PC = Rig
         if not PC then return end
 
-     PC:WaitForChild("SpeedMultipliers"):WaitForChild("DirectionalMovement"):Destroy() 
+        PC:WaitForChild("SpeedMultipliers"):WaitForChild("DirectionalMovement"):Destroy() 
         
         local Invis = Instance.new("Animation", PC) 
         Invis.AnimationId = "rbxassetid://75804462760596"
@@ -147,7 +201,8 @@ function Saken.Function()
         JerkAnim.Priority = Enum.AnimationPriority.Action4
         local BlockAnim = Animator:LoadAnimation(Block) 
         BlockAnim.Priority = Enum.AnimationPriority.Action4
-        local Gui = Instance.new("ScreenGui", PL.PlayerGui) 
+
+        local Gui = Instance.new("ScreenGui", PlayerG) 
         Gui.Name = "SakenGui"
         Gui.ResetOnSpawn = true
 
@@ -187,17 +242,14 @@ function Saken.Function()
         end) 
     end
 
-    AnimSaken(PL.Character) 
-    PL.CharacterAdded:Connect(function(Rig) 
+    AnimSaken(Player.Character) 
+    Player.CharacterAdded:Connect(function(Rig) 
         AnimSaken(Rig)
     end) 
-
-    local blind = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Blindness)
 
     blind.Applied = function() end
     blind.Removed = function() end
 
-    local Undetect = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Undetectable) 
     Undetect.Applied = function(arg1) 
         if arg1.Character then
             local InvisAnim = arg1.Character.Humanoid.Animator:LoadAnimation(arg1.Character.Invisible) 
@@ -225,12 +277,7 @@ function Saken.Function()
         end
     end
 
-
-    local Landing = game:GetService("ReplicatedStorage").Systems.Character.Miscellaneous.SlowOnLanding
     Landing:Destroy() 
-
-    
-    local ChatConfig = game:GetService("TextChatService").ChatWindowConfiguration
 
     ChatConfig.Enabled = true
 
