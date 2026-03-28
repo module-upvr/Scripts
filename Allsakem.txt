@@ -22,12 +22,12 @@ function Saken.Esp()
     local function createESP(object, color)
         local highlight = Instance.new("Highlight")
         local h, s, v = color:ToHSV()
-        local brighterColor = Color3.fromHSV(h, s, math.clamp(v + 0.2, 0, 1))
+        local color2 = Color3.fromHSV(h, s, math.clamp(v - 0.2, 0, 1))
 
         highlight.FillTransparency = 0.9
         highlight.OutlineTransparency = 0.85
-        highlight.FillColor = color
-        highlight.OutlineColor = brighterColor -- Otomatis jadi versi terang
+        highlight.FillColor = color2
+        highlight.OutlineColor = color
         highlight.Parent = object
     
         return highlight
