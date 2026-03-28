@@ -23,7 +23,7 @@ function Saken.Esp()
         local highlight = Instance.new("Highlight")
 
         highlight.FillTransparency = 0.9
-        highlight.OutlineTransparency = 0.5
+        highlight.OutlineTransparency = 0.8
         highlight.FillColor = color
         highlight.OutlineColor = color
         highlight.Parent = object
@@ -65,6 +65,9 @@ function Saken.Esp()
         task.wait(2.6) 
         updateESP()
     end) 
+    while task.wait(0.67) do
+        updateESP() 
+    end
 end
 
 function Saken.AutoGen() 
