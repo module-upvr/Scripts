@@ -21,8 +21,8 @@ local crouchThread = nil
 function Saken.Esp() 
     local function createESP(object, color)
         local highlight = Instance.new("Highlight")
-        highlight.FillTransparency = 0.85
-        highlight.OutlineTransparency = 0
+        highlight.FillTransparency = 0.91
+        highlight.OutlineTransparency = 0.85
         highlight.FillColor = color
         highlight.OutlineColor = Color3.new(1,1,1)
         highlight.Parent = object
@@ -30,7 +30,7 @@ function Saken.Esp()
     end
 
     local function updateESP()
-        for _, v in pairs(workspace.Map.Ingame:GetDescendants()) do
+        for _, v in ipairs(workspace.Map.Ingame:GetDescendants()) do
             if v.Name == "Medkit" and v:IsA("Tool") then
                 if v:FindFirstChild("Highlight") then v.Highlight:Destroy() end
                 createESP(v, Color3.new(1,1,0))
@@ -40,6 +40,18 @@ function Saken.Esp()
             elseif v.Name == "Generator" and v:IsA("Model") and v.Parent.Name ~= "Instances" then
                 if v:FindFirstChild("Highlight") then v.Highlight:Destroy() end
                 createESP(v, Color3.new(1,0,1))
+            end
+        end
+        for _, v in ipairs(workspace.Players.Survivors:GetChildren()) do
+            if v:GetAttribute("Username") ~= Player.Name then
+                if v:FindFirstChild("Highlight") then v.Highlight:Destroy() end
+                createESP(v, Color3.new(0, 1, 0)) 
+            end
+        end
+        for _, v in ipairs(workspace.Players.Killers:GetChildren()) do
+            if v:GetAttribute("Username") ~= Player.Name then
+                if v:FindFirstChild("Highlight") then v.Highlight:Destroy() end
+                createESP(v, Color3.new(1, 0, 0))
             end
         end
     end
