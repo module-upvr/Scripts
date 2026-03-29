@@ -22,7 +22,7 @@ local crouchThread = nil
 function Saken.Esp()
     local function createESP(object, color)
         if object:FindFirstChild("SakenLight") then return end
-        task.wait(2.6) 
+
         local highlight = Instance.new("Highlight")
         highlight.FillTransparency = 0.9
         highlight.OutlineTransparency = 0.8
@@ -67,7 +67,10 @@ function Saken.Esp()
     end
     
     updateESP()
-    Player.CharacterAdded:Connect(updateESP)
+    Player.CharacterAdded:Connect(function() 
+        task.wait(3)
+        updateESP()
+    end)
     Run.Heartbeat:Connect(function()
         for _, v in ipairs(PlayerFolder.Survivors:GetChildren()) do
             plrESP(v, Color3.new(0, 1, 0))
