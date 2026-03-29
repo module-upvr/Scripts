@@ -35,7 +35,7 @@ function Saken.Esp()
     local plrESP
     plrESP = function(object, color)
         if object:FindFirstChild("SakenLight") then return end
-        if v:GetAttribute("Username") ~= Player.Name then
+        if object:GetAttribute("Username") ~= Player.Name then
 
             local highlight = Instance.new("Highlight")
             highlight.Name = "SakenLight"
