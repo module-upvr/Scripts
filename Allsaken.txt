@@ -285,59 +285,68 @@ function Saken:Function()
         end) 
     end
 
-    local function SliderGuiSaken()
-        -- Frame Utama Slider
-        local SliderFrame = Instance.new("Frame", Gui)
-        SliderFrame.Size = UDim2.new(0, 200, 0, 20)
-        SliderFrame.Position = UDim2.new(0.05, 0, 0.9, 0) -- Pojok kiri bawah agar tidak ganggu
-        SliderFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+local function SliderGuiSaken()
+    -- Frame Utama Slider
+    local SliderFrame = Instance.new("Frame", Gui)
+    SliderFrame.Size = UDim2.new(0, 200, 0, 20)
+    SliderFrame.Position = UDim2.new(0.05, 0, 0.9, 0)
+    SliderFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    SliderFrame.Active = true -- Penting agar input touch terbaca dengan baik
 
-        -- Indikator Slider (Bagian yang bergerak)
-        local Indicator = Instance.new("Frame", SliderFrame)
-        Indicator.Size = UDim2.new(0, 10, 1, 0)
-        Indicator.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Warna merah (gaya 1x1x1x1)
-        Indicator.BorderSizePixel = 0
+    -- Indikator Slider (Bagian yang bergerak)
+    local Indicator = Instance.new("Frame", SliderFrame)
+    Indicator.Size = UDim2.new(0, 10, 1, 0)
+    Indicator.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    Indicator.BorderSizePixel = 0
 
-        -- Label Teks
-        local Label = Instance.new("TextLabel", SliderFrame)
-        Label.Size = UDim2.new(1, 0, 1, 0)
-        Label.BackgroundTransparency = 1
-        Label.TextColor3 = Color3.new(1, 1, 1)
-        Label.Text = "MaxZoom: 128"
-        Label.TextSize = 12
+    -- Label Teks
+    local Label = Instance.new("TextLabel", SliderFrame)
+    Label.Size = UDim2.new(1, 0, 1, 0)
+    Label.BackgroundTransparency = 1
+    Label.TextColor3 = Color3.new(1, 1, 1)
+    Label.Text = "MaxZoom: 20"
+    Label.TextSize = 12
 
-        SliderFrame.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                dragging = true
-            end
-        end)
-
-        UserInputService.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                dragging = false
-            end
-        end)
-
-        UserInputService.InputChanged:Connect(function(input)
-            if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-                local mousePos = UserInputService:GetMouseLocation().X
-                local framePos = SliderFrame.AbsolutePosition.X
-                local frameSize = SliderFrame.AbsoluteSize.X
+    local function updateZoom(input)
+        -- Menggunakan Position.X agar support Touch dan Mouse
+        local inputPos = input.Position.X
+        local framePos = SliderFrame.AbsolutePosition.X
+        local frameSize = SliderFrame.AbsoluteSize.X
         
-                -- Hitung persentase (0 sampai 1)
-                local percent = math.clamp((mousePos - framePos) / frameSize, 0, 1)
+        local percent = math.clamp((inputPos - framePos) / frameSize, 0, 1)
         
-                -- Update Posisi Visual
-                Indicator.Position = UDim2.new(percent, -5, 0, 0)
+        -- Update Posisi Visual
+        Indicator.Position = UDim2.new(percent, -5, 0, 0)
         
-                 -- Update MaxZoom (Range: 70 sampai 1000)
-                local zoomValue = math.floor(70 + (percent * 930))
-                Player.MaxZoom = zoomValue
-                Player.CameraMaxZoomDistance = zoomValue
-                Label.Text = "MaxZoom: " .. tostring(zoomValue)
-            end
-        end)
+        -- Hitung Zoom (Range 20 sampai 1000)
+        local zoomValue = math.floor(20 + (percent * 980))
+        Player.CameraMaxZoomDistance = zoomValue
+        Label.Text = "MaxZoom: " .. tostring(zoomValue)
     end
+
+    -- Deteksi Input Began (PC: MouseButton1, Mobile: Touch)
+    SliderFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            updateZoom(input) -- Langsung update saat ditekan
+        end
+    end)
+
+    -- Deteksi Input Ended
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+
+    -- Deteksi Input Changed (PC: MouseMovement, Mobile: Touch)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateZoom(input)
+        end
+    end)
+end
+
 
     Player.CameraMaxZoomDistance = 20
     GuiSaken(Player.Character) 
