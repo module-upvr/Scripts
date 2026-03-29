@@ -75,17 +75,19 @@ function Saken.Esp()
     updateESP()
 
     Player.CharacterAdded:Connect(function()
-        task.wait(2.6)
-        updateESP()
+        task.wait(2.6) 
+        updateESP() 
     end)
 
     PlayerFolder.Survivors.ChildAdded:Connect(function(v)
+        task.wait(1) 
         if v:GetAttribute("Username") ~= Player.Name then
             plrESP(v, Color3.new(0, 1, 0))
         end
     end)
 
     PlayerFolder.Killers.ChildAdded:Connect(function(v)
+        task.wait(1) 
         if v:GetAttribute("Username") ~= Player.Name then
             plrESP(v, Color3.new(1, 0, 0))
         end
