@@ -218,9 +218,7 @@ function Saken:Function()
         local PC = Rig
         if not PC then return end
 
-        if PC:WaitForChild("SpeedMultipliers"):FindFirstChild("DirectionalMovement") then
-            PC.SpeedMultipliers.DirectionalMovement:Destroy()
-        end
+        PC:WaitForChild("SpeedMultipliers"):WaitForChild("DirectionalMovement"):Destroy() 
         
         local Invis = Instance.new("Animation", PC) 
         Invis.AnimationId = "rbxassetid://75804462760596"
