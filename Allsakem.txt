@@ -298,7 +298,7 @@ function Saken.Function()
         end
     end
 
-    if Landing then pcall(function() Landing:Destroy() end) end
+    if Landing then Landing:Destroy() end
 
     ChatConfig.Enabled = true
 
