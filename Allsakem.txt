@@ -53,7 +53,7 @@ function Saken.Esp()
 
         Progress:GetPropertyChangedSignal("Value"):Connect(function()
             if Progress.Value == 100 then
-                Esp.Enabled == false
+                Esp.Enabled = false
             end
         end) 
     end
