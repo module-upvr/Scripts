@@ -22,7 +22,7 @@ local crouchThread = nil
 function Saken.Esp()
     local function createESP(parent, object, color)
         if object:FindFirstChild("SakenLight") then return end
-        parent:WaitForChild(object.Name) 
+        pcall(function() parent:WaitForChild("Map"):WaitForChild(object.Name) end) 
 
         local highlight = Instance.new("Highlight")
         highlight.FillTransparency = 0.9
