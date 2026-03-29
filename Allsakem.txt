@@ -19,7 +19,7 @@ local MapFolder = workspace.Map.Ingame
 local IsCr = false
 local crouchThread = nil
 
-function Saken.Esp()
+function Saken:Esp()
     local function createESP(object, color)
         if object:FindFirstChild("SakenLight") then return end
 
@@ -48,7 +48,7 @@ function Saken.Esp()
 
     local function HandleGenESP(gen) 
         local Progress = gen:FindFirstChild("Progress") 
-        local Esp = gen:FindFirstChild("Sakenlight") 
+        local Esp = gen:FindFirstChild("SakenLight") 
         if not Esp or not Progress then return end
 
         Progress:GetPropertyChangedSignal("Value"):Connect(function()
@@ -95,7 +95,7 @@ function Saken.Esp()
     end)
 end
 
-function Saken.AutoGen() 
+function Saken:AutoGen() 
     local function solvgen()
         for _, v in pairs(workspace.Map.Ingame.Map:GetDescendants()) do
             if v:IsA("RemoteEvent") then
@@ -132,7 +132,7 @@ function Saken.AutoGen()
     end)
 end
 
-function Saken.Config() 
+function Saken:Config() 
     Sprinting.DefaultConfig.MinStamina = -5400
 
     for _, Kill in ipairs(Killers) do 
@@ -213,7 +213,7 @@ function Saken.Config()
     end
 end
 
-function Saken.Function() 
+function Saken:Function() 
     local function AnimSaken(Rig) 
         local PC = Rig
         if not PC then return end
