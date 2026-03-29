@@ -19,80 +19,74 @@ local PlayerFolder = game.workspace.Players
 local IsCr = false
 local crouchThread = nil
 
-function Saken.Esp() 
+function Saken.Esp()
     local function createESP(object, color)
+        if object:FindFirstChild("SakenLight") then return end
         local highlight = Instance.new("Highlight")
-
         highlight.FillTransparency = 0.9
         highlight.OutlineTransparency = 0.8
         highlight.FillColor = color
         highlight.OutlineColor = color
         highlight.Parent = object
         highlight.Name = "SakenLight"
-    
         return highlight
     end
--- Fungsi utama (sudah pakai rekursi dari sebelumnya)
-local plrESP
-plrESP = function(object, color)
-    -- Hindari double ESP
-    if object:FindFirstChild("SakenLight") then return end
 
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "SakenLight"
-    highlight.FillTransparency = 0.9
-    highlight.FillColor = color
-    highlight.Parent = object
+    local plrESP
+    plrESP = function(object, color)
+        if object:FindFirstChild("SakenLight") then return end
+        if v:GetAttribute("Username") ~= Player.Name then
 
-    -- Rekursi jika ESP dihancurkan secara paksa
-    highlight.Destroying:Connect(function()
-        task.wait(0.5)
-        if object and object:IsDescendantOf(game) then
-            createESP(object, color)
+            local highlight = Instance.new("Highlight")
+            highlight.Name = "SakenLight"
+            highlight.FillTransparency = 0.9
+            highlight.FillColor = color
+            highlight.Parent = object
+
+            highlight.Destroying:Connect(function()
+                task.wait(0.5)
+                if object and object:IsDescendantOf(PlayerFolder) then
+                    plrESP(object, color)
+                end
+            end)
         end
-    end)
-end
+    end
 
     local function updateESP()
         for _, v in ipairs(workspace.Map.Ingame:GetDescendants()) do
             if v.Name == "Medkit" and v:IsA("Tool") then
-                if v:FindFirstChild("Sakenlight") then v.Highlight:Destroy() end
-                createESP(v, Color3.new(1,1,0))
+                createESP(v, Color3.new(1, 1, 0))
             elseif v.Name == "BloxyCola" and v:IsA("Tool") then
-                if v:FindFirstChild("Sakenlight") then v.Highlight:Destroy() end
-                createESP(v, Color3.new(0,0,1))
+                createESP(v, Color3.new(0, 0, 1))
             elseif v.Name == "Generator" and v:IsA("Model") and v.Parent.Name ~= "Instances" then
-                if v:FindFirstChild("Sakenlight") then v.Highlight:Destroy() end
-                createESP(v, Color3.new(1,0,1))
+                createESP(v, Color3.new(1, 0, 1))
             end
         end
-        for _, v in ipairs(workspace.Players.Survivors:GetChildren()) do
-            if v:GetAttribute("Username") ~= Player.Name then
-                if v:FindFirstChild("Sakenlight") then v.Highlight:Destroy() end
-                plrESP(v, Color3.new(0, 1, 0)) 
-            end
+
+        for _, v in ipairs(PlayerFolder.Survivors:GetChildren()) do
+            plrESP(v, Color3.new(0, 1, 0))
         end
-        for _, v in ipairs(workspace.Players.Killers:GetChildren()) do
-            if v:GetAttribute("Username") ~= Player.Name then
-                if v:FindFirstChild("Sakenlight") then v.Highlight:Destroy() end
-                plrESP(v, Color3.new(1, 0, 0))
-            end
+
+        for _, v in ipairs(PlayerFolder.Killers:GetChildren()) do
+            plrESP(v, Color3.new(1, 0, 0))
         end
     end
 
-    updateESP() 
-    Player.CharacterAdded:Connect(function() 
-        task.wait(2.6) 
+    updateESP()
+
+    Player.CharacterAdded:Connect(function()
+        task.wait(2.6)
         updateESP()
-    end) 
+    end)
 
     PlayerFolder.Survivors.ChildAdded:Connect(function(v)
-        if v.Name ~= LocalPlayer.Name then
+        if v:GetAttribute("Username") ~= Player.Name then
             plrESP(v, Color3.new(0, 1, 0))
         end
     end)
+
     PlayerFolder.Killers.ChildAdded:Connect(function(v)
-        if v.Name ~= LocalPlayer.Name then
+        if v:GetAttribute("Username") ~= Player.Name then
             plrESP(v, Color3.new(1, 0, 0))
         end
     end)
