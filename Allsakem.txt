@@ -46,6 +46,18 @@ function Saken.Esp()
         highlight.Parent = object  
     end
 
+    local function HandleGenESP(gen) 
+        local Progress = gen:FindFirstChild("Progress") 
+        local Esp = gen:FindFirstChild("Sakenlight") 
+        if not Esp or not Progress then return end
+
+        Progress:GetPropertyChangedSignal("Value"):Connect(function()
+            if Value == 100 then
+                Esp.Enabled == false
+            end
+        end) 
+    end
+
     local function updateESP()
         for _, v in ipairs(MapFolder:GetDescendants()) do
             if v.Name == "Medkit" and v:IsA("Tool") then
@@ -54,6 +66,7 @@ function Saken.Esp()
                 createESP(v, Color3.new(0, 0, 1))
             elseif v.Name == "Generator" and v:IsA("Model") and v.Parent.Name ~= "Instances" then
                 createESP(v, Color3.new(1, 0, 1))
+                HandleGenESP(v) 
             end
         end
 
