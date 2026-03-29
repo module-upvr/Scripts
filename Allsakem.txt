@@ -20,7 +20,7 @@ local IsCr = false
 local crouchThread = nil
 
 function Saken.Esp()
-    local function createESP(parent, object, color)
+    local function createESP(object, color)
         if object:FindFirstChild("SakenLight") then return end
         task.wait(2.6) 
         local highlight = Instance.new("Highlight")
@@ -30,6 +30,7 @@ function Saken.Esp()
         highlight.OutlineColor = color
         highlight.Parent = object
         highlight.Name = "SakenLight"
+        highlight.Adornee = object
     end
 
     local plrESP
@@ -48,11 +49,11 @@ function Saken.Esp()
     local function updateESP()
         for _, v in ipairs(MapFolder:GetDescendants()) do
             if v.Name == "Medkit" and v:IsA("Tool") then
-                createESP(MapFolder, v, Color3.new(1, 1, 0))
+                createESP(v, Color3.new(1, 1, 0))
             elseif v.Name == "BloxyCola" and v:IsA("Tool") then
-                createESP(MapFolder, v, Color3.new(0, 0, 1))
+                createESP(v, Color3.new(0, 0, 1))
             elseif v.Name == "Generator" and v:IsA("Model") and v.Parent.Name ~= "Instances" then
-                createESP(MapFolder, v, Color3.new(1, 0, 1))
+                createESP(v, Color3.new(1, 0, 1))
             end
         end
 
