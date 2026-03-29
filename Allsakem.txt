@@ -5,13 +5,12 @@ local Run = game:GetService("RunService")
 local PlayerG = Player.PlayerGui
 local Killers = game:GetService("ReplicatedStorage").Assets.Killers:GetChildren() 
 local Survivors = game:GetService("ReplicatedStorage").Assets.Survivors:GetChildren()
-local guest = game:GetService("ReplicatedStorage").Assets.Skins.Survivors.Guest1337:GetChildren() 
 local Sprinting = require(game:GetService("ReplicatedStorage").Systems.Character.Game.Sprinting)
 local ragdolls = require(game:GetService("ReplicatedStorage").Modules.Ragdolls) 
 local blind = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Blindness)
 local Undetect = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Undetectable)
 local ChatConfig = game:GetService("TextChatService").ChatWindowConfiguration
-local Landing = game:GetService("ReplicatedStorage").Systems.Character.Miscellaneous.SlowOnLanding
+local Landing = game:GetService("ReplicatedStorage").Systems.Character.Miscellaneous:FindFirstChild("SlowOnLanding")
 local Able = require(game:GetService("ReplicatedStorage").Assets.Survivors.TwoTime.Behavior).Abilities
 local Util = require(game:GetService("ReplicatedStorage").Modules.Util)
 local PlayerFolder = game.workspace.Players
@@ -35,21 +34,14 @@ function Saken.Esp()
     local plrESP
     plrESP = function(object, color)
         if object:FindFirstChild("SakenLight") then return end
-        if object:GetAttribute("Username") ~= Player.Name then
+        if object:GetAttribute("Username") == Player.Name then continue endpp55
 
-            local highlight = Instance.new("Highlight")
-            highlight.Name = "SakenLight"
-            highlight.FillTransparency = 0.9
-            highlight.FillColor = color
-            highlight.Parent = object
-
-            highlight.Destroying:Connect(function()
-                task.wait(0.5)
-                if object and object:IsDescendantOf(PlayerFolder) then
-                    plrESP(object, color)
-                end
-            end)
-        end
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "SakenLight"
+        highlight.FillTransparency = 0.9
+        highlight.OutlineTransparency = 0.8
+        highlight.FillColor = color
+        highlight.Parent = object  
     end
 
     local function updateESP()
@@ -71,27 +63,17 @@ function Saken.Esp()
             plrESP(v, Color3.new(1, 0, 0))
         end
     end
-
     updateESP()
-
-    Player.CharacterAdded:Connect(function()
-        task.wait(2.6) 
-        updateESP() 
-    end)
-
-    PlayerFolder.Survivors.ChildAdded:Connect(function(v)
-        task.wait(1) 
-        if v:GetAttribute("Username") ~= Player.Name then
+    Player.CharacterAdded:Connect(updateESP)
+    Run.Heartbeat:Connect(function()
+        for _, v in ipairs(PlayerFolder.Survivors:GetChildren()) do
             plrESP(v, Color3.new(0, 1, 0))
         end
-    end)
 
-    PlayerFolder.Killers.ChildAdded:Connect(function(v)
-        task.wait(1) 
-        if v:GetAttribute("Username") ~= Player.Name then
+        for _, v in ipairs(PlayerFolder.Killers:GetChildren()) do
             plrESP(v, Color3.new(1, 0, 0))
         end
-    end)
+    end
 end
 
 function Saken.AutoGen() 
@@ -103,7 +85,7 @@ function Saken.AutoGen()
         end
     end
 
-    if getgenv().loop then 
+    if getgenv().loop then  -- executor is Delta, SUPPORTED!!!
         getgenv().loop:Disconnect() 
         getgenv().loop = nil 
     end
@@ -135,6 +117,7 @@ function Saken.Config()
     Sprinting.DefaultConfig.MinStamina = -5400
 
     for _, Kill in ipairs(Killers) do 
+        if not Kill:FindFirstChild("Config") then continue end
         require(Kill.Config).Speed =  13
         require(Kill.Config).SprintSpeed = 32
         if Kill.Name == "Noli" then
@@ -151,17 +134,10 @@ function Saken.Config()
     end 
 
     for _, Surv in ipairs(Survivors) do 
+        if not Surv:FindFirstChild("Config") then continue end
         require(Surv.Config).Speed = 16
         require(Surv.Config).SprintSpeed = 30
-        if Surv.Name == "Guest1337" then
-            require(Surv.Config).Animations.Block = "rbxassetid://107327732473479"
-            require(Surv.Config).PunchDashForce = 110
-            for _, v in ipairs(guest) do
-                if require(v.Config).Animations then
-                    require(v.Config).Animations.Block = "rbxassetid://0000"
-                end
-            end
-        elseif Surv.Name == "Veeronica" then
+        if Surv.Name == "Veeronica" then
             require(Surv.Config).Sk8TurnControl = 6
         elseif Surv.Name == "TwoTime" then
             require(Surv.Config).CrouchSpeed = 15
@@ -320,7 +296,7 @@ function Saken.Function()
         end
     end
 
-    Landing:Destroy() 
+    if Landing then Landing:Destroy() end -- uses FindFirstChild check
 
     ChatConfig.Enabled = true
 
