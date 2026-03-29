@@ -14,13 +14,16 @@ local Landing = game:GetService("ReplicatedStorage").Systems.Character.Miscellan
 local Able = require(game:GetService("ReplicatedStorage").Assets.Survivors.TwoTime.Behavior).Abilities
 local Util = require(game:GetService("ReplicatedStorage").Modules.Util)
 local PlayerFolder = game.workspace.Players
+local MapFolder = workspace.Map.Ingame
 
 local IsCr = false
 local crouchThread = nil
 
 function Saken.Esp()
-    local function createESP(object, color)
+    local function createESP(parent, object, color)
         if object:FindFirstChild("SakenLight") then return end
+        parent:WaitForChild(object.Name) 
+
         local highlight = Instance.new("Highlight")
         highlight.FillTransparency = 0.9
         highlight.OutlineTransparency = 0.8
@@ -45,13 +48,13 @@ function Saken.Esp()
     end
 
     local function updateESP()
-        for _, v in ipairs(workspace.Map.Ingame:GetDescendants()) do
+        for _, v in ipairs(MapFolder:GetDescendants()) do
             if v.Name == "Medkit" and v:IsA("Tool") then
-                createESP(v, Color3.new(1, 1, 0))
+                createESP(MapFolder, v, Color3.new(1, 1, 0))
             elseif v.Name == "BloxyCola" and v:IsA("Tool") then
-                createESP(v, Color3.new(0, 0, 1))
+                createESP(MapFolder, v, Color3.new(0, 0, 1))
             elseif v.Name == "Generator" and v:IsA("Model") and v.Parent.Name ~= "Instances" then
-                createESP(v, Color3.new(1, 0, 1))
+                createESP(MapFolder, v, Color3.new(1, 0, 1))
             end
         end
 
