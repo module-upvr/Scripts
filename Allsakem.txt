@@ -33,8 +33,8 @@ function Saken.Esp()
 
     local plrESP
     plrESP = function(object, color)
-        if object:FindFirstChild("SakenLight") then return end
-        if object:GetAttribute("Username") == Player.Name then continue endpp55
+        if not object or object:FindFirstChild("SakenLight") then return end
+        if object:GetAttribute("Username") == Player.Name then return end
 
         local highlight = Instance.new("Highlight")
         highlight.Name = "SakenLight"
@@ -63,6 +63,7 @@ function Saken.Esp()
             plrESP(v, Color3.new(1, 0, 0))
         end
     end
+    
     updateESP()
     Player.CharacterAdded:Connect(updateESP)
     Run.Heartbeat:Connect(function()
@@ -73,7 +74,7 @@ function Saken.Esp()
         for _, v in ipairs(PlayerFolder.Killers:GetChildren()) do
             plrESP(v, Color3.new(1, 0, 0))
         end
-    end
+    end)
 end
 
 function Saken.AutoGen() 
@@ -85,7 +86,7 @@ function Saken.AutoGen()
         end
     end
 
-    if getgenv().loop then  -- executor is Delta, SUPPORTED!!!
+    if getgenv().loop then
         getgenv().loop:Disconnect() 
         getgenv().loop = nil 
     end
@@ -144,6 +145,7 @@ function Saken.Config()
             require(Surv.Config).CrouchRunSpeed = 30
         end
     end
+    
     local function stopTimer()
         if crouchThread then
             task.cancel(crouchThread)
@@ -183,9 +185,7 @@ function Saken.Config()
 
     Able.Crouch.Callback = function(arg1)
         stopTimer() 
-        
         IsCr = true
-    
         crouchThread = task.delay(15, function()
             if IsCr then
                 IsCr = false
@@ -200,7 +200,9 @@ function Saken.Function()
         local PC = Rig
         if not PC then return end
 
-        PC:WaitForChild("SpeedMultipliers"):WaitForChild("DirectionalMovement"):Destroy() 
+        if PC:WaitForChild("SpeedMultipliers"):FindFirstChild("DirectionalMovement") then
+            PC.SpeedMultipliers.DirectionalMovement:Destroy()
+        end
         
         local Invis = Instance.new("Animation", PC) 
         Invis.AnimationId = "rbxassetid://75804462760596"
@@ -283,11 +285,8 @@ function Saken.Function()
             local Animator = Humanoid and Humanoid:FindFirstChildOfClass("Animator")
             
             if Animator then
-                -- Ambil ID dari objek animasi yang Anda gunakan di fungsi Applied
                 local targetId = arg1.Character.Invisible.AnimationId
-                
                 for _, track in pairs(Animator:GetPlayingAnimationTracks()) do
-                    -- Cek apakah AnimationId track mengandung targetId
                     if track.Animation and string.find(track.Animation.AnimationId, targetId) then
                         track:Stop()
                     end
@@ -296,7 +295,7 @@ function Saken.Function()
         end
     end
 
-    if Landing then Landing:Destroy() end -- uses FindFirstChild check
+    if Landing then pcall(function() Landing:Destroy() end) end
 
     ChatConfig.Enabled = true
 
