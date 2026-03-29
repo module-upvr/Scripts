@@ -3,6 +3,12 @@ local Saken = {}
 local Player = game:GetService("Players").LocalPlayer
 local Run = game:GetService("RunService")
 local PlayerG = Player.PlayerGui
+local Gui = Instance.new("ScreenGui", PlayerG) 
+Gui.Name = "SakenGui"
+Gui.ResetOnSpawn = true
+local SliderGui = Instance.new("ScreenGui", PlayerG) 
+SliderGui.Name = "SliderSakenGui"
+SliderGui.ResetOnSpawn = false
 local Killers = game:GetService("ReplicatedStorage").Assets.Killers:GetChildren() 
 local Survivors = game:GetService("ReplicatedStorage").Assets.Survivors:GetChildren()
 local Sprinting = require(game:GetService("ReplicatedStorage").Systems.Character.Game.Sprinting)
@@ -243,10 +249,29 @@ function Saken:Function()
         local BlockAnim = Animator:LoadAnimation(Block) 
         BlockAnim.Priority = Enum.AnimationPriority.Action4
 
-        local Gui = Instance.new("ScreenGui", PlayerG) 
-        Gui.Name = "SakenGui"
-        Gui.ResetOnSpawn = true
+        local Bool, Bool2 = false, false
 
+        TextButton3.MouseButton1Click:Connect(function() 
+            if not Bool2 then
+                PC.Humanoid.PlatformStand = true
+                require(game:GetService("ReplicatedStorage").Modules.Sounds):Play("ragdolledLol", {Parent = PC.PrimaryPart}) 
+                Bool2 = true
+                pcall(function() ragdolls.EnableRagdoll(PC) end) 
+            else
+                ragdolls.DisableRagdoll(PC)
+                PC.Humanoid.PlatformStand = false
+                Bool2 = false
+            end
+        end) 
+
+        TextButton2.MouseButton1Click:Connect(function() BlockAnim:Play() end) 
+
+        TextButton.MouseButton1Click:Connect(function() 
+            if not Bool then JerkAnim:Play() Bool = true else JerkAnim:Stop() Bool = false end
+        end) 
+    end
+
+    local function SliderGuiSaken()
         local TextButton = Instance.new("TextButton", Gui) 
         TextButton.Size = UDim2.new(0.1, 0, 0.1, 0) 
         TextButton.Text = "Goon"
@@ -281,8 +306,6 @@ function Saken:Function()
         Label.Text = "MaxZoom: 128"
         Label.TextSize = 12
 
-        local Bool, Bool2 = false, false
-
         SliderFrame.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 then
                 dragging = true
@@ -314,29 +337,11 @@ function Saken:Function()
                 Label.Text = "MaxZoom: " .. tostring(zoomValue)
             end
         end)
-
-        TextButton3.MouseButton1Click:Connect(function() 
-            if not Bool2 then
-                PC.Humanoid.PlatformStand = true
-                require(game:GetService("ReplicatedStorage").Modules.Sounds):Play("ragdolledLol", {Parent = PC.PrimaryPart}) 
-                Bool2 = true
-                pcall(function() ragdolls.EnableRagdoll(PC) end) 
-            else
-                ragdolls.DisableRagdoll(PC)
-                PC.Humanoid.PlatformStand = false
-                Bool2 = false
-            end
-        end) 
-
-        TextButton2.MouseButton1Click:Connect(function() BlockAnim:Play() end) 
-
-        TextButton.MouseButton1Click:Connect(function() 
-            if not Bool then JerkAnim:Play() Bool = true else JerkAnim:Stop() Bool = false end
-        end) 
     end
 
     Player.CameraMaxZoomDistance = 20
     GuiSaken(Player.Character) 
+    SliderGuiSaken() 
     Player.CharacterAdded:Connect(function(Rig) 
         GuiSaken(Rig)
     end) 
