@@ -22,16 +22,14 @@ local crouchThread = nil
 function Saken.Esp()
     local function createESP(parent, object, color)
         if object:FindFirstChild("SakenLight") then return end
-            task.wait(2.6) 
-            local highlight = Instance.new("Highlight")
-            highlight.FillTransparency = 0.9
-            highlight.OutlineTransparency = 0.8
-            highlight.FillColor = color
-            highlight.OutlineColor = color
-            highlight.Parent = object
-            highlight.Name = "SakenLight"
-            return highlight
-        end
+        task.wait(2.6) 
+        local highlight = Instance.new("Highlight")
+        highlight.FillTransparency = 0.9
+        highlight.OutlineTransparency = 0.8
+        highlight.FillColor = color
+        highlight.OutlineColor = color
+        highlight.Parent = object
+        highlight.Name = "SakenLight"
     end
 
     local plrESP
