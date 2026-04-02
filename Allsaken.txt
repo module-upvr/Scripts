@@ -43,6 +43,7 @@ local ChatConfig = game:GetService("TextChatService").ChatWindowConfiguration
 local Landing = getModule("SlowOnLanding", false) 
 local Able = require(game:GetService("ReplicatedStorage").Assets.Survivors.TwoTime.Behavior).Abilities
 local Util = getModule("Util", true) 
+local Sounds = getModule("Sounds", true) 
 local PlayerFolder = game.workspace.Players
 local MapFolder = workspace.Map.Ingame
 
@@ -290,7 +291,7 @@ function Saken:Function()
         TextButton3.MouseButton1Click:Connect(function() 
             if not Bool2 then
                 PC.Humanoid.PlatformStand = true
-                require(game:GetService("ReplicatedStorage").Modules.Sounds):Play("ragdolledLol", {Parent = PC.PrimaryPart}) 
+                Sounds:Play("ragdolledLol", {Parent = PC.PrimaryPart}) 
                 Bool2 = true
                 pcall(function() ragdolls.EnableRagdoll(PC) end) 
             else
