@@ -1,28 +1,41 @@
 local Saken = {}
 
+local function getModule(Name, req) 
+    local var
+
+    for _, v in ipairs(game:GetService("ReplicatedStorage").Modules:GetDescendants()) do
+        if v.Name == Name then
+            var = v
+        end
+    end
+
+    if var == nil then return end
+
+    if req then
+        return require(v) 
+    else
+        return v
+    end
+end
+
 local Player = game:GetService("Players").LocalPlayer
 local Run = game:GetService("RunService")
 local PlayerG = Player.PlayerGui
 local Gui = Instance.new("ScreenGui", PlayerG) 
 Gui.Name = "SakenGui"
 Gui.ResetOnSpawn = true
-local SliderGui = Instance.new("ScreenGui", PlayerG) 
-SliderGui.Name = "SliderSakenGui"
-SliderGui.ResetOnSpawn = false
 local Killers = game:GetService("ReplicatedStorage").Assets.Killers:GetChildren() 
 local Survivors = game:GetService("ReplicatedStorage").Assets.Survivors:GetChildren()
-local Sprinting = require(game:GetService("ReplicatedStorage").Systems.Character.Game.Sprinting)
-local ragdolls = require(game:GetService("ReplicatedStorage").Modules.Ragdolls) 
-local blind = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Blindness)
-local Undetect = require(game:GetService("ReplicatedStorage").Modules.StatusEffects.Undetectable)
+local Sprinting = getModule("Sprinting", true) 
+local ragdolls = getModule("Ragdolls", true) 
+local blind = getModule("Blindness", true) 
+local Undetect = getModule("Undetectable", true) 
 local ChatConfig = game:GetService("TextChatService").ChatWindowConfiguration
-local Landing = game:GetService("ReplicatedStorage").Systems.Character.Miscellaneous:FindFirstChild("SlowOnLanding")
+local Landing = getModule("SlowOnLanding", false) 
 local Able = require(game:GetService("ReplicatedStorage").Assets.Survivors.TwoTime.Behavior).Abilities
-local Util = require(game:GetService("ReplicatedStorage").Modules.Util)
+local Util = getModule("Util", true) 
 local PlayerFolder = game.workspace.Players
 local MapFolder = workspace.Map.Ingame
-local UserInputService = game:GetService("UserInputService")
-local dragging = false
 
 local IsCr = false
 local crouchThread = nil
@@ -285,72 +298,9 @@ function Saken:Function()
         end) 
     end
 
-local function SliderGuiSaken()
-    -- Frame Utama Slider
-    local SliderFrame = Instance.new("Frame", Gui)
-    SliderFrame.Size = UDim2.new(0, 200, 0, 20)
-    SliderFrame.Position = UDim2.new(0.05, 0, 0.9, 0)
-    SliderFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    SliderFrame.Active = true -- Penting agar input touch terbaca dengan baik
 
-    -- Indikator Slider (Bagian yang bergerak)
-    local Indicator = Instance.new("Frame", SliderFrame)
-    Indicator.Size = UDim2.new(0, 10, 1, 0)
-    Indicator.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    Indicator.BorderSizePixel = 0
-
-    -- Label Teks
-    local Label = Instance.new("TextLabel", SliderFrame)
-    Label.Size = UDim2.new(1, 0, 1, 0)
-    Label.BackgroundTransparency = 1
-    Label.TextColor3 = Color3.new(1, 1, 1)
-    Label.Text = "MaxZoom: 20"
-    Label.TextSize = 12
-
-    local function updateZoom(input)
-        -- Menggunakan Position.X agar support Touch dan Mouse
-        local inputPos = input.Position.X
-        local framePos = SliderFrame.AbsolutePosition.X
-        local frameSize = SliderFrame.AbsoluteSize.X
-        
-        local percent = math.clamp((inputPos - framePos) / frameSize, 0, 1)
-        
-        -- Update Posisi Visual
-        Indicator.Position = UDim2.new(percent, -5, 0, 0)
-        
-        -- Hitung Zoom (Range 20 sampai 1000)
-        local zoomValue = math.floor(20 + (percent * 980))
-        Player.CameraMaxZoomDistance = zoomValue
-        Label.Text = "MaxZoom: " .. tostring(zoomValue)
-    end
-
-    -- Deteksi Input Began (PC: MouseButton1, Mobile: Touch)
-    SliderFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            updateZoom(input) -- Langsung update saat ditekan
-        end
-    end)
-
-    -- Deteksi Input Ended
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = false
-        end
-    end)
-
-    -- Deteksi Input Changed (PC: MouseMovement, Mobile: Touch)
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            updateZoom(input)
-        end
-    end)
-end
-
-
-    Player.CameraMaxZoomDistance = 20
-    GuiSaken(Player.Character) 
-    SliderGuiSaken() 
+    Player.CameraMaxZoomDistance = 150
+    GuiSaken(Player.Character)
     Player.CharacterAdded:Connect(function(Rig) 
         GuiSaken(Rig)
     end) 
