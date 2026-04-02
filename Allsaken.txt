@@ -30,9 +30,6 @@ end
 local Player = game:GetService("Players").LocalPlayer
 local Run = game:GetService("RunService")
 local PlayerG = Player.PlayerGui
-local Gui = Instance.new("ScreenGui", PlayerG) 
-Gui.Name = "SakenGui"
-Gui.ResetOnSpawn = true
 local Killers = game:GetService("ReplicatedStorage").Assets.Killers:GetChildren() 
 local Survivors = game:GetService("ReplicatedStorage").Assets.Survivors:GetChildren()
 local Sprinting = getModule("Sprinting", true) 
@@ -271,6 +268,10 @@ function Saken:Function()
 
         local BlockAnim = Animator:LoadAnimation(Block) 
         BlockAnim.Priority = Enum.AnimationPriority.Action4
+
+        local Gui = PlayerG:FindFirstChild("SakenGui") or Instance.new("ScreenGui", PlayerG) 
+        Gui.Name = "SakenGui"
+        Gui.ResetOnSpawn = true
 
         local TextButton = Instance.new("TextButton", Gui) 
         TextButton.Size = UDim2.new(0.1, 0, 0.1, 0) 
