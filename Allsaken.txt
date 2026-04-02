@@ -1,15 +1,24 @@
 local Saken = {}
 
+local Rep = game:GetService("ReplicatedStorage") 
+local Modules = Rep.Modules
+local Sys = Rep.Systems
 local function getModule(Name, req) 
     local var
 
-    for _, v in ipairs(game:GetService("ReplicatedStorage").Modules:GetDescendants()) do
+    for _, v in ipairs(Modules:GetDescendants()) do
         if v.Name == Name then
             var = v
         end
     end
 
-    if var == nil then print(Name, "IS NIL BRO WHY—") return nil end
+    if var == nil 
+        for _, v in ipairs(Sys:GetDescendants()) do
+            if v.Name == Name then
+                var = v
+            end
+        end
+    end
 
     if req then
         return require(var) 
