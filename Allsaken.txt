@@ -310,9 +310,9 @@ function Saken:Function()
 
 
     Player.CameraMaxZoomDistance = 150
-    GuiSaken(Player.Character)
+    task.spawn(GuiSaken, Player.Character)
     Player.CharacterAdded:Connect(function(Rig) 
-        GuiSaken(Rig)
+        task.spawn(GuiSaken, Rig)
     end) 
 
     blind.Applied = function() end
