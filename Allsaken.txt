@@ -12,9 +12,9 @@ local function getModule(Name, req)
     if var == nil then return end
 
     if req then
-        return require(v) 
+        return require(var) 
     else
-        return v
+        return var
     end
 end
 
