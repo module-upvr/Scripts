@@ -12,7 +12,7 @@ local function getModule(Name, req)
         end
     end
 
-    if var == nil 
+    if var == nil then
         for _, v in ipairs(Sys:GetDescendants()) do
             if v.Name == Name then
                 var = v
