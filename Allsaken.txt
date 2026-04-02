@@ -9,7 +9,7 @@ local function getModule(Name, req)
         end
     end
 
-    if var == nil then return end
+    if var == nil then print(Name, "IS NIL BRO WHY—") return nil end
 
     if req then
         return require(var) 
