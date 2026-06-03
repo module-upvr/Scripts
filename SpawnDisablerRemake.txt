@@ -43,7 +43,7 @@ local function getModule(Name, req)
 end
 
 local Util = getModule("Util", true)
-local Network = getModile("Network", true)
+local Network = getModule("Network", true)
 local Sprinting = getModule("Sprinting", true)
 local Actors = getModule("Actors", true)
 local loop
