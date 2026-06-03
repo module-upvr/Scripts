@@ -1,0 +1,351 @@
+local Fah = "Fahh.mp3"
+local url = "https://raw.githubusercontent.com/module-upvr/Scripts/main/Fahh.mp3"
+local source = game:HttpGet(url)
+
+if not isfile(Fah) then
+    local Fah = writefile("Fahh.mp3", source) 
+end
+
+local FahId = getcustomasset(Fah) 
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Modules = ReplicatedStorage.Modules
+local Sys = ReplicatedStorage.Systems
+local Debris = game:GetService("Debris") 
+local Tween = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+
+local function getModule(Name, req) 
+    local var
+
+    for _, v in ipairs(Modules:GetDescendants()) do
+        if v.Name == Name then
+            var = v
+        end
+    end
+
+    if var == nil then
+        for _, v in ipairs(Sys:GetDescendants()) do
+            if v.Name == Name then
+                var = v
+                break
+            end
+        end
+    end
+
+    if req then
+        return require(var) 
+    else
+        return var
+    end
+end
+
+local Util = getModule("Util", true)
+local Network = getModile("Network", true)
+local Sprinting = getModule("Sprinting", true)
+local Actors = getModule("Actors", true)
+local loop
+local lastEnragedState 
+local rotation = 0
+local check
+
+local Player = Players.LocalPlayer
+
+local Con = require(ReplicatedStorage.Assets.Killers.Slasher.Config)
+local Anims = Con.Animations
+local Brim = require(ReplicatedStorage.Assets.Killers["!Brimstone"].Config).Animations
+
+Anims.Idle = Brim.Idle
+Anims.Walk = Brim.Walk
+Anims.Run = Brim.Run
+Anims.EnragedIdle = "rbxassetid://86304511408042"
+Anims.EnragedWalk = "rbxassetid://129455514345450"
+Anims.EnragedRun = "rbxassetid://129455514345450"
+Anims.Slash = Brim.Slash
+Anims.EnragedSlash = "rbxassetid://119062842291223"
+Anims.Behead = Brim.Dash
+Anims.EnragedStart = "rbxassetid://78583699549296"
+
+local Abilities = require(ReplicatedStorage.Assets.Killers.Slasher.Behavior).Abilities
+
+Abilities.Behead.Callback = function(arg1) 
+    arg1.Animations.Behead:Play(0.075)
+    arg1.Animations.Behead:AdjustSpeed(0.4) 
+    task.delay(0.25, function() arg1.Animations.Behead:AdjustSpeed(1.2) end) 
+    
+    local speedMult = Util:CreateSpeedMultiplier(arg1.Rig, 1, "BeheadAbility")
+    Tween:Create(speedMult, TweenInfo.new(0.125), {
+        ["Value"] = arg1.State.isEnraged and arg1.Config.EnragedBeheadLunge or arg1.Config.BeheadLunge
+    }):Play()
+
+    task.delay(0.4, function()
+        task.delay(0.2, function() arg1.Animations.Behead:Stop(0.3) end) 
+        Tween:Create(speedMult, TweenInfo.new(0.3), { ["Value"] = 0.5 }):Play()
+        task.wait(0.6)
+        Tween:Create(speedMult, TweenInfo.new(0.3), { ["Value"] = 1 }):Play()
+        Debris:AddItem(speedMult, 0.3)
+    end)
+end
+
+Abilities.RagingPace.Callback = function(arg1)
+    local Sound = arg1.Rig.PrimaryPart:FindFirstChild("BattleCry")
+    arg1.Animations.EnragedStart:Play(0.025)
+    arg1.Animations.EnragedStart.TimePosition = 1.6
+    task.delay(0.45, function() if Sound then Sound:Play() end end) 
+    task.delay(1.21, function() arg1.Animations.EnragedStart:Stop(0.025) end)
+    arg1.AnimationType = "Enraged"
+    arg1.MovementAnimSpeed = 1
+    arg1.State.isEnraged = true
+    
+    Network:FireConnection("DisableSprinting", "ENRAGED", true)
+    
+    local fovMultiplier = Util:CreateFOVMultiplier(arg1.Player, 1, "RagingZoom")
+    
+    Tween:Create(fovMultiplier, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        ["Value"] = 0.925
+    }):Play()
+    
+    arg1.Instances.SpeedModifier = Util:CreateSpeedMultiplier(arg1.Rig, 1, "ENRAGED")
+    
+    Tween:Create(arg1.Instances.SpeedModifier, TweenInfo.new(0.75, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        ["Value"] = 0.1
+    }):Play()
+    
+    task.delay(0.5, function()
+        Tween:Create(arg1.Instances.SpeedModifier, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            ["Value"] = arg1.Config.EnragedSpeed / arg1.Config.Speed
+        }):Play()
+    end)
+    
+    local closestPlayer = Util:GetClosestPlayerFromPosition(arg1.Rig.PrimaryPart.Position)
+    if closestPlayer then
+        arg1.Meta.TargetedPlayer = closestPlayer
+        Util:RevealPlayerAura(closestPlayer, arg1.Config.EnragedTime + 2)
+    end
+    
+    task.delay(0.5, function()
+        Tween:Create(fovMultiplier, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { ["Value"] = 1 }):Play()
+    end)
+    
+    task.delay(1, function()
+        Debris:AddItem(fovMultiplier, 1)
+        local startTime = os.clock()
+        local connection
+        
+        connection = RunService.Heartbeat:Connect(function()
+            local progress = (os.clock() - startTime) / arg1.Config.EnragedStaminaCapLerpTime
+            local alpha = math.clamp(progress, 0, 1)
+            
+            Sprinting.StaminaCap = arg1.Config.MaxStamina + (arg1.Config.EnragedStaminaCap - arg1.Config.MaxStamina) * alpha
+            
+            if not arg1.State.isEnraged then
+                connection:Disconnect()
+                Sprinting.StaminaCap = arg1.Config.MaxStamina
+            end
+        end)
+        arg1.Maid:Add(connection)
+    end)
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+    Id1 = Id1 or "NOID"
+    Id2 = Id2 or "NOID"
+    Id3 = Id3 or "NOID"
+
+    if Id1 ~= "NOID" then
+    local S = Instance.new("Shirt", Parent) 
+    S.ShirtTemplate = Id1
+    end
+    if Id2 ~= "NOID" then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+    end
+    if Id3 ~= "NOID" then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+    end
+end 
+
+local function D(...) 
+    for _, v in pairs({...}) do
+        if v then v:Destroy() end 
+    end
+end 
+
+local function printTable(tbl, indent)
+    indent = indent or ""
+    for k, v in pairs(tbl) do
+        if typeof(v) == "table" then
+            print(indent .. tostring(k) .. ":")
+            printTable(v, indent .. "  ") -- recurse with increased indentation
+        else
+            print(indent .. tostring(k) .. ": " .. tostring(v))
+        end
+    end
+end
+
+local function Accs(AccsName, char, Mesh, Texture, Scale, CF, Welded, Angle) 
+    Scale = Scale or Vector3.new(1, 1, 1) 
+    CF = CF or CFrame.new(0, 0, 0) 
+    Angle = Angle or CFrame.Angles(0, 0, 0) 
+
+    local var_1 = Instance.new("Accessory", char) 
+    var_1.Name = AccsName
+    local var_2 = Instance.new("Part", var_1) 
+    var_2.Anchored = false
+    var_2.Massless = true
+    var_2.CanCollide = false
+    var_2.Size = Vector3.new(1, 1, 1) 
+    var_2.Name = "Handle"
+    local var_3 = Instance.new("SpecialMesh", var_2) 
+    var_3.Name = "Mesh"
+    var_3.MeshId = Mesh
+    var_3.TextureId = Texture
+    var_3.Scale = Scale
+    local var_4 = Instance.new("Weld", var_2) 
+    var_4.C0 = CF * Angle
+    var_4.Part0 = var_2
+    var_4.Part1 = char[Welded]
+    return var_4
+end        
+
+local Rig = Player.Character
+local function setChar(P) 
+if P.Name == "Slasher" and P:GetAttribute("SkinName") == "" then
+    D(P["Slasher Export"], P.Chainsaw, P.Mask, P.PrimaryPart.Machete, P.Machete.SurfaceAppearance) 
+
+    Cloth(nil, nil, "http://www.roblox.com/asset/?id=124081654376330", P)
+
+    local CH = Instance.new("MeshPart", P) 
+    CH.Size = Vector3.new(0.262, 0.78, 0.245) 
+    CH.Name = "CrescendoHandle"
+    CH.Anchored = false
+    CH.Massless = true
+    CH.CanCollide = false
+    CH.Transparency = 1
+
+    local M = Instance.new("Motor6D", P.PrimaryPart) 
+    M.Part0 = M.Parent
+    M.Part1 = CH
+    M.C0 = CFrame.new(0, 0, 2.05) * CFrame.Angles(-math.pi/2, 0, 0) 
+    M.Name = "CrescendoHandle"
+
+    local M2 = Instance.new("Motor6D", CH) 
+    M2.Part0 =  M2.Parent
+    M2.Part1 = P.Machete
+    M2.C0 = CFrame.Angles(math.pi/2, math.pi, 0) * CFrame.new(0, 0, 1.5) 
+    M2.Name = "Machete"
+
+    P.Machete.MeshId = "http://www.roblox.com/asset/?id=12221720"
+    P.Machete.Color = Color3.new(0, 0, 0) 
+
+    -- Rounded Accs Offsets
+    local Hair = Accs("WhiteTuft", P, "rbxassetid://14100814964", "rbxassetid://14100815030", nil, CFrame.new(0.486, 0.183, -0.395), "Head", CFrame.Angles(-math.pi, 0, -math.pi)) 
+    Hair.C1 = CFrame.new(0, 0.6, 0) 
+
+    local Halo = Accs("SpawnHalo", P, "rbxassetid://80997955487458", "rbxassetid://133186716283303", nil, CFrame.new(0, -0.317, -0.013), "Head", nil) 
+    Halo:Destroy() 
+    local HaloPart = P.SpawnHalo.Handle
+    HaloPart.CFrame = P.Head.CFrame
+
+    local Scarf = Accs("Scarf", P, "rbxassetid://16549089206", "rbxassetid://16568791831", nil, CFrame.new(0, 1.2, 0.75), "Torso", CFrame.Angles(-math.pi, 0, -math.pi)) 
+    Scarf.C1 = CFrame.new(0, 0.5, 0) 
+
+    local Left = Accs("LeftStrap", P, "rbxassetid://94657767427345", "rbxassetid://84452138183270", Vector3.new(0.5, 0.5, 0.5), CFrame.new(0, 1.161, 0), "Left Arm", CFrame.Angles(-math.pi, 0, -math.pi)) 
+    Left.C1 = CFrame.new(0, 1, 0) 
+
+    local Right = Accs("RightStrap", P, "rbxassetid://94657767427345", "rbxassetid://84452138183270", Vector3.new(0.5, 0.5, 0.5), CFrame.new(0, 1.161, 0), "Right Arm", CFrame.Angles(-math.pi, 0, -math.pi)) 
+    Right.C1 = CFrame.new(0, 1, 0) 
+
+    for _, v in pairs({"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}) do
+        local limb = P:FindFirstChild(v)
+        if limb then
+            limb.Transparency = 0
+            limb.Color = Color3.new(1, 1, 1) 
+        end
+    end 
+
+    for _, v in pairs(P:GetChildren()) do
+        if v:IsA("CharacterMesh") then v:Destroy() end
+    end
+
+-- Tambahkan variabel ini di bagian atas dekat variabel 'loop'
+-- Ganti bagian Heartbeat lama dengan ini
+
+task.wait(3) -- waits for actor to load
+local arg1 = Actors.CurrentActors[Player]
+
+if loop then loop:Disconnect() end
+if check then check:Disconnect() end
+
+loop = RunService.Heartbeat:Connect(function(dt) 
+    if not HaloPart or not P:FindFirstChild("Head") then return end
+    
+    -- Tentukan kecepatan putar (misal: math.pi = setengah putaran per detik)
+    rotation = rotation + dt * 1.3
+
+    -- Buat CFrame posisi di atas kepala
+    local baseTarget = P.Head.CFrame * CFrame.new(0, 0.6 + 0.317, 0)
+    
+    -- Gabungkan Posisi dengan Rotasi pada sumbu X
+    -- Gunakan CFrame.Angles(X, Y, Z)
+    local finalTarget = baseTarget * CFrame.Angles(0, rotation, 0)
+
+    HaloPart.CanCollide = false
+    HaloPart.Anchored = true
+
+    HaloPart.CFrame = HaloPart.CFrame:Lerp(finalTarget, 0.2)
+
+    for _, v in pairs({"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}) do
+        local limb = P:FindFirstChild(v)
+        if limb then
+            limb.Color = Color3.new(1, 1, 1) 
+        end
+    end 
+
+    local machete = P:FindFirstChild("Machete")
+
+    if not arg1 then return end
+    local isEnraged = arg1.State.isEnraged
+
+    if isEnraged ~= lastEnragedState then
+        lastEnragedState = isEnraged -- Update status terakhir
+        
+        if isEnraged then
+            machete.Transparency = 1
+        else
+            task.delay(0.4, function() 
+                if machete and not arg1.State.isEnraged then 
+                    machete.Transparency = 0 
+                end
+            end)
+        end
+    end
+end)
+
+check = P.PrimaryPart.ChildAdded:Connect(function(child) 
+    if child:IsA("Sound") and child.SoundId == "rbxassetid://112390922764994" then
+        child:Stop() 
+        child.SoundId = FahId
+        task.delay(0.223, function() child:Play() end) 
+    end
+end) 
+P.Humanoid.Died:Connect(function() 
+    if loop then loop:Disconnect() end
+    loop = nil
+    lastEnragedState = nil
+    if check then check:Disconnect() end
+    check = nil
+end)
+end
+end
+
+setChar(Rig) 
+
+Player.CharacterAdded:Connect(function(Rig2) 
+   setChar(Rig2) 
+end) 
+
+game.StarterGui:SetCore("SendNotification", {Title = "Stick Gazer Scripts", Text = "AFTER THIS, DONT EXECUTE AGAIN. NOW USE BECOME SLASHER DEFAULT SKIN.", Duration = 4,})
