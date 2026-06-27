@@ -1,0 +1,110 @@
+local Player = game:GetService("Players").LocalPlayer
+local P = Player.Character
+
+local Slasher = require(game:GetService("ReplicatedStorage").Assets.Killers.Slasher.Config).Animations
+
+local newAnimations = {
+  Slash = "rbxassetid://79710880505841";
+  Idle = "rbxassetid://135419935358802";
+  Walk = "rbxassetid://95469909855529";
+  Run = "rbxassetid://109671225388655";
+  EnragedSlash = "rbxassetid://70589254357640";
+  EnragedIdle = "rbxassetid://135419935358802";
+  EnragedWalk = "rbxassetid://108287960442206";
+  EnragedRun = "rbxassetid://108287960442206";
+  EnragedStart = "rbxassetid://81878779344542"
+}
+
+for i, v in pairs(newAnimations) do
+  Slasher[i] = v
+end
+
+local function D(...) 
+  for _, v in pairs({...}) do
+    if v then v:Destroy() end 
+  end
+end 
+
+local function Accs(AccsName, char, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.new(1, 1, 1) 
+  CF = CF or CFrame.new(0, 0, 0) 
+  Angle = Angle or CFrame.Angles(0, 0, 0) 
+
+  local var_1 = Instance.new("Accessory", char) 
+  var_1.Name = AccsName
+  local var_2 = Instance.new("Part", var_1) 
+  var_2.Anchored = false
+  var_2.Massless = true
+  var_2.CanCollide = false
+  var_2.Size = Vector3.new(1, 1, 1) 
+  var_2.Name = "Handle"
+  local var_3 = Instance.new("SpecialMesh", var_2) 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  local var_4 = Instance.new("Weld", var_2) 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = char[Welded]
+  return var_4
+end 
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  Id1 = Id1 or "NOID"
+  Id2 = Id2 or "NOID"
+  Id3 = Id3 or "NOID"
+
+  if Id1 ~= "NOID" then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= "NOID" then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= "NOID" then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function DoMorph(P)
+  if P.Name == "Slasher" and P:GetAttribute("SkinName") == "" then
+    D(P["Slasher Export"], P.Machete, P.Chainsaw, P.Mask)
+
+    local FakeHead = Instance.new("Part", P)
+    FakeHead.Name = "FakeHead"
+    FakeHead.Size = Vector3.new(2, 1, 1) 
+    FakeHead.Transparency = 1
+    FakeHead.Anchored = false
+    FakeHead.CanCollide = false
+    local Weld = Instance.new("Weld", FakeHead) 
+    Weld.Part0 = FakeHead
+    Weld.Part1 = P.Head
+    Weld.C0 = CFrame.new(0, 0, 0.1) 
+    local SurfG = Instance.new("SurfaceGui", FakeHead) 
+    local Image = Instance.new("ImageLabel", SurfG) 
+    Image.Image = "rbxassetid://108070042777702"
+    Image.Size = UDim2.new(1, 0, 0.5, 0) 
+    Image.Position = UDim2.new(0, 0, 0.25, 0) 
+    Image.BackgroundTransparency = 1
+
+    for _, v in ipairs(P:GetChildren()) do
+      if v:IsA("CharacterMesh") then v:Destroy() end
+    end
+  
+    for _, v in ipairs({"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}) do
+      local limb = P:FindFirstChild(v)
+      if limb then
+        limb.Transparency = 0
+        limb.Color = Color3.new(1, 1, 1)
+      end
+    end 
+  
+    Cloth("http://www.roblox.com/asset/?id=140547150628816", "http://www.roblox.com/asset/?id=117231924732071", nil, P)
+  
+  end
+end
+
+Player.CharacterAdded:Connect(DoMorph, Rig)
