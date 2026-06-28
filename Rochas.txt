@@ -1,0 +1,90 @@
+local Player = game:GetService("Players").LocalPlayer
+
+local CurrentRig = Player.Character
+
+local function Accs(AccsName, char, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.new(1, 1, 1) 
+  CF = CF or CFrame.new(0, 0, 0) 
+  Angle = Angle or CFrame.Angles(0, 0, 0) 
+
+  local var_1 = Instance.new("Accessory", char) 
+  var_1.Name = AccsName
+    local var_2 = Instance.new("Part", var_1) 
+  var_2.Anchored = false
+  var_2.Massless = true
+  var_2.CanCollide = false
+  var_2.Size = Vector3.new(1, 1, 1) 
+  var_2.Name = "Handle"
+  local var_3 = Instance.new("SpecialMesh", var_2) 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  local var_4 = Instance.new("Weld", var_2) 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = char[Welded]
+  return var_4
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function D(...) 
+  for _, v in ipairs({...}) do
+    v:Destroy() 
+  end
+end
+
+local function DoMorph(P, Name)
+  if P.Name == Name and P:GetAttribute("SkinName") == "" then
+  D(P.ExpressionHolder) 
+    
+    for _, v in ipairs({"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}) do
+      local L = P:WaitForChild(v)
+      if L then
+        L.Transparency= 0
+        L.Color = Color3.fromRGB(245, 205, 48)
+      end
+    end
+
+    P.Head.Mesh.Scale = Vector3.new(1, 1, 1) 
+    P.Head.Mesh.MeshId = "rbxassetid://98344276548397"
+    P.Head.Mesh.TextureId = "rbxassetid://110086151811407"
+
+    Cloth("http://www.roblox.com/asset/?id=5028538970", "http://www.roblox.com/asset/?id=4985299794", nil, P) 
+
+    local Hat = Accs("RochasHat", P, "http://www.roblox.com/asset/?id=13030731", "http://www.roblox.com/asset/?id=25609631", Vector3.new(0.93, 0.93, 0.93), CFrame.new(0, -0.6, 0), "Head", nil) 
+
+    local TurtleNeck = Accs("TurtleNeck", P, "rbxassetid://16264444783", "rbxassetid://16264444798", nil, CFrame.new(0, -1, 0), "Torso", nil) 
+
+    local FurNeck = Accs("Fur", P, "rbxassetid://105529830352813", "http://www.roblox.com/asset/?id=77047018297342", nil, CFrame.new(0, -1.15, -0.15), "Torso", nil) 
+
+    local Headset = Accs("Headset", P, "rbxassetid://11309595156", "rbxassetid://11309595186", nil, CFrame.new(0, -0.6, 0), "Head", nil) 
+
+    local ArmBand = Accs("ArmBand", P, "rbxassetid://12578977764", "rbxassetid://12579125571", nil, CFrame.new(-0.06, -0.3, 0), "Left Arm", CFrame.Angles(0, math.pi, 0)) 
+
+    local WaistStraps = Accs("WaistStraps", P, "rbxassetid://14984445845", "rbxassetid://14986274921", nil, CFrame.new(0, 1, -0.1), "Torso", nil) 
+
+    local EmoStraps = Accs("EmoStraps", P, "rbxassetid://18154333421", "rbxassetid://18154333582", nil, CFrame.new(0, 1.55, 0), "Torso", nil) 
+
+  end
+end
+
+DoMorph(CurrentRig, "Noob") 
+
+Player.CharacterAdded:Connect(function(Rig)  
+  DoMorph(Rig, "Noob") 
+end)
