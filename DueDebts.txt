@@ -1,0 +1,114 @@
+local Player = game:GetService("Players").LocalPlayer
+
+local Rig = Player. Character 
+
+local Util = require(game:GetService("ReplicatedStorage").Modules.Utilities.Util) 
+
+local C = require(game:GetService("ReplicatedStorage").Assets.Killers.JohnDoe.Config) 
+
+local B = require(game:GetService("ReplicatedStorage").Assets.Killers.JohnDoe.Behavior) 
+
+C.Animations.Idle = "rbxassetid://114548717236087"
+C.Animations.Walk = "rbxassetid://113354445309383"
+C.Animations.Run = "rbxassetid://113833842285362"
+C.Animations.Slash = "rbxassetid://119062842291223"
+if not C.Animations.CE then
+C.Animations.CE = "rbxassetid://109589533330665"
+end
+
+B.Abilities.Slash.Callback = function(arg1) 
+    local Slash = arg1.Animations.Slash
+    Slash:Play()
+    Slash:AdjustSpeed(0.7) 
+end
+
+B.Abilities.CorruptEnergy.Callback = function(arg1) 
+Util:CreateSpeedMultiplier(arg1.Player, 0, "CorruptEnergy", 2) 
+local CE = arg1.Animations.CE
+CE:Play(1) 
+CE:AdjustSpeed(0.6) 
+task.delay(1.1, function() 
+CE:AdjustSpeed(0) 
+end) 
+task.delay(1.8, function() 
+CE:AdjustSpeed(1)
+end) 
+task.delay(2.1, function() 
+CE:Stop(1) 
+end) 
+end
+
+local function Accs(AccsName, char, Mesh, Texture, Scale, CF, Welded, Angle) 
+    local var_1 = Instance.new("Accessory", char) 
+    var_1.Name = AccsName
+    local var_2 = Instance.new("Part", var_1) 
+    var_2.Anchored = false
+    var_2.Massless = true
+    var_2.CanCollide = false
+    var_2.Size = Vector3.new(1, 1, 1) 
+    var_2.Name = "Handle"
+    local var_3 = Instance.new("SpecialMesh", var_2) 
+    var_3.Name = "Mesh"
+    var_3.MeshId = Mesh
+    var_3.TextureId = Texture
+    var_3.Scale = Scale
+    local var_4 = Instance.new("Weld", var_2) 
+    var_4.C0 = CF * Angle
+    var_4.Part0 = var_2
+    var_4.Part1 = char[Welded]
+end    
+
+local function D(...) 
+    local vararg = {...}
+
+    for _, v in pairs(vararg) do
+        v:Destroy() 
+    end
+end 
+
+local function cloth(Id1, Id2, Parent) 
+    local S = Instance.new("Shirt", Parent) 
+    S.ShirtTemplate = Id1
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+end
+
+local function LoadMafia(P) 
+if P.Name == "JohnDoe" and P:GetAttribute("SkinName") == "" then
+    local TorsoIn = P.Torso:GetDescendants() 
+
+   D(P:FindFirstChild("John")) 
+
+    for _, v in pairs(TorsoIn) do
+        if v:IsA("ParticleEmitter") then
+            v:Destroy() 
+        end
+    end
+
+    local limbsTbl = {"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}
+
+    for _, v in pairs(limbsTbl) do
+       P:FindFirstChild(v).Transparency = 0
+       P:FindFirstChild("Head").Transparency = 1
+       P:FindFirstChild(v).Color = Color3.fromRGB(245, 205, 48) 
+    end 
+
+    local Mesh = Instance.new("SpecialMesh", P.Head) 
+    Mesh.MeshId = "https://assetdelivery.roblox.com/v1/asset/?id=18446596298"
+    Mesh.TextureId = "rbxasset://textures/face.png"
+
+    Accs("Fedora", P, "rbxassetid://15112856144", "rbxassetid://15112916520", Vector3.new(1.1, 1, 1.1), CFrame.new(-0.05, -0.67, 0), "Head", CFrame.Angles(-270, 0, 270)) 
+
+    Accs("Tailcoat", P, "rbxassetid://122484146954331", "rbxassetid://126281090938430", Vector3.new(1, 1, 1.1), CFrame.new(0, 1.8, -0.3), "Torso", CFrame.Angles(0, 0, 0))
+
+    Accs("CoolerFace", P, "rbxassetid://74184851529936", "http://www.roblox.com/asset/?id=135831086414021", Vector3.new(1, 1, 1), CFrame.new(0, 0, 0), "Head", CFrame.Angles(135, 0, 135)) 
+
+    cloth("http://www.roblox.com/asset/?id=12189004570", "http://www.roblox.com/asset/?id=93182020184041", P) 
+
+end
+end
+
+LoadMafia(Rig)
+Player.CharacterAdded:Connect(function(Rig2) 
+LoadMafia(Rig2) 
+end) 
