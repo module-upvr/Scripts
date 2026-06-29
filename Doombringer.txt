@@ -81,7 +81,7 @@ local function DoMorph(P, Name)
 
     P.ExtraModels.HaxxedSwordRight.HaxxedGripR.HaxxedBladeR2.C0 = CFrame.new(0, 0, 1.5) * CFrame.Angles(math.pi / 2, 0, 0) 
 
-    P.ExtraModels.HaxxedSwordRight.Parts.HaxxedBladeR2.Mesh.MeshId, P.ExtraModels.HaxxedSwordRight.Parts.HaxxedBladeR2.Mesh.TextureId, P.ExtraModels.HaxxedSwordRight.Parts.HaxxedBladeR2.Mesh.Scale = "rbxassetid://135583682985290", "rbxassetid://80644963611530", Vector3.new(1, 1, 1) 
+    P.ExtraModels.HaxxedSwordRight.Parts.HaxxedBladeR2.Mesh.MeshId, P.ExtraModels.HaxxedSwordRight.Parts.HaxxedBladeR2.Mesh.TextureId, P.ExtraModels.HaxxedSwordRight.Parts.HaxxedBladeR2.Mesh.Scale, P.Head.RightEye.Main = "rbxassetid://135583682985290", "rbxassetid://80644963611530", Vector3.new(1, 1, 1) 
 
     local Mesh = Instance.new("SpecialMesh", P.Head) 
     Mesh.Scale = Vector3.new(1.25, 1.25, 1.25) 
