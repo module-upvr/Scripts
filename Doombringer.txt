@@ -1,0 +1,123 @@
+local Player = game:GetService("Players").LocalPlayer
+
+local CurrentRig = Player.Character
+
+local module = require(game:GetService("ReplicatedStorage").Assets.Killers["1x1x1x1"].Config).Animations
+local newAnims = {
+  Idle = "rbxassetid://82241652784826",
+  Walk = "rbxassetid://119242164490314",
+  Run = "rbxassetid://92430101129682",
+  Slash = "rbxassetid://92173139187970", 
+  Entanglement = "rbxassetid://93491748129367", 
+  UnstableEye = "rbxassetid://101469068804093", 
+  RejuvenateTheRotten = "rbxassetid://119165364494366", 
+  MassInfection = "rbxassetid://70447634862911", 
+}
+
+for i, v in pairs(newAnims) do
+  module[i] = v
+end
+
+local function Accs(AccsName, char, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.new(1, 1, 1)
+  Angle = Angle or CFrame.Angles(0, 0, 0)
+  CF = CF or CFrame.new(0, 0, 0) 
+
+  local var_1 = Instance.new("Accessory", char) 
+  var_1.Name = AccsName
+  local var_2 = Instance.new("Part", var_1) 
+  var_2.Anchored = false
+  var_2.Massless = true
+  var_2.CanCollide = false
+  var_2.Size = Vector3.new(1, 1, 1) 
+  var_2.Name = "Handle"
+  local var_3 = Instance.new("SpecialMesh", var_2) 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  local var_4 = Instance.new("Weld", var_2) 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = char[Welded]
+  return var_4
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy()
+  end
+end
+
+local function DoMorph(P, Name)
+  if P.Name == Name and P:GetAttribute("SkinName") == "" then
+    D(P.CharacterModel) 
+    for _, v in ipairs(P.ExtraModels:GetDescendants()) do
+      if v:IsA("ParticleEmitter") or v:IsA("Beam") or v.Name == "HaxxedSwordLeft" then
+        v:Destroy() 
+      end
+    end
+    
+    for _, v in ipairs(P:GetDescendants()) do
+      if v:IsA("ParticleEmitter") or v:IsA("Beam") then
+        v.Color = ColorSequence.new(Color3.new(1, 0, 0))
+      end
+    end
+
+    P.ExtraModels.HaxxedSwordRight.HaxxedGripR.HaxxedBladeR2.C0 = CFrame.new(0, 0, 1.5) * CFrame.Angles(math.pi / 2, 0, 0) 
+
+    P.ExtraModels.HaxxedSwordRight.Parts.HaxxedBladeR2.Mesh.MeshId, P.ExtraModels.HaxxedSwordRight.Parts.HaxxedBladeR2.Mesh.TextureId, P.ExtraModels.HaxxedSwordRight.Parts.HaxxedBladeR2.Mesh.Scale = "rbxassetid://135583682985290", "rbxassetid://80644963611530", Vector3.new(1, 1, 1) 
+
+    local Mesh = Instance.new("SpecialMesh", P.Head) 
+    Mesh.Scale = Vector3.new(1.25, 1.25, 1.25) 
+
+    P.Head.RightEye.CFrame = CFrame.new(-0.3, 0.133, -0.3) 
+    
+    for _, v in ipairs({"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}) do
+      local L = P:WaitForChild(v)
+      if L then
+        L.Transparency= 0
+        L.Color = Color3.fromRGB(0, 0, 0)
+      end
+    end
+    Cloth("http://www.roblox.com/asset/?id=129689339959071", "http://www.roblox.com/asset/?id=113229039052496", nil, P) 
+
+    local Bucket = Accs("Bucket", P, "rbxassetid://127582400521621", "rbxassetid://109378305450165", nil, CFrame.new(0, -0.644, 0.032), "Head", nil) 
+
+    local Mask = Accs("Mask", P, "rbxassetid://123431568445550", "rbxassetid://95291285940743", nil, CFrame.new(-0.006, 0.2, -0.465), "Head", CFrame.Angles(0, math.pi, 0)) 
+
+    local LeftPad = Accs("LeftPad", P, "rbxassetid://17647900913", "rbxassetid://17648117251", nil, CFrame.new(0.387, -1, 0), "Left Arm", nil) 
+
+    local RightPad = Accs("RightPad", P, "rbxassetid://17647900912", "rbxassetid://17648117251", nil, CFrame.new(-0.387, -1, 0), "Right Arm", nil) 
+
+    local Suit = Accs("Suit", P, "rbxassetid://76899028629121", "rbxassetid://119937037187358", nil, CFrame.new(0, 0.764, 0), "Torso", CFrame.Angles(0, math.pi, 0)) 
+
+    local Chains = Accs("Chains", P, "rbxassetid://18782283374", "rbxassetid://124566206248711", nil, CFrame.new(0.002, 0.263, -0.001), "Left Arm", nil) 
+
+    local Fur = Accs("Fur", P, "rbxassetid://125271429539767", "rbxassetid://138627993559901", nil, CFrame.new(-0.002, -0.865, 0.003), "Torso", nil) 
+
+    local Cape = Accs("Cape", P, "rbxassetid://113868260698362", "rbxassetid://118942106090782", nil, CFrame.new(0, 0.566, 0.814), "Torso", CFrame.Angles(0, math.pi, 0)) 
+
+  end
+end
+
+DoMorph(CurrentRig, "1x1x1x1")
+
+Player.CharacterAdded:Connect(function(Rig)
+  DoMorph(Rig, "1x1x1x1")
+end)
