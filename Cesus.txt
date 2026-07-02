@@ -1,0 +1,356 @@
+local Player = game:GetService("Players").LocalPlayer
+
+local CharName = "c00lkidd"
+
+local CurrentRig = Player.Character
+
+local CP = game:GetService("ContentProvider")
+
+local Util = require(game.ReplicatedStorage.Modules.Utilities.Util)
+
+local Assets = game:GetService("ReplicatedStorage").Assets
+
+local AssetFolder
+
+if not Assets.Killers:FindFirstChild(CharName) then
+  AssetFolder = Assets.Survivors[CharName]
+else
+  AssetFolder = Assets.Killers[CharName]
+end
+
+local module = require(AssetFolder.Config)
+local behavior = require(AssetFolder.Behavior) 
+
+behavior.Abilities.Punch.Callback = function(p5)
+  p5.Animations.Attack:Play(0.025) 
+  p5.Animations.Attack:AdjustSpeed(5) 
+  task.delay(0.1, function() p5.Animations.Attack:AdjustSpeed(1) end)
+end
+
+behavior.Abilities.CorruptNature.Callback = function(p5) 
+  p5.Animations.CorruptNature:Play(0.025) 
+  p5.Rig.CesusHammer.Transparency = 1
+  p5.Rig.CesusHammerBack.Transparency = 0
+  p5.Rig.CesusHammer.Trail.Enabled = false
+  task.delay(1.1, function() 
+    p5.Rig.CesusHammer.Transparency = 0
+    p5.Rig.CesusHammerBack.Transparency = 1
+    p5.Rig.CesusHammer.Trail.Enabled = true
+  end) 
+end
+
+behavior.Abilities.PizzaDelivery.Callback = function(p5)
+  p5.Animations.SummonPizzaDelivery:Play(0.025)
+  p5.Rig.CesusHammer.Transparency = 1
+  p5.Rig.CesusHammerBack.Transparency = 0
+  p5.Rig.CesusHammer.Trail.Enabled = false
+  local v_u_14 = Util:CreateSpeedMultiplier(p5.Player, 0, "HinderedMovement")
+  task.delay(2.5, function()
+    game.TweenService:Create(v_u_14, TweenInfo.new(0.5), {
+      ["Value"] = 1
+    }):Play()
+    game.Debris:AddItem(v_u_14, 0.5)
+    p5.Rig.CesusHammer.Transparency = 0
+    p5.Rig.CesusHammerBack.Transparency = 1
+    p5.Rig.CesusHammer.Trail.Enabled = true
+  end)
+end
+
+module.MovementAnimSpeed = 1.5
+local newAnims = {
+  Idle = "rbxassetid://106747022056308",
+  Walk = "rbxassetid://80928452877668",
+  Run = "rbxassetid://100351974985081",
+  Attack = "rbxassetid://97433060861952", 
+  CorruptNature = "rbxassetid://133990700986998"
+}
+
+for i, v in pairs(newAnims) do
+  module.Animations[i] = v
+end
+
+local function Accs(AccsName, char, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.new(1, 1, 1)
+  Angle = Angle or CFrame.Angles(0, 0, 0)
+  CF = CF or CFrame.new(0, 0, 0)
+
+  local var_1 = Instance.new("Accessory", char) 
+  var_1.Name = AccsName
+  local var_2 = Instance.new("Part", var_1) 
+  var_2.Anchored = false
+  var_2.Massless = true
+  var_2.CanCollide = false
+  var_2.Size = Vector3.new(1, 1, 1) 
+  var_2.Name = "Handle"
+  local var_3 = Instance.new("SpecialMesh", var_2) 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  local var_4 = Instance.new("Weld", var_2) 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = char[Welded]
+  return var_2
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy()
+  end
+end
+
+local function FakeLimb(Limb) 
+    local Part = Instance.new("Part", Limb) 
+    Part.Name = "Fake"
+    Part.Size = Limb.Size
+    Part.CanCollide = false
+    Part.Anchored = false
+    Part.Massless = true
+    local Weld = Instance.new("Weld", Part) 
+    Weld.Part0 = Part
+    Weld.Part1 = Limb
+    return Part
+end
+
+if not game.MaterialService:FindFirstChild("Studs") then
+  local StudsMV = Instance.new("MaterialVariant", game.MaterialService)
+  StudsMV.Name = "Studs"
+  StudsMV.BaseMaterial = Enum.Material.Plastic
+  StudsMV.ColorMap = "rbxassetid://10509831729"
+  StudsMV.NormalMap = "rbxassetid://10509831753"
+  StudsMV.StudsPerTile = 1
+  CP:PreloadAsync({StudsMV})
+end
+
+local function CesusifyLimb(Limb, Color, Color2) 
+  Color = Color or Color3.new(1, 1, 1) 
+  Color2 = Color2 or Color3.fromRGB(128, 187, 219) 
+
+  local FakeSh = FakeLimb(Limb) 
+  local FakeHa = FakeLimb(Limb) 
+  local FakeCon = FakeLimb(Limb) 
+
+  FakeSh.Size = Vector3.new(1.121, 1.121, 1.121) 
+  FakeSh.Weld.C0 = CFrame.new(0, -0.5605, 0) 
+  FakeSh.Material = Enum.Material.Plastic
+  pcall(function() FakeSh.MaterialVariant = "Studs" end) 
+  FakeSh.Color = Color
+
+  FakeHa.Size = Vector3.new(1.121, 1.121, 1.121) 
+  FakeHa.Weld.C0 = CFrame.new(0, 0.7, 0) 
+  FakeHa.Material = Enum.Material.Plastic
+  pcall(function() FakeHa.MaterialVariant = "Studs" end) 
+  FakeHa.Color = Color
+
+  FakeCon.Size = Vector3.new(1.121, 1.121, 1.121) 
+  FakeCon.Weld.C0 = CFrame.Angles(0, 0, math.pi / 2)
+  FakeCon.Material = Enum.Material.Air
+  FakeCon.Color = Color2
+  FakeCon.Shape = ("Cylinder") 
+end
+
+local Loop
+
+local function DoMorph(P, Name)
+  if P.Name == Name and P:GetAttribute("SkinName") == "" then
+    D(P.coolkiddrblx)
+    
+    if Loop then
+      Loop:Disconnect()
+      Loop = nil
+    end
+    
+    local CesusHit = Instance.new("Sound", P)
+    CesusHit.SoundId = "rbxassetid://3431749479"
+
+    local CesusThrow = Instance.new("Sound", P) 
+    CesusThrow.SoundId = "rbxassetid://98441158"
+    CesusThrow.PlaybackSpeed = 1.2
+
+    local CesusLaugh = Instance.new("Sound", P) 
+    CesusLaugh.SoundId = "rbxassetid://17026215874"
+    CesusLaugh.Volume = 2
+
+    local CesusTaunt = Instance.new("Sound", P) 
+    CesusTaunt.SoundId = "rbxassetid://9074555470"
+    CesusTaunt.PlaybackSpeed = 1.3
+    CesusTaunt.Volume = 3
+
+    local Hammer = Instance.new("Part", P) 
+    Hammer.Name = "CesusHammer"
+    Hammer.Size = Vector3.new(1.7, 1.36, 17) 
+    Hammer.CanCollide = false
+    Hammer.Massless = true
+
+    local Hamesh = Instance.new("SpecialMesh", Hammer) 
+    Hamesh.MeshId = "http://www.roblox.com/asset/?id=1256290"
+    Hamesh.TextureId = "http://www.roblox.com/asset/?id=1256283"
+    Hamesh.Scale = Vector3.new(0.085, 0.085, 0.085)
+    Hamesh.VertexColor = Vector3.new(0.5, 0.5, 0.5)
+
+    local HammerBack = Instance.new("Part", P) 
+    HammerBack.Name = "CesusHammerBack"
+    HammerBack.Size = Hammer.Size
+    HammerBack.CanCollide = false
+    HammerBack.Massless = true
+    HammerBack.Transparency = 1
+
+    local HameshBack = Instance.new("SpecialMesh", HammerBack) 
+    HameshBack.MeshId = "http://www.roblox.com/asset/?id=1256290"
+    HameshBack.TextureId = "http://www.roblox.com/asset/?id=1256283"
+    HameshBack.Scale = Vector3.new(0.085, 0.085, 0.085)
+    HameshBack.VertexColor = Vector3.new(0.5, 0.5, 0.5)
+
+    local HammerWeldBack = Instance.new("Weld", HammerBack) 
+    HammerWeldBack.Part0 = P.Torso
+    HammerWeldBack.Part1 = HammerBack
+    HammerWeldBack.C0 = CFrame.new(-0.5, 0, 0.8) * CFrame.Angles(math.pi / 2, -math.pi/4, 0) 
+
+    local Hilt = Instance.new("MeshPart", Hammer) 
+    Hilt.Name = "Hilt"
+    Hilt.Size = Vector3.new(1.285, 4.828, 3.239) 
+    Hilt.Transparency = 1
+    Hilt.CanCollide = false
+    Hilt.Anchored = false
+    Hilt.Massless = true
+
+    local HammerWeld = Instance.new("Weld", Hammer) 
+    HammerWeld.C0 = CFrame.new(-0.3, 4.5, 0) * CFrame.Angles(math.pi / 2, math.pi, 0)
+    HammerWeld.Part0 = Hilt
+    HammerWeld.Part1 = Hammer
+
+    local HiltMotor = Instance.new("Motor6D", P["Right Arm"]) 
+    HiltMotor.Name = "Hilt"
+    HiltMotor.C0 = CFrame.new(0, -1.008, -0.068) * CFrame.Angles(math.pi / 2, 0, -math.pi)
+    HiltMotor.C1 = CFrame.new(0, -0.5, 0)
+    HiltMotor.Part0 = P["Right Arm"]
+    HiltMotor.Part1 = Hilt
+
+    local Att1 = Instance.new("Attachment", Hammer) 
+    Att1.CFrame = CFrame.new(0.4, 0, 1.5) 
+
+    local Att2 = Instance.new("Attachment", Hammer) 
+    Att2.CFrame = CFrame.new(0.4, 0, 8.5) 
+
+    local Trail = Instance.new("Trail", Hammer) 
+    Trail.Color = ColorSequence.new(Color3.fromRGB(152, 194, 219)) 
+    Trail.LightEmission = 1
+    Trail.LightInfluence = 1
+    Trail.Texture = "http://www.roblox.com/asset/?id=5155825850"
+    Trail.Attachment0 = Att1
+    Trail.Attachment1 = Att2
+    Trail.Lifetime = 0.5
+    Trail.MaxLength = 100
+    Trail.MinLength = 0
+    Trail.Transparency = NumberSequence.new({
+      NumberSequenceKeypoint.new(0, 0.5, 0),
+      NumberSequenceKeypoint.new(0.19403, 0.375, 0),
+      NumberSequenceKeypoint.new(0.645235, 0.54375, 0),
+      NumberSequenceKeypoint.new(0.998852, 1, 0),
+      NumberSequenceKeypoint.new(1, 0.5, 0)
+    })
+
+    local FakeTorso = FakeLimb(P.Torso) 
+
+    CesusifyLimb(P["Left Arm"], nil, nil) 
+    CesusifyLimb(P["Right Arm"], nil, nil) 
+    CesusifyLimb(P["Left Leg"], Color3.new(0, 0, 0), Color3.new(0, 0, 0)) 
+    CesusifyLimb(P["Right Leg"], Color3.new(0, 0, 0), Color3.new(0, 0, 0)) 
+
+    FakeTorso.Color = Color3.fromRGB(152, 194, 219) 
+    FakeTorso.MaterialVariant = "Weld"
+    local Tea = Instance.new("Decal", P.Torso)
+    Tea.Texture = "rbxassetid://9901359841"
+    Tea.Transparency = 0.1
+
+    local Teapot = Accs("TeapotHead", P, "http://www.roblox.com/asset/?id=1045320", "rbxassetid://97406664029977", Vector3.new(2.2, 2.2, 1.96), CFrame.new(0, -0.3, 0), "Head", nil) 
+
+    local Headphones = Accs("Headphones", P, "http://www.roblox.com/asset/?id=1051545", "rbxassetid://2093447", Vector3.new(1.5, 1.5, 1.5), CFrame.new(0, -0.5, -0.1), "Head", nil) 
+    Headphones.Mesh.VertexColor = Vector3.new(0.24, 0.25, 0.25) 
+
+    local Halo = Accs("Halo", P, "", "", Vector3.new(1, 1, 1), CFrame.new(0, -1.5, 0), "Head", nil) 
+    local RealHalo = Instance.new("MeshPart", Halo.Parent)
+    RealHalo.MeshId = "rbxassetid://9285228633"
+    RealHalo.Anchored = false
+    RealHalo.CanCollide = false
+    RealHalo.Color = Color3.new(1, 1, 1)
+    RealHalo.Material= Enum.Material.Neon
+    RealHalo.Size = Vector3.new(1, 1, 1)
+    RealHalo.Name = "RealHalo"
+    Halo.Transparency = 1
+    local HaloWeld = Instance.new("Weld", RealHalo)
+    HaloWeld.Part0 = RealHalo
+    HaloWeld.Part1 = Halo
+    
+    local hrp = P.PrimaryPart
+    local hum = P.Humanoid
+    
+    local KillVL ={
+      "rbxassetid://95829099724404",
+      "rbxassetid://130499159104935",
+      "rbxassetid://98150327458539",
+      "rbxassetid://76125983874457",
+      "rbxassetid://99081289911669",
+      "rbxassetid://96130441593862",
+      "rbxassetid://129971792713796",
+      "rbxassetid://71598859342038",
+      "rbxassetid://84205518608518",
+      "rbxassetid://126510487087796",
+      "rbxassetid://118752854049740",
+      "rbxassetid://106784455859707",
+      "rbxassetid://131717739827974",
+      "rbxassetid://73651367921334",
+      "rbxassetid://107647850299675"
+    }
+
+    
+    Loop = hrp.ChildAdded:Connect(function(v)
+      if v:IsA("Sound") then
+        if v.Name == "VoicelineSFX" and table.find(KillVL, v.SoundId) then
+          local random = math.random(1, 2)
+          v:Stop()
+          v:Destroy()
+          
+          if random == 1 then
+            CesusLaugh:Play()
+          else
+            CesusTaunt:Play()
+          end
+        elseif v.Name == "VoicelineSFX" and not table.find(KillVL, v.SoundId) then
+          v:Stop()
+          v:Destroy()
+        elseif v.Name == module.Sounds.Hit then
+          v:Stop() 
+          v:Destroy() 
+          CesusHit:Play() 
+        elseif v.Name == module.Sounds.CorruptThrow then
+          v:Stop() 
+          v:Destroy() 
+          CesusThrow:Play() 
+        end
+      end
+    end) 
+  end
+end
+
+DoMorph(CurrentRig, CharName)
+
+Player.CharacterAdded:Connect(function(Rig)
+  DoMorph(Rig, CharName)
+end)
