@@ -1,0 +1,24 @@
+local newAnimations = {
+  Block = "rbxassetid://82605295530067";
+  Charge = "rbxassetid://73502073176819";
+  Punch = "rbxassetid://138040001965654";
+  ParryPunch = "rbxassetid://108807732150251";
+}
+
+local Guest = require(game:GetService("ReplicatedStorage").Assets.Survivors.Guest1337.Config) 
+
+local Guestskin = game:GetService("ReplicatedStorage").Assets.Skins.Survivors.Guest1337:GetChildren() 
+
+for i, v in pairs(newAnimations) do
+  Guest.Animations[i] = v
+end
+
+for i, v in pairs(newAnimations) do
+  for _, f in ipairs(Guestskin) do
+    local con = require(f.Config)
+    if not con.Animations then
+      con["Animations"] = newAnimations
+    else
+      con["Animations"][i] = v
+  end
+end
