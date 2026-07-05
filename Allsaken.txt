@@ -1,16 +1,5 @@
 local Saken = {}
 
-local function Notify(text, duration)
-  text = text or "Test"
-  duration = duration or 3
-  
-  game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Stick Gazer Scripts",
-    Text = text,
-    Duration = duration
-  })
-end
-
 local Buttons = {}
 local Bools = {}
 local buttonCount = 0
@@ -28,7 +17,7 @@ local function CreateButton(Text, Name, Parent, Callback)
   Button.Name = Name
   Button.Text = Text
   Button.Size = UDim2.new(0.1, 0, 0.1, 0)
-  Button.TextScaled = true
+  Button.TextWrapped = true
   Button.Parent = Parent
   Button.MouseButton1Click:Connect(Callback)
   Buttons[Name] = Button
@@ -51,7 +40,7 @@ local function CreateToggleButton(Text, Name, Parent, CallbackTrue, CallbackFals
   Button.Position = UDim2.new(column * 0.1, 0, row * 0.1, 0)
   Button.Name = Name
   Button.Size = UDim2.new(0.1, 0, 0.1, 0)
-  Button.TextScaled = true
+  Button.TextWrapped = true
   Button.Text = string.format("%s false", Text)
   Button.Parent = Parent
   Button.MouseButton1Click:Connect(function()
@@ -117,7 +106,10 @@ local IsCr = false
 local crouchThread = nil
 
 function Saken:Esp()
-  local function createESP(object, color)
+  local function createESP(object, color, color2)
+    color = color or Color3.new(1, 0, 0)
+    color2 = color2 or Color3.new(1, 1, 1)
+    
     if object:FindFirstChild("SakenLight") then return end
 
     local highlight = Instance.new("Highlight")
@@ -131,14 +123,17 @@ function Saken:Esp()
   end
 
   local plrESP
-  plrESP = function(object, color)
+  plrESP = function(object, color, color2)
     if not object or object:FindFirstChild("SakenLight") then return end
     if object:GetAttribute("Username") == Player.Name then return end
+    
+    color = color or Color3.new(1, 0, 0)
+    color2 = color2 or Color3.new(1, 1, 1)
 
     local highlight = Instance.new("Highlight")
     highlight.Name = "SakenLight"
     highlight.FillTransparency = 0.9
-    highlight.OutlineTransparency = 0.8
+    highlight.OutlineTransparency = 0
     highlight.FillColor = color
     highlight.Parent = object  
   end
@@ -190,7 +185,6 @@ function Saken:Esp()
       plrESP(v, Color3.new(1, 0, 0))
     end
   end)
-  Notify("EspSaken Activated.")
 end
 
 function Saken:AutoGen() 
@@ -228,7 +222,6 @@ function Saken:AutoGen()
       end
     end
   end)
-  Notify("GenSaken Activated.")
 end
 
 function Saken:Config() 
@@ -310,7 +303,6 @@ function Saken:Config()
       end
     end)
   end
-  Notify("ConfigSaken Activated.")
 end
 
 function Saken:Function()
@@ -405,7 +397,6 @@ function Saken:Function()
       ChatConfig.Enabled = true
     end
   end)
-  Notify("FunctionSaken Activated.")
 end
 
 return Saken
