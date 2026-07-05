@@ -1,30 +1,99 @@
 local Saken = {}
 
+local function Notify(text, duration)
+  text = text or "Test"
+  duration = duration or 3
+  
+  game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Stick Gazer Scripts",
+    Text = text,
+    Duration = duration
+  })
+end
+
+local Buttons = {}
+local Bools = {}
+local buttonCount = 0
+
+local function CreateButton(Text, Name, Parent, Callback)
+  Text = Text or "TestButton"
+  Name = Name or Text
+  Callback = Callback or function() print("TestButton is pressed") end
+  
+  local column = buttonCount % 3
+  local row = math.floor(buttonCount / 3)
+  
+  local Button = Instance.new("TextButton")
+  Button.Position = UDim2.new(column * 0.1, 0, row * 0.1, 0)
+  Button.Name = Name
+  Button.Text = Text
+  Button.Size = UDim2.new(0.1, 0, 0.1, 0)
+  Button.TextScaled = true
+  Button.Parent = Parent
+  Button.MouseButton1Click:Connect(Callback)
+  Buttons[Name] = Button
+  buttonCount = buttonCount + 1
+  return Button
+end
+
+local function CreateToggleButton(Text, Name, Parent, CallbackTrue, CallbackFalse)
+  Text = Text or "TestButton:"
+  Name = Name or Text
+  CallbackFalse = CallbackFalse or function() print("TestButton is set to False") end
+  CallbackTrue = CallbackTrue or function() print("TestButton is set to True") end
+  
+  Bools[Name] = false
+  
+  local column = buttonCount % 3
+  local row = math.floor(buttonCount / 3)
+  
+  local Button = Instance.new("TextButton")
+  Button.Position = UDim2.new(column * 0.1, 0, row * 0.1, 0)
+  Button.Name = Name
+  Button.Size = UDim2.new(0.1, 0, 0.1, 0)
+  Button.TextScaled = true
+  Button.Text = string.format("%s false", Text)
+  Button.Parent = Parent
+  Button.MouseButton1Click:Connect(function()
+    if Bools[Name] == false then
+      CallbackTrue()
+      Bools[Name] = true
+    elseif Bools[Name] == true then
+      CallbackFalse()
+      Bools[Name] = false
+    end
+    Button.Text = string.format("%s %s", Text, tostring(Bools[Name]))
+  end)
+  Buttons[Name] = Button
+  buttonCount = buttonCount + 1
+  return Button
+end
+
 local Rep = game:GetService("ReplicatedStorage") 
 local Modules = Rep.Modules
 local Sys = Rep.Systems
 local function getModule(Name, req) 
-    local var
+  local var
 
-    for _, v in ipairs(Modules:GetDescendants()) do
-        if v.Name == Name then
-            var = v
-        end
+  for _, v in ipairs(Modules:GetDescendants()) do
+    if v.Name == Name then
+      var = v
     end
+  end
 
-    if var == nil then
-        for _, v in ipairs(Sys:GetDescendants()) do
-            if v.Name == Name then
-                var = v
-            end
-        end
+  if var == nil then
+    for _, v in ipairs(Sys:GetDescendants()) do
+      if v.Name == Name then
+        var = v
+      end
     end
+  end
 
-    if req then
-        return require(var) 
-    else
-        return var
-    end
+  if req then
+    return require(var) 
+  else
+    return var
+  end
 end
 
 local Player = game:GetService("Players").LocalPlayer
@@ -48,310 +117,295 @@ local IsCr = false
 local crouchThread = nil
 
 function Saken:Esp()
-    local function createESP(object, color)
-        if object:FindFirstChild("SakenLight") then return end
+  local function createESP(object, color)
+    if object:FindFirstChild("SakenLight") then return end
 
-        local highlight = Instance.new("Highlight")
-        highlight.FillTransparency = 0.9
-        highlight.OutlineTransparency = 0.8
-        highlight.FillColor = color
-        highlight.OutlineColor = color
-        highlight.Parent = object
-        highlight.Name = "SakenLight"
-        highlight.Adornee = object
+    local highlight = Instance.new("Highlight")
+    highlight.FillTransparency = 0.9
+    highlight.OutlineTransparency = 0
+    highlight.FillColor = color
+    highlight.OutlineColor = color
+    highlight.Parent = object
+    highlight.Name = "SakenLight"
+    highlight.Adornee = object
+  end
+
+  local plrESP
+  plrESP = function(object, color)
+    if not object or object:FindFirstChild("SakenLight") then return end
+    if object:GetAttribute("Username") == Player.Name then return end
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "SakenLight"
+    highlight.FillTransparency = 0.9
+    highlight.OutlineTransparency = 0.8
+    highlight.FillColor = color
+    highlight.Parent = object  
+  end
+
+  local function HandleGenESP(gen) 
+    local Progress = gen:FindFirstChild("Progress") 
+    local Esp = gen:FindFirstChild("SakenLight") 
+    if not Esp or not Progress then return end
+
+    Progress:GetPropertyChangedSignal("Value"):Connect(function()
+      if Progress.Value == 100 then
+        Esp.Enabled = false
+      end
+    end) 
+  end
+
+  local function updateESP()
+    for _, v in ipairs(MapFolder:GetDescendants()) do
+      if v.Name == "Medkit" and v:IsA("Tool") then
+        createESP(v, Color3.new(1, 1, 0))
+      elseif v.Name == "BloxyCola" and v:IsA("Tool") then
+        createESP(v, Color3.new(0, 0, 1))
+      elseif v.Name == "Generator" and v:IsA("Model") and v.Parent.Name ~= "Instances" then
+        createESP(v, Color3.new(1, 0, 1))
+        HandleGenESP(v) 
+      end
     end
 
-    local plrESP
-    plrESP = function(object, color)
-        if not object or object:FindFirstChild("SakenLight") then return end
-        if object:GetAttribute("Username") == Player.Name then return end
-
-        local highlight = Instance.new("Highlight")
-        highlight.Name = "SakenLight"
-        highlight.FillTransparency = 0.9
-        highlight.OutlineTransparency = 0.8
-        highlight.FillColor = color
-        highlight.Parent = object  
+    for _, v in ipairs(PlayerFolder.Survivors:GetChildren()) do
+      plrESP(v, Color3.new(0, 1, 0))
     end
 
-    local function HandleGenESP(gen) 
-        local Progress = gen:FindFirstChild("Progress") 
-        local Esp = gen:FindFirstChild("SakenLight") 
-        if not Esp or not Progress then return end
-
-        Progress:GetPropertyChangedSignal("Value"):Connect(function()
-            if Progress.Value == 100 then
-                Esp.Enabled = false
-            end
-        end) 
+    for _, v in ipairs(PlayerFolder.Killers:GetChildren()) do
+      plrESP(v, Color3.new(1, 0, 0))
     end
-
-    local function updateESP()
-        for _, v in ipairs(MapFolder:GetDescendants()) do
-            if v.Name == "Medkit" and v:IsA("Tool") then
-                createESP(v, Color3.new(1, 1, 0))
-            elseif v.Name == "BloxyCola" and v:IsA("Tool") then
-                createESP(v, Color3.new(0, 0, 1))
-            elseif v.Name == "Generator" and v:IsA("Model") and v.Parent.Name ~= "Instances" then
-                createESP(v, Color3.new(1, 0, 1))
-                HandleGenESP(v) 
-            end
-        end
-
-        for _, v in ipairs(PlayerFolder.Survivors:GetChildren()) do
-            plrESP(v, Color3.new(0, 1, 0))
-        end
-
-        for _, v in ipairs(PlayerFolder.Killers:GetChildren()) do
-            plrESP(v, Color3.new(1, 0, 0))
-        end
-    end
+  end
     
+  updateESP()
+  Player.CharacterAdded:Connect(function() 
+    task.wait(3)
     updateESP()
-    Player.CharacterAdded:Connect(function() 
-        task.wait(3)
-        updateESP()
-    end)
-    Run.Heartbeat:Connect(function()
-        for _, v in ipairs(PlayerFolder.Survivors:GetChildren()) do
-            plrESP(v, Color3.new(0, 1, 0))
-        end
+  end)
+  Run.Heartbeat:Connect(function()
+    for _, v in ipairs(PlayerFolder.Survivors:GetChildren()) do
+      plrESP(v, Color3.new(0, 1, 0))
+    end
 
-        for _, v in ipairs(PlayerFolder.Killers:GetChildren()) do
-            plrESP(v, Color3.new(1, 0, 0))
-        end
-    end)
+    for _, v in ipairs(PlayerFolder.Killers:GetChildren()) do
+      plrESP(v, Color3.new(1, 0, 0))
+    end
+  end)
+  Notify("EspSaken Activated.")
 end
 
 function Saken:AutoGen() 
-    local function solvgen()
-        for _, v in pairs(workspace.Map.Ingame.Map:GetDescendants()) do
-            if v:IsA("RemoteEvent") then
-                v:FireServer() 
-            end
-        end
+  local function solvgen()
+    for _, v in pairs(workspace.Map.Ingame.Map:GetDescendants()) do
+      if v:IsA("RemoteEvent") then
+        v:FireServer() 
+      end
     end
+  end
 
-    if getgenv().loop then
-        getgenv().loop:Disconnect() 
-        getgenv().loop = nil 
+  if getgenv().loop then
+    getgenv().loop:Disconnect() 
+    getgenv().loop = nil 
+  end
+
+  local nextActionTime = 0
+  local delayTime = function() 
+    return Random.new():NextNumber(2.5, 3.5) 
+  end
+
+  getgenv().loop = Run.Heartbeat:Connect(function()
+    local ui = PlayerG:FindFirstChild("PuzzleUI")
+    if ui then
+      if nextActionTime == 0 then
+        nextActionTime = os.clock() + delayTime() 
+      end
+      if os.clock() >= nextActionTime then
+        solvgen() 
+        nextActionTime = os.clock() + delayTime() 
+      end
+    else
+      if nextActionTime ~= 0 then
+        nextActionTime = 0
+      end
     end
-
-    local nextActionTime = 0
-    local delayTime = function() 
-        return Random.new():NextNumber(2.5, 3) 
-    end
-
-    getgenv().loop = Run.Heartbeat:Connect(function()
-        local ui = PlayerG:FindFirstChild("PuzzleUI")
-        if ui then
-            if nextActionTime == 0 then
-                nextActionTime = os.clock() + delayTime() 
-            end
-            if os.clock() >= nextActionTime then
-                solvgen() 
-                nextActionTime = os.clock() + delayTime() 
-            end
-        else
-            if nextActionTime ~= 0 then
-                nextActionTime = 0
-            end
-        end
-    end)
+  end)
+  Notify("GenSaken Activated.")
 end
 
 function Saken:Config() 
-    Sprinting.DefaultConfig.MinStamina = -5400
+  Sprinting.DefaultConfig.MinStamina = -5400
 
-    for _, Kill in ipairs(Killers) do 
-        if not Kill:FindFirstChild("Config") then continue end
-        require(Kill.Config).Speed =  13
-        require(Kill.Config).SprintSpeed = 32
-        if Kill.Name == "Noli" then
-            require(Kill.Config).VoidRushDashSpeed = 70
-            require(Kill.Config).VoidRushTurnSpeed = math.huge
-            require(Kill.Config).VoidRushInitialTurnDuration = 0
-            require(Kill.Config).VoidRushInitialTurnMult = 0
-        elseif Kill.Name == "Slasher" then
-            require(Kill.Config).EnragedSpeed = 30
-        elseif Kill.Name == "1x1x1x1" then
-            require(Kill.Config).Speed =  13
-            require(Kill.Config).SprintSpeed = 30.75
-        end
-    end 
-
-    for _, Surv in ipairs(Survivors) do 
-        if not Surv:FindFirstChild("Config") then continue end
-        require(Surv.Config).Speed = 16
-        require(Surv.Config).SprintSpeed = 30
-        if Surv.Name == "Veeronica" then
-            require(Surv.Config).Sk8TurnControl = 6
-        elseif Surv.Name == "TwoTime" then
-            require(Surv.Config).CrouchSpeed = 15
-            require(Surv.Config).CrouchRunSpeed = 30
-        end
+  for _, Kill in ipairs(Killers) do 
+    if not Kill:FindFirstChild("Config") then continue end
+    require(Kill.Config).Speed =  13
+    require(Kill.Config).SprintSpeed = 32
+    if Kill.Name == "Noli" then
+      require(Kill.Config).VoidRushDashSpeed = 70
+      require(Kill.Config).VoidRushTurnSpeed = math.huge
+      require(Kill.Config).VoidRushInitialTurnDuration = 0
+      require(Kill.Config).VoidRushInitialTurnMult = 0
+    elseif Kill.Name == "Slasher" then
+      require(Kill.Config).EnragedSpeed = 30
+    elseif Kill.Name == "1x1x1x1" then
+      require(Kill.Config).Speed =  13
+      require(Kill.Config).SprintSpeed = 30.75
     end
+  end 
+
+  for _, Surv in ipairs(Survivors) do 
+    if not Surv:FindFirstChild("Config") then continue end
+    require(Surv.Config).Speed = 16
+    require(Surv.Config).SprintSpeed = 30
+    if Surv.Name == "Veeronica" then
+      require(Surv.Config).Sk8TurnControl = 6
+    elseif Surv.Name == "TwoTime" then
+      require(Surv.Config).CrouchSpeed = 15
+      require(Surv.Config).CrouchRunSpeed = 30
+    end
+  end
     
-    local function stopTimer()
-        if crouchThread then
-            task.cancel(crouchThread)
-            crouchThread = nil
-        end
+  local function stopTimer()
+    if crouchThread then
+      task.cancel(crouchThread)
+      crouchThread = nil
     end
+  end
 
-    local function DoLunge(arg1)
-        local Lunge = Util:ApplyVelocity(arg1.Rig, 310)
-        game.TweenService:Create(Lunge, TweenInfo.new(0.2), {
-    	 					["LineVelocity"] = Lunge.LineVelocity / 3
-      					}):Play()
-    			  		game.Debris:AddItem(Lunge, 0.2) 
-    end
+  local function DoLunge(arg1)
+    local Lunge = Util:ApplyVelocity(arg1.Rig, 310)
+    game.TweenService:Create(Lunge, TweenInfo.new(0.2), {
+      ["LineVelocity"] = Lunge.LineVelocity / 3
+    }):Play()
+    game.Debris:AddItem(Lunge, 0.2) 
+  end
 
-    Able.Dagger.Callback = function(arg1)
-        local Anims = arg1.Animations
-        if IsCr then
-            Anims.LungeStart:Play(0)
-            task.delay(Anims.LungeStart.Length, function()
-                Anims.LungeLoop:Play(0)
-            end) 
-            task.delay(0.6, function()
-                Anims.LungeEnd:Play() 
-                Anims.LungeStart:Stop(0)
-                Anims.LungeLoop:Stop(0) 
-            end) 
-            IsCr = false
-            stopTimer()
-        else
-            Anims.Stab:Play(0)
-            task.delay(0.15, function() 
-                DoLunge(arg1) 
-            end) 
-        end
+  Able.Dagger.Callback = function(arg1)
+    local Anims = arg1.Animations
+    if IsCr then
+      Anims.LungeStart:Play(0)
+      task.delay(Anims.LungeStart.Length, function()
+        Anims.LungeLoop:Play(0)
+      end) 
+      task.delay(0.6, function()
+        Anims.LungeEnd:Play() 
+        Anims.LungeStart:Stop(0)
+        Anims.LungeLoop:Stop(0) 
+      end) 
+      IsCr = false
+      stopTimer()
+    else
+      Anims.Stab:Play(0)
+      task.delay(0.15, function() 
+        DoLunge(arg1) 
+      end) 
     end
+  end
 
-    Able.Crouch.Callback = function(arg1)
-        stopTimer() 
-        IsCr = true
-        crouchThread = task.delay(15, function()
-            if IsCr then
-                IsCr = false
-                crouchThread = nil
-            end
-        end)
-    end
+  Able.Crouch.Callback = function(arg1)
+    stopTimer() 
+    IsCr = true
+    crouchThread = task.delay(15, function()
+      if IsCr then
+        IsCr = false
+        crouchThread = nil
+      end
+    end)
+  end
+  Notify("ConfigSaken Activated.")
 end
 
-function Saken:Function() 
-    local function GuiSaken(Rig) 
-        local PC = Rig
-        if not PC then return end
+function Saken:Function()
+  local function GuiSaken(Rig) 
+    local PC = Rig
+    if not PC then return end
 
-        PC:WaitForChild("SpeedMultipliers"):WaitForChild("DirectionalMovement"):Destroy() 
+    PC:WaitForChild("SpeedMultipliers"):WaitForChild("DirectionalMovement"):Destroy() 
         
-        local Invis = Instance.new("Animation", PC) 
-        Invis.AnimationId = "rbxassetid://75804462760596"
-        Invis.Name = "Invisible"
+    local Invis = Instance.new("Animation", PC) 
+    Invis.AnimationId = "rbxassetid://75804462760596"
+    Invis.Name = "Invisible"
 
-        local Jerk = Instance.new("Animation", PC)
-        Jerk.AnimationId = "rbxassetid://72042024"
-        Jerk.Name = "Goon"
+    local Jerk = Instance.new("Animation", PC)
+    Jerk.AnimationId = "rbxassetid://72042024"
+    Jerk.Name = "Goon"
 
-        local Block = Instance.new("Animation", PC) 
-        Block.AnimationId = "rbxassetid://72722244508749"
-        Block.Name = "FakeBlock"
+    local Block = Instance.new("Animation", PC) 
+    Block.AnimationId = "rbxassetid://72722244508749"
+    Block.Name = "FakeBlock"
 
-        local Animator = PC:WaitForChild("Humanoid"):WaitForChild("Animator")
+    local Animator = PC:WaitForChild("Humanoid"):WaitForChild("Animator")
 
-        local JerkAnim = Animator:LoadAnimation(Jerk) 
-        JerkAnim.Looped = true
-        JerkAnim.Priority = Enum.AnimationPriority.Action4
+    local JerkAnim = Animator:LoadAnimation(Jerk) 
+    JerkAnim.Looped = true
+    JerkAnim.Priority = Enum.AnimationPriority.Action4
 
-        local BlockAnim = Animator:LoadAnimation(Block) 
-        BlockAnim.Priority = Enum.AnimationPriority.Action4
+    local BlockAnim = Animator:LoadAnimation(Block) 
+    BlockAnim.Priority = Enum.AnimationPriority.Action4
 
-        local Gui = PlayerG:FindFirstChild("SakenGui") or Instance.new("ScreenGui", PlayerG) 
-        Gui.Name = "SakenGui"
-        Gui.ResetOnSpawn = true
-
-        local TextButton = Instance.new("TextButton", Gui) 
-        TextButton.Size = UDim2.new(0.1, 0, 0.1, 0) 
-        TextButton.Text = "Goon"
-
-        local TextButton2 = Instance.new("TextButton", Gui) 
-        TextButton2.Size = UDim2.new(0.1, 0, 0.1, 0) 
-        TextButton2.Position = UDim2.new(0.1, 0, 0, 0) 
-        TextButton2.Text = "FakeBlock"
-
-        local TextButton3 = Instance.new("TextButton", Gui) 
-        TextButton3.Size = UDim2.new(0.1, 0, 0.1, 0) 
-        TextButton3.Position = UDim2.new(0.2, 0, 0, 0) 
-        TextButton3.Text = "Ragdoll"
-
-        local Bool, Bool2 = false, false
-
-        TextButton3.MouseButton1Click:Connect(function() 
-            if not Bool2 then
-                PC.Humanoid.PlatformStand = true
-                Sounds:Play("ragdolledLol", {Parent = PC.PrimaryPart}) 
-                Bool2 = true
-                pcall(function() ragdolls.EnableRagdoll(PC) end) 
-            else
-                ragdolls.DisableRagdoll(PC)
-                PC.Humanoid.PlatformStand = false
-                Bool2 = false
-            end
-        end) 
-
-        TextButton2.MouseButton1Click:Connect(function() BlockAnim:Play() end) 
-
-        TextButton.MouseButton1Click:Connect(function() 
-            if not Bool then JerkAnim:Play() Bool = true else JerkAnim:Stop() Bool = false end
-        end) 
+    local Gui = PlayerG:FindFirstChild("SakenGui") or Instance.new("ScreenGui", PlayerG) 
+    Gui.Name = "SakenGui"
+    Gui.ResetOnSpawn = true
+    
+    local RagTrue = function()
+      PC.Humanoid.PlatformStand = true
+      Sounds:Play("ragdolledLol", {Parent = PC.PrimaryPart})
+      pcall(function() ragdolls.EnableRagdoll(PC) end)
     end
-
-
-    Player.CameraMaxZoomDistance = 150
-    task.spawn(GuiSaken, Player.Character)
-    Player.CharacterAdded:Connect(function(Rig) 
-        task.spawn(GuiSaken, Rig)
-    end) 
-
-    blind.Applied = function() end
-    blind.Removed = function() end
-
-    Undetect.Applied = function(arg1) 
-        if arg1.Character then
-            local InvisAnim = arg1.Character.Humanoid.Animator:LoadAnimation(arg1.Character.Invisible) 
-            InvisAnim:Play(0) 
-            InvisAnim:AdjustSpeed(0) 
-        end
+    
+    local RagFalse = function()
+      ragdolls.DisableRagdoll(PC)
+      PC.Humanoid.PlatformStand = false
     end
+    
+    local TextButton = CreateToggleButton("Goon:", nil, Gui, function() JerkAnim:Play() end, function() JerkAnim:Stop() end)
 
-    Undetect.Removed = function(arg1)
-        if arg1.Character then
-            local Humanoid = arg1.Character:FindFirstChildOfClass("Humanoid")
-            local Animator = Humanoid and Humanoid:FindFirstChildOfClass("Animator")
-            
-            if Animator then
-                local targetId = arg1.Character.Invisible.AnimationId
-                for _, track in pairs(Animator:GetPlayingAnimationTracks()) do
-                    if track.Animation and string.find(track.Animation.AnimationId, targetId) then
-                        track:Stop()
-                    end
-                end
-            end
-        end
+    local TextButton2 = CreateButton("FakeBlock", nil, Gui, function() BlockAnim:Play() end)
+    
+    local TextButton3 = CreateToggleButton("Ragdoll:", nil, Gui, RagTrue, RagFalse)
+  end
+
+  Player.CameraMaxZoomDistance = 40
+  task.spawn(GuiSaken, Player.Character)
+  Player.CharacterAdded:Connect(function(Rig) 
+    task.spawn(GuiSaken, Rig)
+  end) 
+
+  blind.Applied = function() end
+  blind.Removed = function() end
+
+  Undetect.Applied = function(arg1) 
+    if arg1.Character then
+      local InvisAnim = arg1.Character.Humanoid.Animator:LoadAnimation(arg1.Character.Invisible) 
+      InvisAnim:Play(0) 
+      InvisAnim:AdjustSpeed(0) 
     end
+  end
 
-    if Landing then Landing:Destroy() end
-
-    ChatConfig.Enabled = true
-
-    ChatConfig:GetPropertyChangedSignal("Enabled"):Connect(function()
-        if not ChatConfig.Enabled then
-            ChatConfig.Enabled = true
+  Undetect.Removed = function(arg1)
+    if arg1.Character then
+      local Humanoid = arg1.Character:FindFirstChildOfClass("Humanoid")
+      local Animator = Humanoid and Humanoid:FindFirstChildOfClass("Animator")
+      
+      if Animator then
+        local targetId = arg1.Character.Invisible.AnimationId
+        for _, track in pairs(Animator:GetPlayingAnimationTracks()) do
+          if track.Animation and string.find(track.Animation.AnimationId, targetId) then
+            track:Stop()
+          end
         end
-    end)
+      end
+    end
+  end
+
+  if Landing then Landing:Destroy() end
+  
+  ChatConfig.Enabled = true
+
+  ChatConfig:GetPropertyChangedSignal("Enabled"):Connect(function()
+    if not ChatConfig.Enabled then
+      ChatConfig.Enabled = true
+    end
+  end)
+  Notify("FunctionSaken Activated.")
 end
 
 return Saken
