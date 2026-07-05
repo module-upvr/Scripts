@@ -20,5 +20,6 @@ for i, v in pairs(newAnimations) do
       con["Animations"] = newAnimations
     else
       con["Animations"][i] = v
+    end
   end
 end
