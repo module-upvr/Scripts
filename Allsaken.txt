@@ -114,7 +114,7 @@ function Saken:Esp()
 
     local highlight = Instance.new("Highlight")
     highlight.FillTransparency = 0.9
-    highlight.OutlineTransparency = 0
+    highlight.OutlineTransparency = 1
     highlight.FillColor = color
     highlight.OutlineColor = color
     highlight.Parent = object
@@ -133,7 +133,7 @@ function Saken:Esp()
     local highlight = Instance.new("Highlight")
     highlight.Name = "SakenLight"
     highlight.FillTransparency = 0.9
-    highlight.OutlineTransparency = 0
+    highlight.OutlineTransparency = 1
     highlight.FillColor = color
     highlight.Parent = object  
   end
@@ -173,7 +173,7 @@ function Saken:Esp()
     
   updateESP()
   Player.CharacterAdded:Connect(function() 
-    task.wait(3)
+    task.wait(4)
     updateESP()
   end)
   Run.Heartbeat:Connect(function()
@@ -347,6 +347,10 @@ function Saken:Function()
       ragdolls.DisableRagdoll(PC)
       PC.Humanoid.PlatformStand = false
     end
+    
+    Buttons = {}
+    Bools = {}
+    buttonCount = 0
     
     local TextButton = CreateToggleButton("Goon:", nil, Gui, function() JerkAnim:Play() end, function() JerkAnim:Stop() end)
 
