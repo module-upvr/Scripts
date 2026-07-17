@@ -393,14 +393,17 @@ function Saken:Function()
   end
 
   if Landing then Landing:Destroy() end
-  
-  ChatConfig.Enabled = true
 
-  ChatConfig:GetPropertyChangedSignal("Enabled"):Connect(function()
-    if not ChatConfig.Enabled then
-      ChatConfig.Enabled = true
-    end
-  end)
+  if getgenv().Chat == true then
+  else
+    ChatConfig.Enabled = true
+
+    ChatConfig:GetPropertyChangedSignal("Enabled"):Connect(function()
+      if not ChatConfig.Enabled then
+        ChatConfig.Enabled = true
+      end
+    end)
+  end
 end
 
 return Saken
