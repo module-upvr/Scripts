@@ -1,0 +1,167 @@
+local Player = game:GetService("Players").LocalPlayer
+
+local CurrentRig = Player.Character
+
+local module = require(game:GetService("ReplicatedStorage").Assets.Killers.JohnDoe.Config)
+local newAnims = require(game:GetService("ReplicatedStorage").Assets.Skins.Killers.JohnDoe.Milestone100JohnDoe.Config).Animations
+
+for i, v in pairs(newAnims) do
+  module.Animations[i] = v
+end
+
+local function Accs(AccsName, char, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.new(1, 1, 1)
+  Angle = Angle or CFrame.Angles(0, 0, 0)
+  CF = CF or CFrame.new(0, 0, 0)
+  if typeof(Welded) == "string" then
+    Welded = char[Welded]
+  end
+
+  local var_1 = Instance.new("Accessory", char) 
+  var_1.Name = AccsName
+  local var_2 = Instance.new("Part", var_1) 
+  var_2.Anchored = false
+  var_2.Massless = true
+  var_2.CanCollide = false
+  var_2.Size = Vector3.new(1, 1, 1) 
+  var_2.Name = "Handle"
+  local var_3 = Instance.new("SpecialMesh", var_2) 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  local var_4 = Instance.new("Weld", var_2) 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = Welded
+  return var_4
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy()
+  end
+end
+
+local function addMesh(part, id1, id2) 
+  local T = Instance.new("SpecialMesh", part) 
+  T.MeshType = Enum.MeshType.FileMesh
+  T.MeshId = id1
+  T.TextureId = id2
+end
+
+local function addFace(part, texture) 
+  local decal = Instance.new("Decal", part) 
+  decal.Texture = texture
+end
+
+local function CreatePart(name, parent, weld, offset) 
+  local Part = Instance.new("Part", parent)
+  Part.Name = name
+  Part.Massless = true
+  Part.Anchored = false
+  Part.CanCollide = false
+  Part.CanTouch = false
+  Part.CanQuery = false
+  if weld then
+    local Weld = Instance.new("WeldConstraint", Part)
+    Part.CFrame = offset and weld.CFrame * offset or weld.CFrame
+    Weld.Part0 = Part
+    Weld.Part1 = weld
+  end
+  return Part
+end
+
+local function DoMorph(P, Name)
+  if P.Name == Name and P:GetAttribute("SkinName") == "" then
+    D(P.John)
+
+    local HeadMesh = Instance.new("SpecialMesh", P.Head) 
+    HeadMesh.Scale = Vector3.new(1.25, 1.25, 1.25) 
+
+    addFace(P.Head, "rbxassetid://99040959697281")
+    addFace(P.Head, "rbxassetid://136222480902023")
+    addFace(P.Head, "rbxassetid://72680401378494")
+    addFace(P.Head, "rbxassetid://92695247774236")
+
+    addMesh(P.Torso, "rbxassetid://16756272545", "rbxassetid://124288493310651") 
+    addMesh(P["Left Arm"], "rbxassetid://16756272331", "rbxassetid://124288493310651") 
+    addMesh(P["Right Arm"], "rbxassetid://16756272151", "rbxassetid://124288493310651")
+    addMesh(P["Right Leg"], "rbxassetid://16756271614", "rbxassetid://124288493310651")
+    
+    local Peg = CreatePart("PegLeg", P["Left Leg"], P["Left Leg"]) 
+    Peg.Size = Vector3.new(0.9, 2, 0.9)
+    Peg.Transparency = 1
+
+    local Peg1 = CreatePart("UpperPeg", Peg, Peg, CFrame.new(0, 0.9, 0))
+    Peg1.Size = Vector3.new(0.9, 0.25, 0.9)
+    Peg1.BrickColor = BrickColor.new("Rust")
+    Peg1.Material = Enum.Material.Wood
+
+    local Peg2 = CreatePart("MidPeg", Peg, Peg, CFrame.new(0, 0.15, 0)) 
+    Peg2.Size = Vector3.new(0.5, 1.25, 0.5) 
+    Peg2.BrickColor = BrickColor.new("Rust")
+    Peg2.Material = Enum.Material.Wood
+
+    local Peg3 = CreatePart("LowerPeg", Peg, Peg, CFrame.new(0, -0.75, 0) * CFrame.Angles(math.pi, 0, 0))
+    Peg3.Size = Vector3.new(0.1, 0.75, 0.1) 
+    Peg3.BrickColor = BrickColor.new("Rust")
+    Peg3.Material = Enum.Material.Wood
+
+    local ConeMesh = Instance.new("SpecialMesh", Peg3)
+    ConeMesh.MeshType = Enum.MeshType.FileMesh
+    ConeMesh.MeshId = "rbxassetid://1033714"
+    ConeMesh.Scale = Vector3.new(0.25, 0.75, 0.25)
+
+    local Hat = Accs("PirateHat", P, "http://www.roblox.com/asset/?id=1028848", "http://www.roblox.com/asset/?id=1028847", nil, CFrame.new(0, -0.75, 0), "Head", nil) 
+
+    local Hook = Accs("Hook", P, "http://www.roblox.com/asset/?id=13160225", "http://www.roblox.com/asset/?id=13160246", Vector3.new(0.975, 0.5, 1), CFrame.new(-0.05, 0.002, -1.7), "Right Arm", CFrame.Angles(-math.pi / 2, 0, 0)) 
+
+    local Eyepatch = Accs("Eyepatch", P, "http://www.roblox.com/asset/?id=74969506", "http://www.roblox.com/asset/?id=74226311", Vector3.new(1.05, 1, 1.05), CFrame.new(-0.015, 0.3, -0.06), "Head") 
+    Eyepatch.C1 = CFrame.new(-0.01, 0.6, -0.1) 
+
+    local Beard1 = Accs("Beard1", P, "http://www.roblox.com/asset/?id=157959108", "http://www.roblox.com/asset/?id=9470062495", Vector3.new(0.55, 0.55, 0.55), CFrame.new(0, 0.2, 0.3), "Head") 
+    
+    local Beard2 = Accs("Beard2", P, "rbxassetid://3711124516", "rbxassetid://9470062495", nil, CFrame.new(0.017, 0.651, 0.559), "Head")
+    
+    local Sword1 = Accs("Sword1", P, "http://www.roblox.com/asset/?id=10909387", "http://www.roblox.com/asset/?id=10909398", Vector3.new(1.5, 1.5, 1.5), CFrame.new(-0.045, -0.5, 0.527), "Torso", CFrame.Angles(-math.pi/2, 0, -math.rad(40))) 
+
+    local Sword2 = Accs("Sword2", P, "http://www.roblox.com/asset/?id=10909387", "http://www.roblox.com/asset/?id=10909398", Vector3.new(1.5, 1.5, 1.5), CFrame.new(-0.045, 0.5, 0.527), "Torso", CFrame.Angles(-math.pi/2, math.pi, math.rad(40))) 
+
+    local firebrand = Accs("FireBrand", P, "rbxasset://fonts/sword.mesh", "rbxasset://textures/SwordTexture.png", Vector3.new(1.5, 1.5, 1.246), CFrame.new(-0.75, 0, -1.75), "Left Arm", CFrame.Angles(math.pi, 0, math.pi/2) ) 
+    firebrand.Parent.Mesh.VertexColor = Vector3.new(1, 0, 0) 
+
+    for _, v in ipairs({"Head", "Torso", "Left Arm", "Right Arm", "Right Leg"}) do
+      local L = P:WaitForChild(v)
+      if L then
+        L.Transparency = 0
+        L.Color = Color3.fromRGB(253, 234, 141) 
+      end
+    end
+    for _, v in ipairs(P:GetDescendants())do
+      if v:IsA("ParticleEmitter") or v:IsA("Beam") then v:Destroy() end
+    end
+    P.Head.Color = Color3.fromRGB(239, 184, 56) 
+  end
+end
+
+DoMorph(CurrentRig, "JohnDoe")
+
+Player.CharacterAdded:Connect(function(Rig)
+  DoMorph(Rig, "JohnDoe")
+end)
