@@ -169,7 +169,7 @@ local Loop
 
 local function DoMorph(P, Name)
   if P.Name == Name and P:GetAttribute("SkinName") == "" then
-    D(P.coolkiddrblx)
+    D(P.cool)
     
     if Loop then
       Loop:Disconnect()
