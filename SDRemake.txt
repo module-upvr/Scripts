@@ -1,5 +1,5 @@
 local Fah = "Fahh.mp3"
-local url = "https://raw.githubusercontent.com/module-upvr/Scripts/main/Fahh.mp3"
+local url = "https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/Fahh.mp3"
 local source = game:HttpGet(url)
 
 if not isfile(Fah) then
