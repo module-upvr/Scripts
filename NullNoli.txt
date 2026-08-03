@@ -1,0 +1,616 @@
+local Player = game:GetService("Players").LocalPlayer
+
+local CurrentRig = Player.Character
+
+local I = workspace.Map.Ingame
+
+if not isfolder("Stick") then
+  makefolder("Stick") 
+end
+
+local assetsConfig = {
+  HahaNull = "https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/HahaNull.mp3",
+  AughNull = "https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/AughNull.mp3",
+  RegretNull = "https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/RegretNull.mp3",
+  YouThoughtNull = "https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/YouThoughtNull.mp3",
+  ToldYouNull = "https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/ToldYouNull.mp3",
+  NowhereHideNull = "https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/NowhereHideNull.mp3",
+  PleaseNull = "https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/PleaseNull.mp3",
+  IntroNull = "https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/IntroNull.mp3",
+  OutroNull = "https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OutroNull.mp3"
+}
+
+local customAssets = {}
+
+for fileName, url in pairs(assetsConfig) do
+  local filePath = "Stick/" .. fileName .. ".mp3"
+  
+  if not isfile(filePath) then
+    writefile(filePath, game:HttpGet(url))
+  end
+  
+  local cleanName = fileName:gsub("Null$", "")
+  
+  customAssets[cleanName] = {
+    Id = getcustomasset(filePath),
+    Name = cleanName
+  }
+end
+
+local v_u_1 = game:GetService("ReplicatedStorage")
+local v_u_15 = require(v_u_1.Modules.Network.Network)
+local v_u_2 = game:GetService("TweenService")
+local v_u_3 = game:GetService("RunService")
+local v_u_10 = require(v_u_1.Modules.Schematics.Lighting)
+local v_u_16 = require(game.ReplicatedStorage.Modules.Utilities.Util)
+
+local Con = require(game:GetService("ReplicatedStorage").Assets.Killers.Noli.Config)
+
+local Beh = require(game:GetService("ReplicatedStorage").Assets.Killers.Noli.Behavior)
+
+local function CreatePart(name, parent, weld, offset) 
+  local Part = Instance.new("Part")
+  Part.Name = name
+  Part.Massless = true
+  Part.Anchored = false
+  Part.CanCollide = false
+  Part.CanTouch = false
+  Part.CanQuery = false
+
+  if weld then
+    local Weld = Instance.new("Weld")
+    Weld.C0 = offset or CFrame.new(0, 0, 0) 
+    Weld.Part0 = Part
+    Weld.Part1 = weld
+    Weld.Parent = Part
+  end
+
+  Part.Parent = parent
+  return Part
+end
+
+local function Accs(AccsName, parent, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.new(1, 1, 1)
+  Angle = Angle or CFrame.Angles(0, 0, 0)
+  CF = CF or CFrame.new(0, 0, 0)
+  
+  if typeof(Welded) == "string" then
+    Welded = parent[Welded]
+  end
+
+  local var_2 = CreatePart(AccsName, parent) 
+  var_2.Size = Vector3.new(1, 1, 1)
+
+  local var_3 = Instance.new("SpecialMesh") 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  var_3.Parent = var_2
+
+  local var_4 = Instance.new("Weld") 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = Welded
+  var_4.Parent = var_2
+  
+  return var_2
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy() 
+  end
+end
+
+local function squarify(char) 
+  local f = game:GetService("ReplicatedStorage").Assets.Skins.Killers.c00lkidd.MafiosoC00l.Config.Minions.Mafia1:GetChildren()
+
+  for _, v in ipairs(f) do
+    if v:IsA("CharacterMesh") then
+      local c = v:Clone() 
+      c.Parent = char
+    end
+  end
+end
+
+Beh.Abilities.Stab.Callback = function(a, _) 
+  a.Animations.Stab:Play(0.175) 
+  if a.Rig:FindFirstChild("YouCanThinkPad2") then
+    a.Rig.YouCanThinkPad2.Transparency = 0
+    task.delay(1.05, function() a.Rig.YouCanThinkPad2.Transparency = 1
+    end) 
+  end
+end
+
+Beh.Abilities.Nova.Callback = function(a, s) 
+  if s == "Detonate" then
+    a.Animations.NovaDet:Play(0.175)
+  else
+    a.Animations.NovaThrow:Play(0.175)
+    v_u_15:FireConnection("DisableSprinting", "Nova", true)
+    task.delay(a.Config.NovaWindup, function()
+      v_u_15:FireConnection("DisableSprinting", "Nova", false)
+      local ThrownVoidstar = I:WaitForChild("Voidstar")
+      if ThrownVoidstar then
+        ThrownVoidstar.Transparency = 1
+        local yctpftv = Accs("yctp", ThrownVoidstar, "rbxassetid://74518525461251", "http://www.roblox.com/asset/?id=89629468451868", Vector3.new(0.7, 0.7, 0.7), nil, ThrownVoidstar, nil)
+        ThrownVoidstar.Name = "VoidstarNull"
+      end
+    end)
+  end
+end
+
+Beh.Abilities.VoidRush.Callback = function(a, s)
+  local SlammedVoidstar = a.Rig:FindFirstChild("YouCanThinkPad2")
+  local _ = a.Behavior
+  local v_u_88 = ("%*VoidRushCollision"):format(a.Player.Name)
+  local v89 = ("%*VoidRushCancel"):format(a.Player.Name);
+  ("%*VoidRushUpdateUI"):format(a.Player.Name)
+  local v90 = require(v_u_1.Systems.Character.Game.Sprinting)
+  if s then
+    s = s.SentTick
+  end
+  v_u_15:FireConnection("DisableSprinting", "VoidRushCharging", true)
+  if SlammedVoidstar then
+    SlammedVoidstar.Transparency = 0
+  end
+  if s then
+    v90.StaminaCap = v90.Stamina + 1
+    local v91 = false
+    while v_u_3.Heartbeat:Wait() do
+      if a.HeldAbilities.VoidRush or v91 then
+        if a.Rig:GetAttribute("VoidRushState") ~= "Charging" then
+          break
+        end
+      else
+        v_u_15:FireServerConnection(v89, "REMOTE_EVENT")
+        v91 = true
+      end
+    end
+  end
+  if a.Rig:GetAttribute("VoidRushState") == "ChargingCancelled" then
+    v_u_15:FireConnection("DisableSprinting", "VoidRushCharging", false)
+    v90.StaminaCap = nil
+    a.HeldAbilities.VoidRush = nil
+    if SlammedVoidstar then
+      SlammedVoidstar.Transparency = 1
+    end
+  else
+    local v_u_92 = 0
+    local v_u_93 = false
+    local v94 = workspace.CurrentCamera.CFrame.LookVector
+    local v95 = v94.X
+    local v96 = v94.Z
+    local v_u_97 = Vector3.new(v95, 0, v96).Unit
+    local v_u_98 = Vector3.new(0, 0, 0)
+    v_u_15:FireConnection("DisableSprinting", "VoidRushCharging", true)
+    v90.StaminaCap = v90.Stamina + 1
+    v_u_3:BindToRenderStep("VoidRushCharging", Enum.RenderPriority.Character.Value + 1, function(p99)
+      v_u_92 = v_u_92 + p99
+      local v100 = a.Rig
+      if v100 then
+        v100 = a.Rig.PrimaryPart
+      end
+      if v_u_92 >= 0.3 and (v100 and a.Rig.PrimaryPart.Velocity.Magnitude <= a.Config.VoidRushDashSpeed / 3.5) then
+        if not v_u_93 then
+          v_u_93 = true
+          v_u_15:FireServerConnection(v_u_88, "REMOTE_EVENT", a.HeldAbilities.VoidRush)
+        end
+      else
+        local v101 = a.Rig:FindFirstChild("SpeedMultipliers")
+        if v101 then
+          v101 = v101:FindFirstChild("VoidRushDash")
+        end
+        if v101 then
+          local v102 = a.Config.VoidRushDashSpeed / a.Config.Speed
+          local v103 = p99 * (a.HeldAbilities.VoidRush and 1 or -3) * 2 * v102
+          local v104 = v101.Value + v103
+          v101.Value = math.clamp(v104, 0, v102)
+        end
+        local v105 = workspace.CurrentCamera.CFrame.LookVector
+        local v106 = v105.X
+        local v107 = v105.Z
+        v_u_98 = Vector3.new(v106, 0, v107).Unit
+        local v108 = v_u_98 - v_u_97
+        local v109 = v108.Magnitude
+        if v109 > 0 then
+          local v110 = a.Config.VoidRushInitialTurnDuration
+          local v111 = a.Config.VoidRushInitialTurnMult * v_u_2:GetValue((v110 - v_u_92) / v110, Enum.EasingStyle.Sine, Enum.EasingDirection.In) + 1
+          local v112 = a.Config.VoidRushTurnSpeed * p99 * v111
+          if v109 <= v112 then
+            v_u_97 = v_u_98
+          else
+            v_u_97 = v_u_97 + v108.Unit * v112
+          end
+          v_u_97 = v_u_97.Unit
+        end
+        a.Rig.Humanoid:Move(v_u_97)
+      end
+    end)
+    while a and (a.Rig and a.Rig:GetAttribute("VoidRushState") == "Dashing") do
+      v_u_3.Heartbeat:Wait()
+    end
+    a.HeldAbilities.VoidRush = nil
+    v90.StaminaCap = nil
+    v_u_15:FireConnection("DisableSprinting", "VoidRushCharging", false)
+    v_u_3:UnbindFromRenderStep("VoidRushCharging")
+    if SlammedVoidstar then
+      SlammedVoidstar.Transparency = 1
+    end
+  end
+end
+
+Beh.OnIntroduction = function(_, p36, p_u_37, p38)
+  if p36.Rig:FindFirstChild("YouCanThinkPad") then
+    local IntroSound = game.workspace.Sounds:WaitForChild("rbxassetid://102261382920667")
+    if IntroSound then
+      IntroSound:Stop()
+      IntroSound.SoundId = customAssets.Intro.Id
+      IntroSound:Play()
+    end
+  end
+  v_u_10:SetCustomLighting(p36.Config.Instances.IntroLighting)
+  local v_u_39 = {}
+  if p_u_37:FindFirstChild("Right Arm") and p_u_37["Right Arm"]:FindFirstChild("TentacleBase") then
+    for _, v40 in ipairs(p_u_37["Right Arm"].TentacleBase:GetDescendants()) do
+      if (v40:IsA("ParticleEmitter") or v40:IsA("Beam")) and v40.Enabled then
+        table.insert(v_u_39, v40)
+        v40.Enabled = false
+      end
+    end
+  end
+  if p_u_37:FindFirstChild("Voidstar") then
+    p_u_37.Voidstar:Destroy()
+  end
+  if p_u_37:FindFirstChild("FakeCrown") then
+    p_u_37.FakeCrown.Transparency = 1
+    if p_u_37:FindFirstChild("VoidstarCrown") then
+      p_u_37.VoidstarCrown:Destroy()
+    end
+  else
+    local v41 = p_u_37:FindFirstChild("VoidstarCrown")
+    if v41 then
+      local v42 = p_u_37.VoidstarCrown:Clone()
+      v42.Name = "FakeCrown"
+      v42.Parent = p_u_37
+      local v43 = Instance.new("Motor6D", v42)
+      v43.C0 = p36.Config.IntroCrownOffset or CFrame.new(0, 0.75, 0)
+      v43.Part0 = p_u_37.Head
+      v43.Part1 = v42
+      v41:Destroy()
+    end
+  end
+  local v_u_44 = workspace.Misc:FindFirstChild("KillerCutsceneBackground")
+  local v_u_45 = true
+  task.spawn(function()
+    while v_u_45 do
+      for v46, v47 in pairs(v_u_44.Voidstars:GetChildren()) do
+        v47.CFrame = v47.CFrame * CFrame.Angles(0, v46 % 2 == 0 and 0.0225 or -0.0225, 0)
+      end
+      task.wait()
+    end
+  end)
+  task.spawn(function()
+    while v_u_45 do
+      local v48 = v_u_44.Skybox
+      v48.CFrame = v48.CFrame * CFrame.Angles(0, 0.004363323129985824, 0)
+      task.wait()
+    end
+  end)
+  local v_u_49 = v_u_16:CreateFOVMultiplier(Player, 0.375, "NoliIntroScene", p38)
+  task.delay(1.98, function()
+    v_u_49.Value = 0.275
+  end)
+  task.delay(p38, function()
+    v_u_45 = false
+    for _, v50 in ipairs(v_u_39) do
+      v50.Enabled = true
+    end
+    p_u_37:Destroy()
+    v_u_10:SetAsCurrentLighting()
+  end)
+end
+
+Beh.OnVictory = function(_, p51, p_u_52, p_u_53, p54)
+  if p51 == "Start" then
+    if p_u_52.Rig:FindFirstChild("YouCanThinkPad") then
+      local OutroSound = game.workspace.Sounds:WaitForChild("rbxassetid://135361916861123")
+      if OutroSound then
+        OutroSound:Stop()
+        OutroSound.SoundId = customAssets.Outro.Id
+        OutroSound:Play()
+      end
+    end
+    v_u_10:SetCustomLighting(p_u_52.Config.Instances.OutroLighting)
+    local v_u_55 = p_u_52.Config.OutroFrameData
+    local v56 = p_u_52.Cache.VictoryKillerTrack
+    local v_u_57 = p_u_52.Cache.VictoryCameraTrack
+    local v_u_58 = {}
+    local v_u_59 = Instance.new("ScreenGui")
+    v_u_59.Name = "NoliOutroOverlay"
+    v_u_59.ResetOnSpawn = false
+    v_u_59.IgnoreGuiInset = true
+    v_u_59.Parent = Player.PlayerGui
+    v56.Stopped:Once(function()
+      if p_u_53 then
+        p_u_53:PivotTo(p_u_53:GetPivot() + Vector3.new(0, -20, 0))
+      end
+    end)
+    local function v_u_62(p60)
+      for _, v61 in ipairs(p60:GetDescendants()) do
+        if v61:IsA("ParticleEmitter") then
+          v_u_58[v61.Name] = v61
+        end
+      end
+    end
+    for _, v63 in ipairs(p_u_53:GetDescendants()) do
+      if v63:IsA("Sound") then
+        v63:Destroy()
+      end
+    end
+    Player:SetAttribute("FOVMultipliersDisabled", true)
+    local v_u_66 = v_u_3.RenderStepped:Connect(function()
+      local v64 = (v_u_57.TimePosition + 0.001) * 60
+      local v65 = math.ceil(v64)
+      if v_u_55.CameraFOV and v_u_55.CameraFOV[v65] then
+        workspace.CurrentCamera.FieldOfView = v_u_55.CameraFOV[v65] or v_u_55.CameraFOV[#v_u_55.CameraFOV]
+      end
+    end)
+    if not v_u_16:GetSettingValue("EpilepsyMode") then
+      local v_u_70 = v56:GetMarkerReachedSignal("EmitParticle"):Connect(function(p67)
+        local v68 = v_u_58[p67]
+        local v69 = v68:GetAttribute("EmitCount")
+        if v69 then
+          v68:Emit(v69)
+        else
+          v68.Enabled = not v68.Enabled
+        end
+      end)
+      task.delay(p54, function()
+        v_u_70:Disconnect()
+      end)
+    end
+    task.spawn(function()
+      local v71 = workspace.Misc:WaitForChild("KillerCutsceneBackground", 3)
+      if v71 then
+        v_u_62(v71.Map.ExplosionGround)
+      end
+    end)
+    task.spawn(function()
+      local v72 = workspace.Misc:WaitForChild(p_u_52.Player.Name .. "CameraRig", 3)
+      if v72 then
+        v_u_62(v72)
+      end
+    end)
+    task.delay(3.22, function()
+      if not v_u_16:GetSettingValue("EpilepsyMode") then
+        local v73 = Instance.new("Frame", v_u_59)
+        v73.Size = UDim2.new(10, 0, 10, 0)
+        v73.AnchorPoint = Vector2.new(0.5, 0.5)
+        v73.Position = UDim2.new(0.5, 0, 0.5, 0)
+        v73.BackgroundTransparency = 1
+        v73.BackgroundColor3 = Color3.new(0, 0, 0)
+        local v74 = Instance.new("Highlight")
+        v74.FillTransparency = 1
+        v74.OutlineTransparency = 1
+        v74.OutlineColor = Color3.new(0.4, 0, 1)
+        v74.Parent = p_u_53
+        game.Debris:AddItem(v74, 3)
+        local v75 = Instance.new("ColorCorrectionEffect")
+        v75.Parent = game.Lighting
+        v75.Name = "NoliBoomCC"
+        game.Debris:AddItem(v75, 3)
+        local v76 = v_u_2:Create(v75, TweenInfo.new(0.65, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+          ["TintColor"] = nil,
+          ["Brightness"] = -0.1,
+          ["Contrast"] = 0.5,
+          ["TintColor"] = Color3.fromRGB(125, 66, 155)
+        })
+        v76:Play()
+        v_u_2:Create(v74, TweenInfo.new(0.65, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, true, 0), {
+          ["OutlineTransparency"] = 0.1
+        }):Play()
+        task.wait(0.65)
+        v_u_16:ApplyCameraShake(0.2, 1.2)
+        v76:Pause()
+        v75.Contrast = 1
+        v75.Brightness = 2.8
+        v75.TintColor = Color3.fromRGB(70, 0, 155)
+        v_u_2:Create(v75, TweenInfo.new(1.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+          ["Brightness"] = -0.6,
+          ["TintColor"] = nil,
+          ["Contrast"] = -0.5,
+          ["TintColor"] = Color3.new(0.623529, 0.623529, 0.623529)
+        }):Play()
+        task.wait(1.1)
+        if not v73 then
+          return
+        end
+        v_u_2:Create(v73, TweenInfo.new(0.2), {
+          ["BackgroundTransparency"] = 0,
+          ["BackgroundColor3"] = nil,
+          ["BackgroundColor3"] = Color3.new(0, 0, 0)
+        }):Play()
+      end
+    end)
+    task.delay(p54, function()
+      v_u_66:Disconnect()
+    end)
+  elseif p51 == "End" then
+    Player:SetAttribute("FOVMultipliersDisabled", nil)
+    v_u_10:SetAsCurrentLighting()
+    if Player.PlayerGui:FindFirstChild("NoliOutroOverlay") then
+      Player.PlayerGui.NoliOutroOverlay:Destroy()
+    end
+    local v77 = game.Lighting:WaitForChild("NoliBoomCC", 9)
+    if v77 then
+      v77:Destroy()
+    end
+  end
+end
+
+local Loop
+
+local VFX = Instance.new("Folder", v_u_1) 
+VFX.Name = "vfx"
+    
+for i, v in pairs(customAssets) do
+  local sounds = Instance.new("Sound", VFX)
+  sounds.Name = v.Name
+  sounds.SoundId = v.Id
+  sounds.MaxDistance = 60
+  sounds.MinDistance = 12
+  sounds.Volume = 2.5
+end
+    
+local customKillVL = {
+  v_u_1.vfx.Haha,
+  v_u_1.vfx.NowhereHide,
+  v_u_1.vfx.YouThought,
+  v_u_1.vfx.ToldYou
+}
+local customStunVL = {
+  v_u_1.vfx.Augh,
+  v_u_1.vfx.Please,
+  v_u_1.vfx.Regret
+}
+
+local function playCustomVL(index, type, parent)
+  if type == "Kill" then
+    local chosen = customKillVL[index]
+    local clone = chosen:Clone()
+    clone.Parent = parent
+    clone:Play()
+    task.delay(clone.TimeLength, function()
+      clone:Destroy()
+    end)
+  elseif type == "Stun" then
+    local chosen = customStunVL[index]
+    local clone = chosen:Clone()
+    clone.Parent = parent
+    clone:Play()
+    task.delay(clone.TimeLength, function()
+      clone:Destroy()
+    end)
+  else
+    local chosen = v_u_1.vfx[index]
+    local clone = chosen:Clone()
+    clone.Parent = parent
+    clone:Play()
+    task.delay(clone.TimeLength, function()
+      clone:Destroy()
+    end)
+  end
+end
+
+local function DoMorph(P, Name)
+  if P.Name == Name and P:GetAttribute("SkinName") == "" then
+    if Loop then
+      Loop:Disconnect()
+      Loop = nil
+    end
+
+    local RA = P["Right Arm"]
+    
+    D(P.Noli, P.VoidstarCrown, P.PrimaryPart.Puddle, P.PrimaryPart.Attachment, RA.TentacleBase.Attachment.ParticleEmitter)
+    for _, v in ipairs({"Torso", "Right Leg", "Left Leg"}) do
+      local L = P:WaitForChild(v)
+      if L then
+        L.Transparency = 0
+        L.Color = Color3.fromRGB(0,0,0)
+      end
+    end
+    Cloth("http://www.roblox.com/asset/?id=11709467184", "http://www.roblox.com/asset/?id=11402636587", nil, P) 
+    squarify(P) 
+
+    local Hair = Accs("Hair", P, "http://www.roblox.com/asset/?id=29938421", "http://www.roblox.com/asset/?id=29938532", nil, CFrame.new(0, -0.3, 0), "Head", nil) 
+    local Eye = Accs("Eye", P, "rbxassetid://127971685372047", "rbxassetid://83943789713074", Vector3.new(1.3, 1.3, 1.3), CFrame.new(-0.229, -0.142, 0.569), "Head", nil) 
+
+    P.Voidstar.Size = Vector3.new(0, 0, 0) 
+
+    local yctp = Accs("YouCanThinkPad", P, "rbxassetid://74518525461251", "http://www.roblox.com/asset/?id=89629468451868", Vector3.new(0.7, 0.7, 0.7), nil, "Voidstar", nil) 
+
+    P.Voidstar:GetPropertyChangedSignal("Transparency"):Connect(function() 
+      yctp.Transparency = P.Voidstar.Transparency
+    end) 
+
+    local yctp2 = Accs("YouCanThinkPad2", P, "rbxassetid://74518525461251", "http://www.roblox.com/asset/?id=89629468451868", Vector3.new(0.7, 0.7, 0.7), CFrame.new(0, 0, 0), "Tentacle", nil) 
+
+    yctp2.Transparency = 1
+
+    local SR = CreatePart("ShoulderRight", RA, RA, CFrame.new(0, -0.65, 0)) 
+    SR.Size = Vector3.new(1, 0.75, 1) 
+    SR.Material = Enum.Material.Asphalt
+    SR.Color = Color3.fromRGB(200, 0, 0) 
+
+    local SL = CreatePart("ShoulderLeft", P["Left Arm"], P["Left Arm"], CFrame.new(0, -0.65, 0)) 
+    SL.Size = Vector3.new(1, 0.75, 1) 
+    SL.Material = Enum.Material.Asphalt
+    SL.Color = Color3.fromRGB(200, 0, 0) 
+
+    for _, v in ipairs(P["Right Arm"].TentacleBase:GetChildren()) do
+      if v:IsA("Beam") and v.TextureLength == 0.75 then
+        v.Color = ColorSequence.new(Color3.new(1, 0, 0)) 
+      end
+    end
+
+    RA.TentacleBaseWeld.Enabled = false
+    RA.TentacleBase.CFrame = CFrame.new(-0.3, -0.3, 0.75) * RA.CFrame
+    RA.TentacleBaseWeld.Enabled = true
+    
+    local KillVL = {
+      "rbxassetid://126709864631697",
+      "rbxassetid://77178807796146",
+      "rbxassetid://71577922726140",
+      "rbxassetid://91878831552537",
+      "rbxassetid://96946385572611",
+      "rbxassetid://85189564267146",
+      "rbxassetid://133601470283097",
+      "rbxassetid://100966549431630",
+      "rbxassetid://110684813246558",
+      "rbxassetid://91228266003282",
+      "rbxassetid://109301111857562",
+      "rbxassetid://134916679174108",
+    }
+    
+    Loop = P.PrimaryPart.ChildAdded:Connect(function(v)
+      if v:IsA("Sound") and v.Name == "VoicelineSFX" then
+        v:Stop()
+        if table.find(KillVL, v.SoundId) then
+          v:Stop() 
+          local random = math.random(1, 4)
+          playCustomVL(random, "Kill", P.PrimaryPart)
+        elseif v.SoundId == "rbxassetid://80760319411525" then
+          v:Stop() 
+          playCustomVL("NowhereHide", nil, P.PrimaryPart)
+        elseif v.SoundId == "rbxassetid://91017967178100" or v.SoundId == "rbxassetid://77178807796146" then
+          v:Stop() 
+          local random = math.random(1, 3)
+          playCustomVL(random, "Stun", P.PrimaryPart)
+        end
+      end
+    end)
+  end
+end
+
+DoMorph(CurrentRig, "Noli")
+
+Player.CharacterAdded:Connect(function(Rig)
+  DoMorph(Rig, "Noli")
+end)
