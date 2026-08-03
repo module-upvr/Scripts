@@ -113,7 +113,7 @@ function Saken:Esp()
     if object:FindFirstChild("SakenLight") then return end
 
     local highlight = Instance.new("Highlight")
-    highlight.FillTransparency = 0.9
+    highlight.FillTransparency = 0.7
     highlight.OutlineTransparency = 1
     highlight.FillColor = color
     highlight.OutlineColor = color
@@ -132,7 +132,7 @@ function Saken:Esp()
 
     local highlight = Instance.new("Highlight")
     highlight.Name = "SakenLight"
-    highlight.FillTransparency = 0.9
+    highlight.FillTransparency = 0.8
     highlight.OutlineTransparency = 1
     highlight.FillColor = color
     highlight.Parent = object  
@@ -225,24 +225,20 @@ function Saken:AutoGen()
 end
 
 function Saken:Config() 
-  Sprinting.DefaultConfig.MinStamina = -5400
+  Sprinting.DefaultConfig.MinStamina = -math.huge
 
   for _, Kill in ipairs(Killers) do 
     if not Kill:FindFirstChild("Config") then continue end
-    require(Kill.Config).Speed =  13
-    require(Kill.Config).SprintSpeed = 32
+    require(Kill.Config).Speed =+ 3.5
+    require(Kill.Config).SprintSpeed =+ 3.5
     if Kill.Name == "Noli" then
       require(Kill.Config).VoidRushDashSpeed = 70
       require(Kill.Config).VoidRushTurnSpeed = math.huge
       require(Kill.Config).VoidRushInitialTurnDuration = 0
       require(Kill.Config).VoidRushInitialTurnMult = 0
     elseif Kill.Name == "Slasher" then
-      require(Kill.Config).EnragedSpeed = 30
-    elseif Kill.Name == "1x1x1x1" then
-      require(Kill.Config).Speed =  13
-      require(Kill.Config).SprintSpeed = 30.75
+      require(Kill.Config).EnragedSpeed =+ 15
     end
-  end 
 
   for _, Surv in ipairs(Survivors) do 
     if not Surv:FindFirstChild("Config") then continue end
