@@ -1,0 +1,185 @@
+local Player = game:GetService("Players").LocalPlayer
+
+local CurrentRig = Player.Character
+
+local Beh = require(game:GetService("ReplicatedStorage").Assets.Survivors.TwoTime.Behavior)
+
+local function CreatePart(name, parent, weld, offset) 
+  local Part = Instance.new("Part")
+  Part.Name = name
+  Part.Massless = true
+  Part.Anchored = false
+  Part.CanCollide = false
+  Part.CanTouch = false
+  Part.CanQuery = false
+
+  if weld then
+    local Weld = Instance.new("Weld")
+    Weld.C0 = offset or CFrame.new(0, 0, 0) 
+    Weld.Part0 = Part
+    Weld.Part1 = weld
+    Weld.Parent = Part
+  end
+
+  Part.Parent = parent
+  return Part
+end
+
+local function Accs(AccsName, parent, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.new(1, 1, 1)
+  Angle = Angle or CFrame.Angles(0, 0, 0)
+  CF = CF or CFrame.new(0, 0, 0)
+  
+  if typeof(Welded) == "string" then
+    Welded = parent[Welded]
+  end
+
+  local var_2 = CreatePart(AccsName, parent) 
+  var_2.Size = Vector3.new(1, 1, 1)
+
+  local var_3 = Instance.new("SpecialMesh") 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  var_3.Parent = var_2
+
+  local var_4 = Instance.new("Weld") 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = Welded
+  var_4.Parent = var_2
+  
+  return var_2
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy() 
+  end
+end
+
+local Survivors = game:GetService("ReplicatedStorage").Assets.Survivors:GetChildren()
+local SurvName = {}
+
+for _, v in ipairs(Survivors) do
+  table.insert(SurvName, v.Name) 
+end
+
+local function madify(char) 
+  Cloth(nil, "http://www.roblox.com/asset/?id=16196042723", nil, char) 
+  Accs("Skirt", char, "rbxassetid://107409307181337", "rbxassetid://78939850507102", nil, CFrame.new(-0.005, 0.458, -0.029), "Torso", nil) 
+  Accs("LeftSleeve", char, "rbxassetid://82108778897457", "rbxassetid://72631346731419", nil, CFrame.new(-0.034, -0.256, -0.004), "Left Arm", nil) 
+  Accs("RightSleeve", char, "rbxassetid://82108778897457", "rbxassetid://72631346731419", nil, CFrame.new(-0.034, -0.256, -0.004), "Right Arm", nil) 
+  Accs("HeadBand", char, "rbxassetid://71336548168608", "rbxassetid://128482761399124", nil, CFrame.new(0, -0.577, 0.054), "Head", nil) 
+end
+
+local C
+
+local ignoredel = {
+  "Hair_Front",
+  "SurfaceAppearance",
+  "Head", 
+  "Torso", 
+  "Right Leg",
+  "Left Leg",
+  "Right Arm",
+  "Left Arm",
+  "wing1",
+  "wing2",
+  "tail", 
+  "WeldConstraint"
+}
+
+local function twotimedel(P)
+  local tt = P:FindFirstChild("Life1") 
+  local tt2 = P:FindFirstChild("Life2")
+  if tt then
+    for _, v in ipairs(tt:GetDescendants()) do
+      if not table.find(ignoredel, v.Name) then
+        v:Destroy()
+      end
+    end
+  elseif tt2 then
+    for _, v in ipairs(tt2:GetDescendants()) do
+      if not table.find(ignoredel, v.Name) then
+        v:Destroy()
+      end
+    end
+  end
+end
+
+local function DoMorph(P, Name)
+  if table.find(Name, P.Name) and P:GetAttribute("SkinName") == "" then
+    P.Torso.Transparency = 0
+    
+    local PosShirt = P:FindFirstChildOfClass("Shirt")
+    local PosPants = P:FindFirstChildOfClass("Pants") 
+    local PosCM = P:FindFirstChildOfClass("CharacterMesh") 
+
+    if PosShirt then PosShirt:Destroy() end
+    if PosPants then PosPants:Destroy() end
+    if PosCM then
+      if PosCM.BodyPart == Enum.BodyPart.Torso then
+        PosCM:Destroy() 
+      end
+    end
+
+    local CM = Instance.new("CharacterMesh", P) 
+    CM.BodyPart = Enum.BodyPart.Torso
+    CM.MeshId = 48112070
+
+    madify(P) 
+
+    if P.Name == "Noob" then
+      Accs("Hair", P, "rbxassetid://140372610698655", "rbxassetid://86086909396689", nil, CFrame.new(-0.071, 0.06, -0.16), "Head", nil) 
+    elseif P.Name == "Elliot" then
+      Accs("Hair", P, "rbxassetid://85665893968731", "rbxassetid://139332514211444", nil, CFrame.new(0.009, -0.222, -0.211), "Head", nil) 
+    elseif P.Name == "Shedletsky" then
+      Accs("Hair", P, "rbxassetid://14806326522", "rbxassetid://14806473883", nil, CFrame.new(0.02, -0.2, 0.04), "Head", CFrame.Angles(-math.pi, 0, -math.pi))
+    elseif P.Name == "007n7" then
+      Accs("Hair", P, "rbxassetid://120973865460299", "rbxassetid://126700608387341", nil, CFrame.new(0.010, -0.030, -0.250), "Head", nil)
+    elseif P.Name == "BuilderMan" then
+      Accs("Hair", P, "rbxassetid://82170765350018", "http://www.roblox.com/asset/?id=82221815031656", nil, CFrame.new(0, -0.08, 0.06), "Head", CFrame.Angles(-math.pi, 0, -math.pi))
+    elseif P.Name == "Taph" then
+      Accs("Hair", P, "rbxassetid://15986348328", "rbxassetid://15986348269", nil, CFrame.new(0.057, -0.256, -0.122), "Head", nil)
+    elseif P.Name == "Chance" then
+      Accs("Hair", P, "rbxassetid://72756588153371", "rbxassetid://76347530675867", nil, CFrame.new(0, -0.108, -0.141), "Head", nil)
+    elseif P.Name == "TwoTime" then
+      twotimedel(P)
+      C = P.ChildAdded:Connect(function(v) 
+        if v.Name == "Life2" then
+          C:Disconnect()
+          C = nil
+          twotimedel(P)
+        end
+      end) 
+    elseif P.Name == "JaneDoe" then
+      D(P.Torso.Coat, P.Torso.Bag, P.Torso.Strap, P["Right Arm"]["Right Sleeve"], P["Left Arm"]["Left Sleeve"]) 
+    elseif P.Name == "Veeronica" then
+      D(P.Head.Cap) 
+      P.HeadBand.Weld.C0 = CFrame.new(0, -1, 0.054) 
+    end
+  end
+end
+
+DoMorph(CurrentRig, SurvName)
+
+Player.CharacterAdded:Connect(function(Rig) 
+  DoMorph(Rig, SurvName) 
+end)
