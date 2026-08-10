@@ -1,0 +1,315 @@
+local Player = game:GetService("Players").LocalPlayer
+local CurrentRig = Player.Character
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local v_u_1 = game:GetService("Debris")
+local v_u_6 = require(game:GetService("ReplicatedStorage").Modules.Utilities.Util)
+local v_u_10 = require(game:GetService("ReplicatedStorage").Systems.Character.Game.Sprinting)
+local Ingame = workspace.Map.Ingame
+
+if not isfile("BreathRK.mp3") then
+  writefile("BreathRK.mp3", game:HttpGet("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/BreathRK.mp3"))
+end
+
+if not isfile("RoarRK.mp3") then
+  writefile("RoarRK.mp3", game:HttpGet("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/RoarRK.mp3"))
+end
+
+local Breath = getcustomasset("BreathRK.mp3")
+local Roar = getcustomasset("RoarRK.mp3")
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy() 
+  end
+end
+
+local connection
+
+local function CreatePart(name, parent, weld, offset) 
+  local Part = Instance.new("Part")
+  Part.Name = name
+  Part.Massless = true
+  Part.Anchored = false
+  Part.CanCollide = false
+  Part.CanTouch = false
+  Part.CanQuery = false
+
+  if weld then
+    local Weld = Instance.new("Weld")
+    Weld.C0 = offset or CFrame.new(0, 0, 0) 
+    Weld.Part0 = Part
+    Weld.Part1 = weld
+    Weld.Parent = Part
+  end
+
+  Part.Parent = parent
+  return Part
+end
+
+local function Accs(AccsName, parent, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.new(1, 1, 1)
+  Angle = Angle or CFrame.Angles(0, 0, 0)
+  CF = CF or CFrame.new(0, 0, 0)
+  
+  if typeof(Welded) == "string" then
+    Welded = parent[Welded]
+  end
+
+  local var_2 = CreatePart(AccsName, parent) 
+  var_2.Size = Vector3.new(1, 1, 1)
+
+  local var_3 = Instance.new("SpecialMesh") 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  var_3.Parent = var_2
+
+  local var_4 = Instance.new("Weld") 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = Welded
+  var_4.Parent = var_2
+  
+  return var_2
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function stopAfterimage()
+  if connection then
+    connection:Disconnect()
+    connection = nil
+  end
+end
+
+local function createAfterimage(char)
+  if not char or not char:FindFirstChildOfClass("Humanoid") then
+    char = Player.Character or Player.Character:Wait()
+  end
+  local clone = char:Clone()
+  clone.Humanoid.EvaluateStateMachine = false
+  clone.ExtraModels.Helmet.Mesh.VertexColor = Vector3.new(0, 0, 0) 
+  
+  clone:PivotTo(clone:GetPivot() + (-clone:GetPivot().LookVector * 0.5))
+  
+  for _, v in ipairs(clone:GetDescendants()) do
+    if v:IsA("Animation") or v:IsA("Folder") or v:IsA("Sound") then
+      v:Destroy()
+    elseif v:IsA("BasePart") and v.Transparency < 1 then
+      v.Anchored = true
+      v.CanCollide = false
+      v.CanQuery = false
+      v.CanTouch = false
+      v.Transparency = 0.5
+      local Back = v.CFrame + (-clone:GetPivot().LookVector * 4) 
+      local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+      local tween = TweenService:Create(v, tweenInfo, {Transparency = 1, CFrame = Back})
+      
+      tween.Completed:Connect(function()
+        clone:Destroy()
+      end)
+      tween:Play()
+    elseif v:IsA("Highlight") then
+      v.OutlineTransparency = 0.5
+      local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+      local tween = TweenService:Create(v, tweenInfo, {OutlineTransparency = 1})
+      
+      tween:Play()
+    end
+  end
+  clone.Parent = workspace.Misc
+end
+
+local function startAfterimage(interval, char)
+  if connection then return end
+  local lastTime = 0
+  connection = RunService.Heartbeat:Connect(function()
+    local currentTime = os.clock()
+    if currentTime - lastTime >= (interval or 0.1) then
+      lastTime = currentTime
+      createAfterimage(char)
+    end
+  end)
+end
+
+local Beh = require(game:GetService("ReplicatedStorage").Assets.Killers["1x1x1x1"].Behavior)
+
+Beh.Abilities.RejuvenateTheRotten.Callback = function(p54)
+  p54.Animations.RejuvenateTheRotten:Play(0.175)
+  v_u_6:CreateSpeedMultiplier(p54.Player, 0.01, "RejuvenateTheRotten", p54.Config.RejuvenateEndlag, true)
+  if p54.Rig.ExtraModels:FindFirstChild("Helmet") then
+    local RTRS = p54.Rig.PrimaryPart:WaitForChild("rbxassetid://120877949577353")
+    if RTRS then
+      RTRS:Stop() 
+    end
+    local RoarSound = Instance.new("Sound", p54.Rig.PrimaryPart) 
+    RoarSound.SoundId = Roar
+    RoarSound.Volume = 1.5
+    RoarSound:Play()
+    RoarSound.Name = "Roar"
+    if p54.Rig.PrimaryPart:WaitForChild("rbxassetid://70845653728841") then
+      for _, v in ipairs(p54.Rig.PrimaryPart:GetChildren()) do
+        if v.Name == "rbxassetid://70845653728841" then v:Stop() end
+      end
+    end
+    repeat task.wait() until RoarSound.IsLoaded
+    task.delay(RoarSound.TimeLength, function() RoarSound:Destroy() end) 
+  end
+end
+
+Beh.Abilities.MassInfection.Callback = function(p_u_19)
+  p_u_19.Animations.MassInfection:Play(0.175, 0.9, nil)
+  p_u_19.Player.Character:SetAttribute("AbilityStaminaOverride", true)
+  local v_u_20 = p_u_19.Config.Instances.MassInfectionShockwaveVignette
+  local v21
+  if v_u_20 then
+    v21 = v_u_20:Clone()
+  else
+    v21 = v_u_20
+  end
+  local v_u_22 = v21:FindFirstChildOfClass("ImageLabel")
+  if v_u_20 then
+    v_u_22.ImageTransparency = 1
+    TweenService:Create(v_u_22, TweenInfo.new(1.42, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {
+      ["ImageTransparency"] = 0.81
+    }):Play()
+    v_u_1:AddItem(v21, 2.4)
+    v21.Parent = p_u_19.Player.PlayerGui
+  end
+  local v_u_23 = v_u_6:CreateSpeedMultiplier(p_u_19.Player, 1, "MassInfection", 2.4, true)
+  game.TweenService:Create(v_u_23, TweenInfo.new(0.35), {
+    ["Value"] = 0.025
+  }):Play()
+  task.spawn(function()
+    local v24 = p_u_19.Config.StaminaGain * 1
+    task.wait(0.2)
+    while v_u_23 and v_u_23.Parent do
+      if p_u_19.Player.Character and p_u_19.Player.Character:GetAttribute("StaminaPenaltyActive") then
+        RunService.Heartbeat:Wait()
+      else
+        local v25 = v_u_10.Stamina + v24 * RunService.Heartbeat:Wait()
+        local v26 = v_u_10
+        local v27 = v_u_10.MinStamina
+        local v28 = v_u_10.StaminaCap or v_u_10.MaxStamina
+        v26.Stamina = math.clamp(v25, v27, v28)
+        v_u_10.__staminaChangedEvent:Fire(v_u_10.Stamina)
+      end
+    end
+    if p_u_19.Player.Character then
+      p_u_19.Player.Character:SetAttribute("AbilityStaminaOverride", nil)
+    end
+  end)
+  local v_u_29 = v_u_6:CreateFOVMultiplier(p_u_19.Player, 1, "MassInfection")
+  v_u_1:AddItem(v_u_29, 2.4)
+  TweenService:Create(v_u_29, TweenInfo.new(1.7, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0), {
+    ["Value"] = 0.75
+  }):Play()
+  task.delay(1.7, function()
+    TweenService:Create(v_u_29, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, 0), {
+      ["Value"] = 1
+    }):Play()
+    if v_u_20 then
+      TweenService:Create(v_u_22, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        ["ImageTransparency"] = 1
+      }):Play()
+    end
+    v_u_23:Destroy()
+  end)
+  if p_u_19.Rig.ExtraModels:FindFirstChild("Helmet") then
+    repeat 
+      task.wait() 
+    until Ingame:FindFirstChild("Shockwave") and Ingame:FindFirstChild("Shockwave"):FindFirstChild("Decor") and Ingame:FindFirstChild("Shockwave"):FindFirstChild("Decor"):FindFirstChild("Front") and Ingame:FindFirstChild("Shockwave"):FindFirstChild("Decor"):FindFirstChild("FrontFar") and Ingame:FindFirstChild("Shockwave"):FindFirstChild("Decor"):FindFirstChild("PointLight") and Ingame:FindFirstChild("Shockwave"):FindFirstChild("Decor"):FindFirstChild("MeshPart")
+  
+    local SW = Ingame.Shockwave
+    local Decor = SW.Decor
+    local Front = Decor.Front
+    local FrontFar = Decor.FrontFar
+    local PL = Decor.PointLight
+  
+    D(Front, FrontFar, PL)
+    Decor.MeshPart.Transparency = 1
+  
+    local NewSW = CreatePart("ShockwaveNew", Decor, Decor.MeshPart)
+    NewSW.Size = Decor.MeshPart.Size
+  
+    local H = Instance.new("Highlight") 
+    H.FillTransparency = 0
+    H.FillColor = Color3.new(1, 1, 1) 
+    H.OutlineTransparency = 1
+    H.Adornee = SW
+    H.DepthMode = Enum.HighlightDepthMode.Occluded
+    H.Parent = NewSW
+  
+    SW.Name = "Swoon"
+  end
+end
+
+local function DoMorph(P, Name)
+  if P.Name == Name and P:GetAttribute("SkinName") == "" then
+    for _, v in ipairs({"Torso", "Right Leg", "Left Leg", "Right Arm", "Left Arm"}) do
+      local L = P:WaitForChild(v)
+      if L then
+        L.Transparency = 0
+        L.Color = Color3.fromRGB(0,0,0)
+      end
+    end
+    D(P.CharacterModel, P.ExtraModels.HaxxedSwordLeft.Parts.HaxxedBladeL, P.ExtraModels.HaxxedSwordLeft.Parts.HaxxedBladeL2, P.ExtraModels.HaxxedSwordRight.Parts.HaxxedBladeR, P.ExtraModels.HaxxedSwordRight.Parts.HaxxedBladeR2, P.Torso.Attachment) 
+    P.Highlight.FillTransparency = 1
+    P.Highlight.OutlineColor = Color3.new(1, 1, 1) 
+    P.Highlight.OutlineTransparency = 0
+    P.Highlight.Adornee = P
+    P.PrimaryPart["rbxassetid://135626822769942"]:Stop()
+    P.PrimaryPart["rbxassetid://135626822769942"].SoundId = Breath
+    P.PrimaryPart["rbxassetid://135626822769942"].Volume = 0.2
+    P.PrimaryPart["rbxassetid://135626822769942"]:Play()
+
+    local Sword = Accs("ShadowBlade", P, "rbxassetid://131920388047810", "rbxassetid://83154165400595", Vector3.new(0.162, 0.163, 0.163), CFrame.new(-0.31, 1.8, 2), P.ExtraModels.HaxxedSwordRight.HaxxedGripR, CFrame.Angles(math.rad(130), 0, math.pi/2)) 
+    Sword.Mesh.VertexColor = Vector3.new(0, 0, 0) 
+    Sword.Parent = P.ExtraModels.HaxxedSwordRight.Parts
+
+    local Sword2 = Accs("ShadowBlade", P, "rbxassetid://131920388047810", "rbxassetid://83154165400595", Vector3.new(0.162, 0.163, 0.163), CFrame.new(0.31, 1.8, 2), P.ExtraModels.HaxxedSwordLeft.HaxxedGripL, CFrame.Angles(math.rad(130), 0, math.pi/2)) 
+    Sword2.Mesh.VertexColor = Vector3.new(0, 0, 0) 
+    Sword2.Parent = P.ExtraModels.HaxxedSwordLeft.Parts
+
+    local Helm = Accs("Helmet", P, "rbxassetid://111491222085112", "rbxassetid://117042986265917", nil, CFrame.new(0, -0.468, 0.1), "Head", CFrame.Angles(-math.pi, 0, -math.pi))
+    Helm.Parent = P.ExtraModels
+
+    local RP = Accs("RPauldron", P, "rbxassetid://139769072143080", "rbxassetid://112828060659756", Vector3.new(0.259, 0.259, 0.259), CFrame.new(-0, -1.126, -0.416), "Right Arm", CFrame.Angles(-0, -math.pi/2, 0))
+    RP.Parent = P.ExtraModels
+    RP.Mesh.VertexColor = Vector3.new(0, 0, 0) 
+
+    local LP = Accs("LPauldron", P, "rbxassetid://138276983581736", "rbxassetid://112828060659756", Vector3.new(0.259, 0.259, 0.259), CFrame.new(-0, -1.126, 0.416), "Left Arm", CFrame.Angles(-0, -math.pi/2, 0))
+    LP.Parent = P.ExtraModels
+    LP.Mesh.VertexColor = Vector3.new(0, 0, 0) 
+
+    local PD = P:GetDescendants() 
+
+    for _, v in ipairs(PD) do
+      if v:IsA("Beam") or v:IsA("ParticleEmitter") then
+        v:Destroy() 
+      end
+    end
+    startAfterimage(0.15, P)
+    
+    P.Humanoid.Died:Connect(stopAfterimage)
+  end
+end
+
+Player.CharacterAdded:Connect(function(Rig)
+  DoMorph(Rig, "1x1x1x1")
+end)
