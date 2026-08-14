@@ -1,0 +1,96 @@
+local Player = game:GetService("Players").LocalPlayer
+
+local CurrentRig = Player.Character
+
+local Con = require(game:GetService("ReplicatedStorage").Assets.Survivors.Noob.Config)
+
+Con["MovementAnimSpeed"] = 0
+Con.Animations["Idle"] = "rbxassetid://139593371220629"
+Con.Animations["Walk"] = "rbxassetid://139593371220629"
+Con.Animations["Run"] = "rbxassetid://139593371220629"
+
+local function CreatePart(name, parent, weld, offset) 
+  local Part = Instance.new("Part")
+  Part.Name = name
+  Part.Massless = true
+  Part.Anchored = false
+  Part.CanCollide = false
+  Part.CanTouch = false
+  Part.CanQuery = false
+
+  if weld then
+    local Weld = Instance.new("Weld")
+    Weld.C0 = offset or CFrame.new(0, 0, 0) 
+    Weld.Part0 = Part
+    Weld.Part1 = weld
+    Weld.Parent = Part
+  end
+
+  Part.Parent = parent
+  return Part
+end
+
+local function Accs(AccsName, parent, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.new(1, 1, 1)
+  Angle = Angle or CFrame.Angles(0, 0, 0)
+  CF = CF or CFrame.new(0, 0, 0)
+
+  local var_2 = CreatePart(AccsName, parent) 
+  var_2.Size = Vector3.new(1, 1, 1)
+
+  local var_3 = Instance.new("SpecialMesh") 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  var_3.Parent = var_2
+
+  local var_4 = Instance.new("Weld") 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = Welded
+  var_4.Parent = var_2
+  
+  return var_2
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy() 
+  end
+end
+
+local function DoMorph(P, Name)
+  if P.Name == Name and P:GetAttribute("SkinName") == "" then
+    for _, v in ipairs({"Head", "Torso", "Right Leg", "Left Leg", "Right Arm", "Left Arm"}) do
+      local L = P:WaitForChild(v)
+      if L then
+        L.Transparency = 0
+        L.Color = Color3.fromRGB(255,255,255)
+      end
+    end
+    Cloth("http://www.roblox.com/asset/?id=7509221304", "http://www.roblox.com/asset/?id=7509225884", nil, P)
+    local LancerHead = Accs("LancerHead", P, "rbxassetid://117014609158642", "rbxassetid://121829703967285", Vector3.new(1, 1, 1), CFrame.new(0, -0.3, -0.065), P.Head, nil)
+  end
+end
+
+DoMorph(CurrentRig, "Noob")
+
+Player.CharacterAdded:Connect(function(Rig)
+  DoMorph(Rig, "Noob")
+end)
