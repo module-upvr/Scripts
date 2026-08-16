@@ -13,8 +13,16 @@ local Rig = import("https://raw.githubusercontent.com/module-upvr/Others/refs/he
 local ChaseTheme = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OWChaseTheme.mp3", "ChaseTheme.mp3")
 local Render = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OMEGAWARERender.png", "Render.png")
 local LMSUI = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OWLmsUI.png", "OWLmsUI.png") 
+local LowFace = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OWLowFace.png", "OWLowFace.png")
+local TrollFace = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OWTrollFace.png", "OWTtrollFace.png")
+local NormalFace = "rbxassetid://71056883299447"
+
+local CurrentFace = NormalFace
+local CurrentSize = UDim2.new(1, 0, 1.2, 0)
+local CurrentPosition = UDim2.new(0, 0, -0.1, 0)
 
 Player.PlayerGui.MainGui.Shop.Killers.Characters.Frame.ScrollingFrame.Badware.Frame.Icon.Image = Render
+Player.PlayerGui.MainGui.Shop.Killers.Characters.Frame.ScrollingFrame.Badware.Frame.Title.Text = "OMEGAWARE"
 
 local function CreatePart(name, parent, weld, offset) 
   local Part = Instance.new("Part")
@@ -84,12 +92,17 @@ end
 
 local LMSFrame = Player.PlayerGui.MainGui.LMSFrame
 local C
+local C2
 
 local function DoMorph(P, Name)
   if P:GetAttribute("KillerName") == Name and P:GetAttribute("SkinName") == "Default" then
+    if C or C2 then
+      C, C2 = nil, nil
+    end
+
     P:WaitForChild("Accessories")
     P:WaitForChild("HumanoidRootPart") 
-    D(P.Accessories) 
+    D(P.Accessories, P.FaceBehavior) 
     
     local _, model = pcall(insertService.LoadLocalAsset, insertService, Rig)
     model.Parent = workspace
@@ -142,14 +155,24 @@ local function DoMorph(P, Name)
     end
     for _, v in ipairs(model.HumanoidRootPart:GetChildren()) do
       if v:IsA("Sound") then
-        if not P.HumanoidRootPart:FindFirstChild(v.Name) then break end
-        P.HumanoidRootPart[v.Name].SoundId = v.SoundId
+        if v.Name == "BoltStartup" then v.Name = "nil" end
+        if v.Name == "Bolt" then v.Name = "BoltStartup" end
+        if P.HumanoidRootPart:FindFirstChild(v.Name) then
+          P.HumanoidRootPart[v.Name].SoundId = v.SoundId
+        end
       end
     end
     model:Destroy() 
-    C = LMSFrame.ChildAdded:Connect(function(v) 
+    local Screen = P.NewAccessories.Head.Face.SurfaceGui:FindFirstChild("Face") 
+    C = LMSFrame.ChildAdded:Connect(function(v)
       if v.Name == "LMSIntro" then
         C = nil
+        Screen.Image = TrollFace
+        CurrentFace = TrollFace
+        CurrentSize = UDim2.new(1, 0, 1, 0)
+        CurrentPosition = UDim2.new(0, 0, 0, 0)
+        Screen.Size = CurrentSize
+        Screen.Position = CurrentPosition
         for _, f in ipairs(v.Killers:GetDescendants()) do
           if f.Name == "Sprite" and f.Image == "rbxassetid://136532644529539" then
             f.Image = LMSUI
@@ -157,6 +180,21 @@ local function DoMorph(P, Name)
         end
       end
     end) 
+    C2 = P.Humanoid.HealthChanged:Connect(function(v)
+     if v <= P.Humanoid.MaxHealth / 2 then
+        Screen.Image = LowFace
+        Screen.Size = UDim2.new(1, 0, 1, 0)
+        Screen.Position = UDim2.new(0, 0, 0, 0)
+      else
+        Screen.Image = CurrentFace
+        Screen.Size = CurrentSize
+        Screen.Position = CurrentPosition
+      end
+    end)
+    P.Humanoid.Died:Connect(function()
+      C2 = nil
+      C = nil
+    end)
   end
 end
 
