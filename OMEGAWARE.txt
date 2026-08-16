@@ -12,6 +12,7 @@ end
 local Rig = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OMEGAWARE.rbxm", "OMEGAWARE.rbxm")
 local ChaseTheme = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OWChaseTheme.mp3", "ChaseTheme.mp3")
 local Render = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OMEGAWARERender.png", "Render.png")
+local LMSUI = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OWLmsUI.png", "OWLmsUI.png") 
 
 Player.PlayerGui.MainGui.Shop.Killers.Characters.Frame.ScrollingFrame.Badware.Frame.Icon.Image = Render
 
@@ -81,6 +82,9 @@ local function D(...)
   end
 end
 
+local LMSFrame = Player.PlayerGui.MainGui.LMSFrame
+local C
+
 local function DoMorph(P, Name)
   if P:GetAttribute("KillerName") == Name and P:GetAttribute("SkinName") == "Default" then
     P:WaitForChild("Accessories")
@@ -143,6 +147,16 @@ local function DoMorph(P, Name)
       end
     end
     model:Destroy() 
+    C = LMSFrame.ChildAdded:Connect(function(v) 
+      if v.Name == "LMSIntro" then
+        C = nil
+        for _, f in ipairs(v.Killers:GetDescendants()) do
+          if f.Name == "Sprite" and f.Image == "rbxassetid://136532644529539" then
+            f.Image = LMSUI
+          end
+        end
+      end
+    end) 
   end
 end
 
