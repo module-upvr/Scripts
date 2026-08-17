@@ -1,6 +1,11 @@
 local Player = game:GetService("Players").LocalPlayer
 local CurrentRig = Player.Character
 local insertService = game:GetService("InsertService")
+local Other = workspace.GameAssets.Teams.Other
+local SE = game:GetService("Players").LocalPlayer.PlayerGui.MainGui.StatusEffects
+local Eternity = game:GetService("ReplicatedStorage").Sounds.Songs.LMSSongs.Eternity
+local BadwareAssets = game:GetService("ReplicatedStorage").ClientModules.Characters.Badware.Assets
+local LMSFrame = Player.PlayerGui.MainGui.LMSFrame
 
 local function import(link, name)
   if not isfile(name) then
@@ -16,6 +21,7 @@ local Render = import("https://raw.githubusercontent.com/module-upvr/Others/refs
 local LMSUI = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OWLmsUI.png", "OWLmsUI.png") 
 local LowFace = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OWLowFace.png", "OWLowFace.png")
 local TrollFace = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OWTrollFace.png", "OWTtrollFace.png")
+local StunnedFace = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OWStunnedFace.png", "OWStunnedFace.png") 
 local NormalFace = "rbxassetid://71056883299447"
 
 local CurrentFace = NormalFace
@@ -91,25 +97,22 @@ local function D(...)
   end
 end
 
-local BadwareAssets = game:GetService("ReplicatedStorage").ClientModules.Characters.Badware.Assets
-
 if not BadwareAssets:FindFirstChild("OWPC") then
-local _, model2 = pcall(insertService.LoadLocalAsset, insertService, PCRig)
-model2.Parent = BadwareAssets
-model2.Name = "OWPC"
-BadwareAssets:WaitForChild(model2.Name)
+  local _, model2 = pcall(insertService.LoadLocalAsset, insertService, PCRig)
+  model2.Parent = BadwareAssets
+  model2.Name = "OWPC"
+  BadwareAssets:WaitForChild(model2.Name)
 
-local OWPC = BadwareAssets.OWPC
-D(OWPC.Model.Screen, OWPC.Model.PCModel.Union.RandomizedBrickColor) 
+  local OWPC = BadwareAssets.OWPC
+  D(OWPC.Model.Screen, OWPC.Model.PCModel.Union.RandomizedBrickColor) 
 end
 
 local OWPC = BadwareAssets.OWPC
 
-local LMSFrame = Player.PlayerGui.MainGui.LMSFrame
-
 local C
 local C2
 local C3
+local C4
 
 local function clearC()
   if C then
@@ -124,6 +127,10 @@ local function clearC()
     C3:Disconnect()
     C3 = nil
   end
+  if C4 then
+    C4:Disconnect() 
+    C4 = nil
+  end
 end
 
 local soulColors = {
@@ -135,8 +142,6 @@ local soulColors = {
   Color3.fromRGB(0, 0, 255),
   Color3.fromRGB(153, 51, 153)
 }
-
-local Other = workspace.GameAssets.Teams.Other
 
 local function DoMorph(P, Name)
   if P:GetAttribute("KillerName") == Name and P:GetAttribute("SkinName") == "Default" then
@@ -205,15 +210,18 @@ local function DoMorph(P, Name)
       end
     end
     model:Destroy() 
+    for _, v in ipairs(P.NewAccessories.Head:GetChildren()) do
+      if v.Name == "Part" and v.Size == Vector3.new(1.8, 0.225, 1.136) then
+        v.Head.C0 = CFrame.new(0.01, -0.976, -0.016) 
+      end
+    end
     local Screen = P.NewAccessories.Head.Face.SurfaceGui:FindFirstChild("Face") 
-    C = LMSFrame.ChildAdded:Connect(function(v)
+    LMSFrame.ChildAdded:Once(function(v)
       if v.Name == "LMSIntro" then
-        C:Disconnect()
-        C = nil
         Screen.Image = TrollFace
         CurrentFace = TrollFace
-        CurrentSize = UDim2.new(1, 0, 1, 0)
-        CurrentPosition = UDim2.new(0, 0, 0, 0)
+        CurrentSize = UDim2.new(0.75, 0, 0.75, 0)
+        CurrentPosition = UDim2.new(0.125, 0, 0.125, 0)
         Screen.Size = CurrentSize
         Screen.Position = CurrentPosition
         for _, f in ipairs(v.Killers:GetDescendants()) do
@@ -223,7 +231,7 @@ local function DoMorph(P, Name)
         end
       end
     end) 
-    C2 = P.Humanoid.HealthChanged:Connect(function(v)
+    C = P.Humanoid.HealthChanged:Connect(function(v)
      if v <= P.Humanoid.MaxHealth / 2 then
         Screen.Image = LowFace
         Screen.Size = UDim2.new(1, 0, 1, 0)
@@ -234,7 +242,7 @@ local function DoMorph(P, Name)
         Screen.Position = CurrentPosition
       end
     end)
-    C3 = Other.ChildAdded:Connect(function(v) 
+    C2 = Other.ChildAdded:Connect(function(v) 
       if v.Name == "Computer" and v:GetAttribute("Owner") == Player.Name then
         local ComPiv = v:GetPivot() 
         D(v:WaitForChild("Model"), v:WaitForChild("Screen")) 
@@ -247,8 +255,49 @@ local function DoMorph(P, Name)
         NewCom.Model.PCModel.Union.Color = soulColors[math.random(1, 7)]
       end
     end) 
+    C3 = SE.ChildAdded:Connect(function(v)
+      if v.Name == "Stunned" then
+        Screen.Image = StunnedFace
+        Screen.Size = UDim2.new(1, 0, 1, 0) 
+        Screen.Position = UDim2.new(0, 0, 0, 0) 
+        repeat task.wait() until not v or not v.Parent
+        Screen.Image = CurrentFace
+        Screen.Size = CurrentSize
+        Screen.Position = CurrentPosition
+      end
+    end) 
     P.Humanoid.Died:Connect(clearC)
-  end 
+    
+    local IsModifyingSound = false
+
+    local function applyTargetSound(soundId, volume)
+      IsModifyingSound = true
+      Eternity:Stop()
+      Eternity.SoundId = soundId
+      Eternity:SetAttribute("OriginalVolume", volume)
+      if not Eternity.IsLoaded then
+        Eternity.Loaded:Wait()
+      end
+      Eternity:Play()
+      IsModifyingSound = false
+    end
+
+    C5 = Eternity:GetPropertyChangedSignal("Playing"):Connect(function()
+      if IsModifyingSound then return end
+      
+      if Eternity.Playing then
+        if Eternity.SoundId ~= "rbxassetid://134000197680004" then
+          applyTargetSound("rbxassetid://134000197680004", 0.8)
+        end
+      else
+        if C5 then C5:Disconnect() C5 = nil end
+        IsModifyingSound = true
+        Eternity.SoundId = "rbxassetid://86018517086620"
+        Eternity:SetAttribute("OriginalVolume", 1.4)
+        IsModifyingSound = false
+      end
+    end)
+  end
 end
 
 DoMorph(CurrentRig, "Badware")
