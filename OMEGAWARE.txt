@@ -1,7 +1,8 @@
 local Player = game:GetService("Players").LocalPlayer
 local CurrentRig = Player.Character
 local insertService = game:GetService("InsertService")
-local Other = workspace.GameAssets.Teams.Other
+local GameAssets = workspace.GameAssets
+local Other = GameAssets.Teams.Other
 local SE = game:GetService("Players").LocalPlayer.PlayerGui.MainGui.StatusEffects
 local Eternity = game:GetService("ReplicatedStorage").Sounds.Songs.LMSSongs.Eternity
 local BadwareAssets = game:GetService("ReplicatedStorage").ClientModules.Characters.Badware.Assets
@@ -143,6 +144,29 @@ local soulColors = {
   Color3.fromRGB(153, 51, 153)
 }
 
+GameAssets.ChildAdded:Connect(function(v)
+  if v.Name == "RoundIntro" then
+    for _, f in ipairs(v:GetDescendants()) do
+      if f.Name == "Face" and f:IsA("ImageLabel") then 
+        f.Image = NormalFace 
+      end
+    end
+
+    local descendantConnection
+    descendantConnection = v.DescendantAdded:Connect(function(f)
+      if f.Name == "Face" and f:IsA("ImageLabel") then
+        f.Image = NormalFace
+      end
+    end)
+
+    v.Destroying:Connect(function()
+      if descendantConnection then
+        descendantConnection:Disconnect()
+      end
+    end)
+  end
+end)
+
 local function DoMorph(P, Name)
   if P:GetAttribute("KillerName") == Name and P:GetAttribute("SkinName") == "Default" then
     clearC()
@@ -179,11 +203,11 @@ local function DoMorph(P, Name)
         if f:IsA("WeldConstraint") and f.Part0 then
           f.Enabled = false
           local offset = f.Part0.CFrame:ToObjectSpace(f.Part1.CFrame)
-          f.Part0 = P[BodyPart]
+          f.Part0 = P:WaitForChild(BodyPart)
           f.Part1.CFrame = f.Part0.CFrame * offset
           f.Enabled = true
         elseif f:IsA("Weld") then
-          f.Part1 = P[BodyPart]
+          f.Part1 = P:WaitForChild(BodyPart)
         elseif f:IsA("BasePart") then
           f.Massless = true
           f.Anchored = false
@@ -210,11 +234,8 @@ local function DoMorph(P, Name)
       end
     end
     model:Destroy() 
-    for _, v in ipairs(P.NewAccessories.Head:GetChildren()) do
-      if v.Name == "Part" and v.Size == Vector3.new(1.8, 0.225, 1.136) then
-        v.Head.C0 = CFrame.new(0.01, -0.976, -0.016) 
-      end
-    end
+    P.NewAccessories.Head:FindFirstChild("Part").Head.C0 = CFrame.new(0.01, -1.055, -0.016) 
+    P.NewAccessories.Head:FindFirstChild("Part").Head.Part1 = P.Torso
     local Screen = P.NewAccessories.Head.Face.SurfaceGui:FindFirstChild("Face") 
     LMSFrame.ChildAdded:Once(function(v)
       if v.Name == "LMSIntro" then
@@ -282,7 +303,7 @@ local function DoMorph(P, Name)
       IsModifyingSound = false
     end
 
-    C5 = Eternity:GetPropertyChangedSignal("Playing"):Connect(function()
+    C4 = Eternity:GetPropertyChangedSignal("Playing"):Connect(function()
       if IsModifyingSound then return end
       
       if Eternity.Playing then
@@ -290,7 +311,7 @@ local function DoMorph(P, Name)
           applyTargetSound("rbxassetid://134000197680004", 0.8)
         end
       else
-        if C5 then C5:Disconnect() C5 = nil end
+        if C4 then C4:Disconnect() C4 = nil end
         IsModifyingSound = true
         Eternity.SoundId = "rbxassetid://86018517086620"
         Eternity:SetAttribute("OriginalVolume", 1.4)
@@ -300,8 +321,6 @@ local function DoMorph(P, Name)
   end
 end
 
-DoMorph(CurrentRig, "Badware")
-
---[[Player.CharacterAdded:Connect(function(Rig)
+Player.CharacterAdded:Connect(function(Rig) 
   DoMorph(Rig, "Badware")
-end)]]
+end)
