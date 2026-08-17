@@ -10,6 +10,7 @@ local function import(link, name)
 end
 
 local Rig = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OMEGAWARE.rbxm", "OMEGAWARE.rbxm")
+local PCRig = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OWPC.rbxm", "OWPC.rbxm")
 local ChaseTheme = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OWChaseTheme.mp3", "ChaseTheme.mp3")
 local Render = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OMEGAWARERender.png", "Render.png")
 local LMSUI = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/OWLmsUI.png", "OWLmsUI.png") 
@@ -90,24 +91,65 @@ local function D(...)
   end
 end
 
+local BadwareAssets = game:GetService("ReplicatedStorage").ClientModules.Characters.Badware.Assets
+
+if not BadwareAssets:FindFirstChild("OWPC") then
+local _, model2 = pcall(insertService.LoadLocalAsset, insertService, PCRig)
+model2.Parent = BadwareAssets
+model2.Name = "OWPC"
+BadwareAssets:WaitForChild(model2.Name)
+
+local OWPC = BadwareAssets.OWPC
+D(OWPC.Model.Screen, OWPC.Model.PCModel.Union.RandomizedBrickColor) 
+end
+
+local OWPC = BadwareAssets.OWPC
+
 local LMSFrame = Player.PlayerGui.MainGui.LMSFrame
+
 local C
 local C2
+local C3
+
+local function clearC()
+  if C then
+    C:Disconnect()
+    C = nil
+  end
+  if C2 then
+    C2:Disconnect()
+    C2 = nil
+  end
+  if C3 then
+    C3:Disconnect()
+    C3 = nil
+  end
+end
+
+local soulColors = {
+  Color3.fromRGB(255, 0, 0),
+  Color3.fromRGB(255, 153, 51),
+  Color3.fromRGB(255, 255, 0),
+  Color3.fromRGB(0, 255, 0),
+  Color3.fromRGB(0, 255, 255),
+  Color3.fromRGB(0, 0, 255),
+  Color3.fromRGB(153, 51, 153)
+}
+
+local Other = workspace.GameAssets.Teams.Other
 
 local function DoMorph(P, Name)
   if P:GetAttribute("KillerName") == Name and P:GetAttribute("SkinName") == "Default" then
-    if C or C2 then
-      C, C2 = nil, nil
-    end
+    clearC()
 
-    P:WaitForChild("Accessories")
     P:WaitForChild("HumanoidRootPart") 
+    P:WaitForChild("Accessories")
     D(P.Accessories, P.FaceBehavior) 
     
     local _, model = pcall(insertService.LoadLocalAsset, insertService, Rig)
     model.Parent = workspace
     model:MoveTo(P.HumanoidRootPart.Position + Vector3.new(0, 5, 0))
-    workspace:WaitForChild("OMEGAWARE")
+    workspace:WaitForChild(model.Name)
     
     local OWAccs = model.Accessories
     OWAccs.Name = "OWAccs"
@@ -166,6 +208,7 @@ local function DoMorph(P, Name)
     local Screen = P.NewAccessories.Head.Face.SurfaceGui:FindFirstChild("Face") 
     C = LMSFrame.ChildAdded:Connect(function(v)
       if v.Name == "LMSIntro" then
+        C:Disconnect()
         C = nil
         Screen.Image = TrollFace
         CurrentFace = TrollFace
@@ -191,15 +234,25 @@ local function DoMorph(P, Name)
         Screen.Position = CurrentPosition
       end
     end)
-    P.Humanoid.Died:Connect(function()
-      C2 = nil
-      C = nil
-    end)
-  end
+    C3 = Other.ChildAdded:Connect(function(v) 
+      if v.Name == "Computer" and v:GetAttribute("Owner") == Player.Name then
+        local ComPiv = v:GetPivot() 
+        D(v:WaitForChild("Model"), v:WaitForChild("Screen")) 
+        
+        local NewCom = OWPC:Clone()
+        NewCom.Parent = v
+        NewCom.Name = "OWComputer"
+        NewCom:PivotTo(ComPiv)
+        
+        NewCom.Model.PCModel.Union.Color = soulColors[math.random(1, 7)]
+      end
+    end) 
+    P.Humanoid.Died:Connect(clearC)
+  end 
 end
 
 DoMorph(CurrentRig, "Badware")
 
-Player.CharacterAdded:Connect(function(Rig)
+--[[Player.CharacterAdded:Connect(function(Rig)
   DoMorph(Rig, "Badware")
-end)
+end)]]
