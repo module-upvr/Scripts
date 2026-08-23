@@ -208,8 +208,8 @@ function Saken:Config()
 
   for _, Kill in Killers do 
     if not require(Kill.Config).SprintSpeed then continue end
-    require(Kill.Config).Speed += 3.5
-    require(Kill.Config).SprintSpeed += 3.5
+    require(Kill.Config).Speed += 1.5
+    require(Kill.Config).SprintSpeed += 1.5
     if Kill.Name == "Noli" then
       require(Kill.Config).VoidRushDashSpeed = 70
       require(Kill.Config).VoidRushTurnSpeed = 5
