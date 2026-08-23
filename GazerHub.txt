@@ -130,7 +130,7 @@ function Saken:Esp()
   end
 
   local function updateESP()
-    for _, v in ipairs(MapFolder:GetDescendants()) do
+    for _, v in MapFolder:GetDescendants() do
       if v.Name == "Medkit" and v:IsA("Tool") then
         createESP(v, Color3.new(1, 1, 0))
       elseif v.Name == "BloxyCola" and v:IsA("Tool") then
@@ -141,11 +141,11 @@ function Saken:Esp()
       end
     end
 
-    for _, v in ipairs(PlayerFolder.Survivors:GetChildren()) do
+    for _, v in PlayerFolder.Survivors:GetChildren() do
       plrESP(v, Color3.new(0, 1, 0))
     end
 
-    for _, v in ipairs(PlayerFolder.Killers:GetChildren()) do
+    for _, v in PlayerFolder.Killers:GetChildren() do
       plrESP(v, Color3.new(1, 0, 0))
     end
   end
@@ -156,11 +156,11 @@ function Saken:Esp()
     updateESP()
   end)
   Run.Heartbeat:Connect(function()
-    for _, v in ipairs(PlayerFolder.Survivors:GetChildren()) do
+    for _, v in PlayerFolder.Survivors:GetChildren() do
       plrESP(v, Color3.new(0, 1, 0))
     end
 
-    for _, v in ipairs(PlayerFolder.Killers:GetChildren()) do
+    for _, v in PlayerFolder.Killers:GetChildren() do
       plrESP(v, Color3.new(1, 0, 0))
     end
   end)
@@ -168,7 +168,7 @@ end
 
 function Saken:AutoGen() 
   local function solvgen()
-    for _, v in pairs(workspace.Map.Ingame.Map:GetDescendants()) do
+    for _, v in workspace.Map.Ingame.Map:GetDescendants() do
       if v:IsA("RemoteEvent") then
         v:FireServer() 
       end
@@ -206,7 +206,8 @@ end
 function Saken:Config() 
   Sprinting.DefaultConfig.MinStamina = -math.huge
 
-  for _, Kill in ipairs(Killers) do 
+  for _, Kill in Killers do 
+    if not require(Kill.Config).SprintSpeed then continue end
     require(Kill.Config).Speed += 3.5
     require(Kill.Config).SprintSpeed += 3.5
     if Kill.Name == "Noli" then
@@ -219,7 +220,7 @@ function Saken:Config()
     end
   end
 
-  for _, Surv in ipairs(Survivors) do 
+  for _, Surv in Survivors do 
     require(Surv.Config).Speed = 16
     require(Surv.Config).SprintSpeed = 30
     if Surv.Name == "Veeronica" then
@@ -358,7 +359,7 @@ function Saken:Function()
       
       if Animator then
         local targetId = arg1.Character.Invisible.AnimationId
-        for _, track in pairs(Animator:GetPlayingAnimationTracks()) do
+        for _, track in Animator:GetPlayingAnimationTracks() do
           if track.Animation and string.find(track.Animation.AnimationId, targetId) then
             track:Stop()
           end
