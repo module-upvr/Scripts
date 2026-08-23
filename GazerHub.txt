@@ -4,6 +4,8 @@ local Buttons = {}
 local Bools = {}
 local buttonCount = 0
 
+local loop
+
 local function CreateButton(Text, Name, Parent, Callback)
   Text = Text or "TestButton"
   Name = Name or Text
@@ -173,9 +175,9 @@ function Saken:AutoGen()
     end
   end
 
-  if getgenv().loop then
-    getgenv().loop:Disconnect() 
-    getgenv().loop = nil 
+  if loop then
+    loop:Disconnect() 
+    loop = nil 
   end
 
   local nextActionTime = 0
@@ -183,7 +185,7 @@ function Saken:AutoGen()
     return Random.new():NextNumber(2.5, 3.5) 
   end
 
-  getgenv().loop = Run.Heartbeat:Connect(function()
+  loop = Run.Heartbeat:Connect(function()
     local ui = PlayerG:FindFirstChild("PuzzleUI")
     if ui then
       if nextActionTime == 0 then
@@ -209,7 +211,7 @@ function Saken:Config()
     require(Kill.Config).SprintSpeed += 3.5
     if Kill.Name == "Noli" then
       require(Kill.Config).VoidRushDashSpeed = 70
-      require(Kill.Config).VoidRushTurnSpeed = math.huge
+      require(Kill.Config).VoidRushTurnSpeed = 5
       require(Kill.Config).VoidRushInitialTurnDuration = 0
       require(Kill.Config).VoidRushInitialTurnMult = 0
     elseif Kill.Name == "Slasher" then
@@ -280,10 +282,11 @@ end
 function Saken:Function()
   local function GuiSaken(Rig) 
     local PC = Rig
-    if not PC then return end
-
-    PC:WaitForChild("SpeedMultipliers"):WaitForChild("DirectionalMovement"):Destroy() 
-        
+    
+    repeat task.wait() until PC:FindFirstChild("SpeedMultipliers"):FindFirstChild("DirectionalMovement")
+    
+    PC.SpeedMultipliers.DirectionalMovement:Destroy()
+    
     local Invis = Instance.new("Animation", PC) 
     Invis.AnimationId = "rbxassetid://75804462760596"
     Invis.Name = "Invisible"
@@ -295,8 +298,8 @@ function Saken:Function()
     local Block = Instance.new("Animation", PC) 
     Block.AnimationId = "rbxassetid://72722244508749"
     Block.Name = "FakeBlock"
-
-    local Animator = PC:WaitForChild("Humanoid"):WaitForChild("Animator")
+    
+    local Animator = PC.Humanoid.Animator
 
     local JerkAnim = Animator:LoadAnimation(Jerk) 
     JerkAnim.Looped = true
