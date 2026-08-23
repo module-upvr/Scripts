@@ -280,14 +280,14 @@ function Saken:Config()
 end
 
 function Saken:Function()
-  local function GuiSaken(Rig) 
+  local function GuiSaken(Rig)
     local PC = Rig
     
     repeat task.wait() until PC:FindFirstChild("SpeedMultipliers"):FindFirstChild("DirectionalMovement")
     
     PC.SpeedMultipliers.DirectionalMovement:Destroy()
     
-    local Invis = Instance.new("Animation", PC) 
+    local Invis = Instance.new("Animation", PC)
     Invis.AnimationId = "rbxassetid://75804462760596"
     Invis.Name = "Invisible"
 
@@ -333,24 +333,24 @@ function Saken:Function()
     
     local TextButton3 = CreateToggleButton("Ragdoll:", nil, Gui, RagTrue, RagFalse)
   end
-
+  
   Player.CameraMaxZoomDistance = 40
   task.spawn(GuiSaken, Player.Character)
-  Player.CharacterAdded:Connect(function(Rig) 
+  Player.CharacterAdded:Connect(function(Rig)
     task.spawn(GuiSaken, Rig)
   end) 
 
   blind.Applied = function() end
   blind.Removed = function() end
-
-  Undetect.Applied = function(arg1) 
+  
+  Undetect.Applied = function(arg1)
     if arg1.Character then
-      local InvisAnim = arg1.Character.Humanoid.Animator:LoadAnimation(arg1.Character.Invisible) 
-      InvisAnim:Play(0) 
-      InvisAnim:AdjustSpeed(0) 
+      local InvisAnim = arg1.Character.Humanoid.Animator:LoadAnimation(arg1.Character.Invisible)
+      InvisAnim:Play(0)
+      InvisAnim:AdjustSpeed(0)
     end
   end
-
+  
   Undetect.Removed = function(arg1)
     if arg1.Character then
       local Humanoid = arg1.Character:FindFirstChildOfClass("Humanoid")
@@ -366,14 +366,14 @@ function Saken:Function()
       end
     end
   end
-
+  
   if Landing then Landing:Destroy() end
-    ChatConfig:GetPropertyChangedSignal("Enabled"):Connect(function()
-      if not ChatConfig.Enabled then
-        ChatConfig.Enabled = true
-      end
-    end)
-  end
+  
+  ChatConfig:GetPropertyChangedSignal("Enabled"):Connect(function()
+    if not ChatConfig.Enabled then
+      ChatConfig.Enabled = true
+    end
+  end)
 end
 
 return Saken
