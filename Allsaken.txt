@@ -61,41 +61,18 @@ end
 local Rep = game:GetService("ReplicatedStorage") 
 local Modules = Rep.Modules
 local Sys = Rep.Systems
-local function getModule(Name, req) 
-  local var
-
-  for _, v in ipairs(Modules:GetDescendants()) do
-    if v.Name == Name then
-      var = v
-    end
-  end
-
-  if var == nil then
-    for _, v in ipairs(Sys:GetDescendants()) do
-      if v.Name == Name then
-        var = v
-      end
-    end
-  end
-
-  if req then
-    return require(var) 
-  else
-    return var
-  end
-end
 
 local Player = game:GetService("Players").LocalPlayer
 local Run = game:GetService("RunService")
 local PlayerG = Player.PlayerGui
 local Killers = game:GetService("ReplicatedStorage").Assets.Killers:GetChildren() 
 local Survivors = game:GetService("ReplicatedStorage").Assets.Survivors:GetChildren()
-local Sprinting = getModule("Sprinting", true) 
-local ragdolls = getModule("Ragdolls", true) 
-local blind = getModule("Blindness", true) 
-local Undetect = getModule("Undetectable", true) 
+local Sprinting = Sys.Character.Game.Sprinting
+local ragdolls = Modules.Rendering.Ragdolls
+local blind = Modules.Schematics.StatusEffects.Blindness
+local Undetect = Modules.Schematics.StatusEffects.Undetectable
 local ChatConfig = game:GetService("TextChatService").ChatWindowConfiguration
-local Landing = getModule("SlowOnLanding", false) 
+local Landing = Sys.Character.Miscellaneous.SlowOnLanding
 local Able = require(game:GetService("ReplicatedStorage").Assets.Survivors.TwoTime.Behavior).Abilities
 local Util = getModule("Util", true) 
 local Sounds = getModule("Sounds", true) 
