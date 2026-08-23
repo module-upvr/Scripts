@@ -228,26 +228,25 @@ function Saken:Config()
   Sprinting.DefaultConfig.MinStamina = -math.huge
 
   for _, Kill in ipairs(Killers) do 
-    if not Kill:FindFirstChild("Config") then continue end
-    require(Kill.Config).Speed =+ 3.5
-    require(Kill.Config).SprintSpeed =+ 3.5
+    require(Kill.Config).Speed += 3.5
+    require(Kill.Config).SprintSpeed += 3.5
     if Kill.Name == "Noli" then
       require(Kill.Config).VoidRushDashSpeed = 70
       require(Kill.Config).VoidRushTurnSpeed = math.huge
       require(Kill.Config).VoidRushInitialTurnDuration = 0
       require(Kill.Config).VoidRushInitialTurnMult = 0
     elseif Kill.Name == "Slasher" then
-      require(Kill.Config).EnragedSpeed =+ 15
+      require(Kill.Config).EnragedSpeed += 15
     end
+  end
 
   for _, Surv in ipairs(Survivors) do 
-    if not Surv:FindFirstChild("Config") then continue end
     require(Surv.Config).Speed = 16
     require(Surv.Config).SprintSpeed = 30
     if Surv.Name == "Veeronica" then
       require(Surv.Config).Sk8TurnControl = 6
     elseif Surv.Name == "TwoTime" then
-      require(Surv.Config).CrouchSpeed = 15
+      require(Surv.Config).CrouchSpeed = 16
       require(Surv.Config).CrouchRunSpeed = 30
     end
   end
@@ -389,11 +388,6 @@ function Saken:Function()
   end
 
   if Landing then Landing:Destroy() end
-
-  if getgenv().Chat == true then
-  else
-    ChatConfig.Enabled = true
-
     ChatConfig:GetPropertyChangedSignal("Enabled"):Connect(function()
       if not ChatConfig.Enabled then
         ChatConfig.Enabled = true
