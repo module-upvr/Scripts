@@ -284,7 +284,7 @@ function Saken:Function()
   local function GuiSaken(Rig)
     local PC = Rig
     
-    repeat task.wait() until PC:FindFirstChild("SpeedMultipliers"):FindFirstChild("DirectionalMovement")
+    repeat task.wait() until PC:FindFirstChild("SpeedMultipliers") and PC.SpeedMultipliers:FindFirstChild("DirectionalMovement")
     
     PC.SpeedMultipliers.DirectionalMovement:Destroy()
     
