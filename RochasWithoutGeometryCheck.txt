@@ -119,8 +119,8 @@ local function DoMorph(P, Name, Skin)
 
     for _, f in Trails:GetChildren() do
       repeat task.wait() until f:FindFirstChild("Number") and f:FindFirstChild("Shadows")
-      f.Number.Color = ColorSequence.new(Color3.fromRGB(99, 63, 30))
-      f.Shadows.Color = ColorSequence.new(Color3.fromRGB(99, 63, 30))
+      f.Number:Destroy()
+      f.Shadows.Color = ColorSequence.new(Color3.fromRGB(196, 97, 16))
     end
 
     C = Ingame.ChildAdded:Connect(function(v)
