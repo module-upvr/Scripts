@@ -1,0 +1,153 @@
+local Player = game:GetService("Players").LocalPlayer
+local insert = game:GetService("InsertService")
+local Gradient = game:GetService("ReplicatedStorage").Assets.Meta.Gradients
+local MainUI = Player.PlayerGui.MainUI
+local Run = game["Run Service"]
+local t = MainUI.InventoryScreen.InventoryRoot.SkinsContainer.Contents
+
+local CurrentRig = Player.Character
+
+local function TurnExclusive(Con)
+  local G = Gradient.ExclusiveGradient:Clone()
+  Con.Outline.ImageColor3 = Color3.new(1, 1, 1)
+  G.Parent = Con.Outline
+end
+
+Run.Heartbeat:Connect(function()
+  if t:FindFirstChild("GeometryJohnDoe") and t.GeometryJohnDoe:FindFirstChild("Container") and t.GeometryJohnDoe.Container:FindFirstChild("Outline") then
+    if not t.GeometryJohnDoe.Container.Outline:FindFirstChild("ExclusiveGradient") then
+      TurnExclusive(MainUI.InventoryScreen.InventoryRoot.SkinsContainer.Contents.GeometryJohnDoe.Container)
+    end
+  end
+end)
+
+local function import(link, name)
+  if not isfile(name) then
+    writefile(name, game:HttpGet(link))
+  end
+  return getcustomasset(name)
+end
+
+local RochasModel = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/RochasModel.rbxm", "RochasModel.rbxm")
+local RochasRender = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/RochasRender.png", "RochasRender.png")
+local RochasSpike = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/RochasSpike.rbxm", "RochasSpike.rbxm")
+
+local function importinstance(asset, parent)
+  local _, imported = pcall(insert.LoadLocalAsset, insert, asset)
+  imported.Parent = parent
+  return imported
+end
+
+local Folder = game:GetService("ReplicatedStorage").Assets.Skins.Killers.JohnDoe.GeometryJohnDoe
+local Config = require(Folder.Config)
+
+Config.IntroText = "SPREAD."
+Config.CollabInfo = nil
+Config.RenderImage = RochasRender
+Config.DisplayName = "Rochas"
+Config.Description = "<font color='rgb(255, 0, 0)'>SPREAD.</font>"
+Player.PlayerGui.MainUI.Shop.Holder.Overlay.Preview.Description.RichText = true
+Config.Credits = "By: Stick_Gazer"
+
+Folder.Rig:Destroy()
+
+local RR = importinstance(RochasModel, Folder)
+RR.Name = "Rig"
+RR.HumanoidRootPart["rbxassetid://104551778786010"]:Destroy()
+RR.HumanoidRootPart.RootJoint.C1 = CFrame.Angles(-math.rad(20),math.rad(10),-math.rad(30))
+
+local Spike = importinstance(RochasSpike, Folder.Config)
+Spike.Name = "RochasSpike"
+Spike.Root.Anchored = false
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy() 
+  end
+end
+
+local Ingame = workspace.Map.Ingame
+
+local C
+local C2
+local C3
+
+local function clearC()
+  if C then C:Disconnect() C = nil end
+  if C2 then C2:Disconnect() C2 = nil end
+  if C3 then C3:Disconnect() C3 = nil end
+end
+
+local function DoMorph(P, Name, Skin)
+  if P.Name == Name and P:GetAttribute("SkinName") == Skin then
+    for _, v in ipairs({"Head", "Torso", "Right Leg", "Left Leg", "Right Arm", "Left Arm"}) do
+      local L = P:WaitForChild(v)
+      if L then
+        L.Transparency = 1
+        L.Color = Color3.fromRGB(255,255,255)
+      end
+    end
+    D(P.FakeHead)
+    local Model = importinstance(RochasModel, P)
+    Model:MoveTo(P.HumanoidRootPart.Position + Vector3.new(0, 10, 0))
+
+    Model.Humanoid.EvaluateStateMachine = false
+    Model.HumanoidRootPart["rbxassetid://104551778786010"]:Destroy()
+
+    for _, v in Model:GetDescendants() do
+      if v:IsA("Motor6D") then
+        if P:FindFirstChild(v.Part1.Name) then
+          v.Enabled = false
+          v:Destroy()
+        end
+      elseif v:IsA("BasePart") then
+        v.Massless, v.CanCollide = true, false
+        if P:FindFirstChild(v.Name) then
+          local TBP = P[v.Name]
+          local Weld = Instance.new("Weld", TBP)
+          Weld.Part0 = v
+          Weld.Part1 = TBP
+        end
+      end
+    end
+    
+    local JDTN = string.format("%sJohnDoeTrail", Player.Name)
+
+    repeat task.wait() until Ingame:FindFirstChild(JDTN)
+
+    local Trails = Ingame[JDTN]
+
+    for _, f in Trails:GetChildren() do
+      repeat task.wait() until f:FindFirstChild("Number") and f:FindFirstChild("Shadows")
+      f.Number.Color = ColorSequence.new(Color3.fromRGB(99, 63, 30))
+      f.Shadows.Color = ColorSequence.new(Color3.fromRGB(99, 63, 30))
+    end
+
+    C = Ingame.ChildAdded:Connect(function(v)
+      if v.Name == "Spike" and v.Spike.Color == Color3.fromRGB(99, 95, 98) and not v:GetAttribute("Rochas") then
+        
+        v:SetAttribute("Rochas", true)
+        v.Root.Shadows.Color = ColorSequence.new(Color3.fromRGB(160, 95, 53))
+        
+        for _, f in v:GetChildren() do
+          if f:IsA("BasePart") then
+            f.Transparency = 1
+          end
+        end
+        local NewSpike = Spike:Clone()
+        NewSpike.Parent = v
+        NewSpike.Root.CFrame = v.Root.CFrame
+
+        local SW = Instance.new("WeldConstraint", NewSpike.Root)
+        SW.Part0 = SW.Parent
+        SW.Part1 = v.Root
+      end
+    end)
+    C2 = P.Humanoid.Died:Once(clearC)
+    C3 = Player.CharacterAdded:Once(clearC)
+  end
+end
+
+Player.CharacterAdded:Connect(function(Rig)
+  DoMorph(Rig, "JohnDoe", "GeometryJohnDoe")
+end)
