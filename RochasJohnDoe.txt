@@ -1,0 +1,11 @@
+local skins = game:GetService("Players").LocalPlayer.PlayerData.Purchased.Skins
+              
+if skins:FindFirstChild("GeometryJohnDoe") then
+  loadstring(game:HttpGet("https://raw.githubusercontent.com/module-upvr/Scripts/refs/heads/main/RochasWithoutGeometryCheck.txt"))() 
+else
+  game.StarterGui:SetCore("SendNotification", {
+    Title = "Stick Gazer",
+    Text = "Buy Geometry John Doe First then execute again",
+    Duration = 5
+  })
+end
