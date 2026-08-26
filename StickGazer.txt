@@ -12,6 +12,7 @@ end
 local NormalFace = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/SGNormalFace.png", "SGNormalFace.png")
 local KillSFX = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/WRJingle1.mp3", "WRJingle1.mp3") 
 local KillSFX2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/WRJingle2.mp3", "WRJingle2.mp3") 
+local Icon = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/SGIcon.png", "SGIcon.png")
 
 local function CreatePart(name, parent, weld, offset) 
   local Part = Instance.new("Part")
