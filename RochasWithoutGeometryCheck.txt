@@ -80,11 +80,14 @@ end
 
 local function DoMorph(P, Name, Skin)
   if P.Name == Name and P:GetAttribute("SkinName") == Skin then
-    for _, v in ipairs({"Head", "Torso", "Right Leg", "Left Leg", "Right Arm", "Left Arm"}) do
+     for _, v in ipairs({"Head", "Torso", "Right Leg", "Left Leg", "Right Arm", "Left Arm"}) do
       local L = P:WaitForChild(v)
       if L then
-        L.Transparency = 1
-        L.Color = Color3.fromRGB(255,255,255)
+        if v == "Torso" then
+          L.Size = Vector3.new(2, 2, 1)
+        elseif v ~= "Head" then
+          L.Size = Vector3.new(1, 2, 1)
+        end
       end
     end
     D(P.FakeHead)
