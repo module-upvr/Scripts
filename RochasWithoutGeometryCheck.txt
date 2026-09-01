@@ -83,11 +83,8 @@ local function DoMorph(P, Name, Skin)
      for _, v in ipairs({"Head", "Torso", "Right Leg", "Left Leg", "Right Arm", "Left Arm"}) do
       local L = P:WaitForChild(v)
       if L then
-        if v == "Torso" then
-          L.Size = Vector3.new(2, 2, 1)
-        elseif v ~= "Head" then
-          L.Size = Vector3.new(1, 2, 1)
-        end
+        L.Transparency = 1
+        if v ~= "Head" then L.Size = L.Size / 1.209 end
       end
     end
     D(P.FakeHead)
@@ -111,6 +108,12 @@ local function DoMorph(P, Name, Skin)
           Weld.Part0 = v
           Weld.Part1 = TBP
         end
+      end
+    end
+
+    for _, v in P.Torso:GetChildren() do
+      if v:IsA("Motor6D") then
+        v.C0 = CFrame.new(v.C0.Position / 1.209) * CFrame.Angles(v.C0:ToEulerAnglesXYZ()) 
       end
     end
     
