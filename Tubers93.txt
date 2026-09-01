@@ -196,7 +196,8 @@ local function DoMorph(P, Name)
       if L then
         L.Transparency = 0
         L.Color = Color3.fromRGB(255,255,255)
-        L.Size = L.Size / 1.209
+        local NS = Vector3.new(math.round(L.Size.X / 1.121), math.round(L.Size.Y / 1.121), math.round(L.Size.Z / 1.121))
+        L.Size = NS
       end
     end
     D(P.cool, P.HumanoidRootPart["rbxassetid://98541221291764"])
