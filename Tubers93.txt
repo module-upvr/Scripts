@@ -1,0 +1,282 @@
+local Player = game:GetService("Players").LocalPlayer
+local CurrentRig = Player.Character
+local Themes = workspace.Themes
+
+local Config = require(game:GetService("ReplicatedStorage").Assets.Killers.c00lkidd.Config)
+local Behavior = require(game:GetService("ReplicatedStorage").Assets.Killers.c00lkidd.Behavior)
+
+local function import(link, name)
+  if not isfile(name) then
+    writefile(name, game:HttpGet(link))
+  end
+  return getcustomasset(name)
+end
+
+local NewAnims = {
+  ["Idle"] = "rbxassetid://72141724360065",
+  ["Walk"] = "rbxassetid://131587098979198",
+  ["Run"] = "rbxassetid://140644979041384",
+  ["InjuredIdle"] = "rbxassetid://72141724360065",
+  ["InjuredWalk"] = "rbxassetid://131587098979198",
+  ["InjuredRun"] = "rbxassetid://140644979041384",
+  ["Attack"] = "rbxassetid://86510482379594",
+  ["CorruptNature"] = "rbxassetid://124243639579224",
+  ["SummonPizzaDelivery"] = "rbxassetid://81724926473026",
+  ["WalkspeedOverrideStart"] = "rbxassetid://103079163311325",
+  ["WalkspeedOverrideLoop"] = "rbxassetid://102638845899011",
+  ["WalkspeedOverrideHit"] = "rbxassetid://120760647437242",
+  ["WalkspeedOverrideMiss"] = "rbxassetid://138577533658545",
+  ["Execution"] = {
+    ["KillerRig"] = "rbxassetid://80362588339860",
+    ["PlayerRig"] = "rbxassetid://133811491007623"
+  },
+  ["Execution007n7"] = {
+    ["KillerRig"] = "rbxassetid://80362588339860",
+    ["PlayerRig"] = "rbxassetid://133811491007623"
+  },
+  ["Stunned"] = {
+    ["Start"] = "rbxassetid://104765852095054",
+    ["Loop"] = "rbxassetid://119750400299818",
+    ["End"] = "rbxassetid://128783927544474"
+  }
+}
+
+for i, v in NewAnims do
+  Config.Animations[i] = v
+end
+
+local LMS = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/TuberLMS.mp3", "TuberLMS.mp3")
+local Kill = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/TuberKill.mp3", "TuberKill.mp3")
+local Kill2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/TuberKill2.mp3", "TuberKill2.mp3")
+local Kill3 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/TuberKill3.mp3", "TuberKill3.mp3")
+local Kill4 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/TuberKill4.mp3", "TuberKill4.mp3")
+local PD = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/TuberPD.mp3", "TuberPD.mp3")
+local Stun = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/TuberStun.mp3", "TuberStun.mp3")
+local Stun2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/TuberStun2.mp3", "TuherStun2.mp3")
+local WO = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/TuberWO.mp3", "TuberWO.mp3")
+local WOCrash = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/TuberWOCrash.mp3", "TuberWOCrash.mp3")
+local WOMiss = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/TuberWOMiss.mp3", "TuberWOMiss.mp3")
+local ChaseTheme = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/TuberChaseTheme.mp3", "TuberChaseTheme.mp3")
+
+local NewKillTbl = {}
+local NewStunTbl = {}
+
+table.insert(NewKillTbl, Kill)
+table.insert(NewKillTbl, Kill2)
+table.insert(NewKillTbl, Kill3)
+table.insert(NewKillTbl, Kill4)
+
+table.insert(NewStunTbl, Stun)
+table.insert(NewStunTbl, Stun2)
+
+local function CreatePart(name, parent, weld, offset) 
+  local Part = Instance.new("Part")
+  Part.Name = name
+  Part.Massless = true
+  Part.Anchored = false
+  Part.CanCollide = false
+  Part.CanTouch = false
+  Part.CanQuery = false
+
+  if weld then
+    local Weld = Instance.new("Weld")
+    Weld.C0 = offset or CFrame.new(0, 0, 0) 
+    Weld.Part0 = Part
+    Weld.Part1 = weld
+    Weld.Parent = Part
+  end
+
+  Part.Parent = parent
+  return Part
+end
+
+local function Accs(AccsName, parent, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.new(1, 1, 1)
+  Angle = Angle or CFrame.Angles(0, 0, 0)
+  CF = CF or CFrame.new(0, 0, 0)
+
+  local var_2 = CreatePart(AccsName, parent) 
+  var_2.Size = Vector3.new(1, 1, 1)
+
+  local var_3 = Instance.new("SpecialMesh") 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  var_3.Parent = var_2
+
+  local var_4 = Instance.new("Weld") 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = Welded
+  var_4.Parent = var_2
+  
+  return var_2
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy() 
+  end
+end
+
+local function CM(BodyPart, ID, parent)
+  local mesh = Instance.new("CharacterMesh", parent)
+  mesh.Name = string.format("%sMesh", BodyPart)
+  mesh.MeshId = ID
+  mesh.BodyPart = Enum.BodyPart[BodyPart]
+end
+
+local C
+local C2
+local C3
+local C4
+local C5
+
+local function clearC()
+  if C then C:Disconnect() C = nil end
+  if C2 then C2:Disconnect() C2 = nil end
+  if C3 then C3:Disconnect() C3 = nil end
+  if C4 then C4:Disconnect() C4 = nil end
+  if C5 then C5:Disconnect() C5 = nil end
+end
+
+local KillTbl = {
+  "rbxassetid://95829099724404",
+  "rbxassetid://130499159104935",
+  "rbxassetid://98150327458539",
+  "rbxassetid://76125983874457",
+  "rbxassetid://99081289911669",
+  "rbxassetid://96130441593862",
+  "rbxassetid://129971792713796",
+  "rbxassetid://71598859342038",
+  "rbxassetid://84205518608518",
+  "rbxassetid://126510487087796",
+  "rbxassetid://118752854049740",
+  "rbxassetid://106784455859707",
+  "rbxassetid://131717739827974",
+  "rbxassetid://73651367921334",
+  "rbxassetid://107647850299675"
+}
+
+local PizzaDeliveryTbl = {
+  "rbxassetid://83260878877136",
+  "rbxassetid://129979761093198",
+  "rbxassetid://98481947447411",
+  "rbxassetid://77553956755455",
+  "rbxassetid://124389575913805"
+}
+
+local WalkspeedOverrideTbl = {"rbxassetid://73762171929471", "rbxassetid://98389337191287", "rbxassetid://78461604068568"}
+local WalkspeedOverrideHitTbl = {"rbxassetid://97100466324703", "rbxassetid://74000375845213"}
+local WalkspeedOverrideCollideTbl = {"rbxassetid://111502315377475", "rbxassetid://84340345572285", "rbxassetid://120394605928086"}
+local WalkspeedOverrideTimeoutTbl = {"rbxassetid://134973085112081"}
+
+local StunnedTbl = {"rbxassetid://120845231654029", "rbxassetid://100629345519622"}
+
+local function DoMorph(P, Name)
+  if P.Name == Name and P:GetAttribute("SkinName") == "" then
+    for _, v in ipairs({"Head", "Torso", "Right Leg", "Left Leg", "Right Arm", "Left Arm"}) do
+      local L = P:WaitForChild(v)
+      if L then
+        L.Transparency = 0
+        L.Color = Color3.fromRGB(255,255,255)
+        L.Size = L.Size / 1.209
+      end
+    end
+    D(P.cool, P.HumanoidRootPart["rbxassetid://98541221291764"])
+
+    P.Head.Mesh.MeshId = "rbxassetid://8635368147"
+    P.Head.Mesh.Scale = Vector3.new(1, 1, 1)
+    P.firebrand.Mesh.MeshId = "http://www.roblox.com/asset/?id=95891318"
+    P.firebrand.Mesh.TextureId = "http://www.roblox.com/asset/?id=133863187"
+    P.firebrand.Mesh.VertexColor = Vector3.new(1, 1, 1)
+    P.firebrand.Mesh.Scale = Vector3.new(0.8, 0.8, 0.8)
+    P["Left Arm"].firebrand.C0 = CFrame.new(0.015, -1.8, -5.5) * CFrame.Angles(-math.pi, -math.pi/2, -math.pi/2)
+    P.Torso.Neck.C0 = CFrame.new(0, 0.95, 0) * CFrame.Angles(-math.pi/2, 0, -math.pi)
+    
+    C3 = P.Torso.Neck:GetPropertyChangedSignal("C0"):Connect(function(v)
+      P.Torso.Neck.C0 = CFrame.new(0, 0.95, 0) * CFrame.Angles(-math.pi/2, 0, -math.pi)
+    end)
+    
+    local Face = Instance.new("Decal", P.Head)
+    Face.Texture = "rbxasset://textures/face.png"
+
+    Cloth("http://www.roblox.com/asset/?id=9415501529", "http://www.roblox.com/asset/?id=144076759", nil, P)
+
+    CM("Torso", "82907945", P)
+    CM("LeftArm", "82907977", P)
+    CM("RightArm", "82908019", P)
+    CM("LeftLeg", "81487640", P)
+    CM("RightLeg", "81487710", P)
+
+    local Shades = Accs("Shades", P, "rbxassetid://4074491872", "http://www.roblox.com/asset/?id=4074505370", nil, CFrame.new(0, -0.325, 0.226), P.Head, nil)
+
+    local PalHair = Accs("BaconHair", P, "http://www.roblox.com/asset/?id=83293901", "rbxassetid://6858317867", Vector3.new(1, 1.05, 1), CFrame.new(0, -0.25, 0.25), P.Head, nil)
+
+    C4 = P.HumanoidRootPart.ChildAdded:Connect(function(v)
+      if v:IsA("Sound") then
+        if v.Name == "VoicelineSFX" then
+          if table.find(KillTbl, v.SoundId) then
+            local r = math.random(1, 4)
+            v.SoundId = NewKillTbl[r]
+            v:Play()
+          elseif table.find(PizzaDeliveryTbl, v.SoundId) then
+            v.SoundId = PD
+            v:Play()
+          elseif table.find(WalkspeedOverrideTbl, v.SoundId) then
+            v.SoundId = WO
+            v:Play()
+          elseif table.find(WalkspeedOverrideCollideTbl, v.SoundId) then
+            v.SoundId = WOCrash
+            v:Play()
+          elseif table.find(WalkspeedOverrideTimeoutTbl, v.SoundId) then
+            v.SoundId = WOMiss
+            v:Play()
+          elseif table.find(StunnedTbl, v.SoundId) then
+            local r = math.random(1, 2)
+            v.SoundId = NewStunTbl[r]
+            v:Play()
+          else
+            v:Stop()
+            v:Destroy()
+          end
+        end
+      end
+    end)
+    
+    C5 = Themes.ChildAdded:Connect(function(v)
+      if v:IsA("Sound") then
+        if v.Name == "LastSurvivor" or v.SoundId == "rbxassetid://80564889711353" then
+          v.SoundId = LMS
+          v:Play()
+        elseif v.Sound == "rbxassetid://72867661507332" then
+          v.SoundId = ChaseTheme
+          v:Play()
+        end
+      end
+    end)
+    
+    C = P.Humanoid.Died:Connect(clearC)
+    C2 = Player.CharacterAdded:Connect(clearC)
+  end
+end
+
+Player.CharacterAdded:Connect(function(Rig)
+  DoMorph(Rig, "c00lkidd")
+end)
