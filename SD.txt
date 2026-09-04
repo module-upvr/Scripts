@@ -250,4 +250,4 @@ end
 
 Player.CharacterAdded:Connect(function(Rig)
   DoMorph(Rig, "Slasher")
-end
+end)
