@@ -1,0 +1,253 @@
+local Player = game:GetService("Players").LocalPlayer
+local v1 = game:GetService("ReplicatedStorage")
+local v_u_2 = game:GetService("RunService")
+local v_u_3 = game:GetService("TweenService")
+local v_u_5 = game:GetService("Debris")
+local v_u_8 = require(v1.Modules.Utilities.Util)
+local v_u_9 = require(v1.Systems.Character.Game.Sprinting)
+local v_u_11 = require(v1.Modules.Network.Network)
+
+local CurrentRig = Player.Character
+
+local Anims = require(game:GetService("ReplicatedStorage").Assets.Killers.Slasher.Config).Animations
+local Abilities = require(game:GetService("ReplicatedStorage").Assets.Killers.Slasher.Behavior).Abilities
+
+local NewAnims = {
+  Idle = "rbxassetid://106131211773069";
+  Walk = "rbxassetid://119112338263474";
+  Run = "rbxassetid://85339002634979";
+  InjuredIdle = "rbxassetid://106131211773069";
+  InjuredWalk = "rbxassetid://119112338263474";
+  InjuredRun = "rbxassetid://85339002634979";
+  EnragedIdle = "rbxassetid://105880087711722";
+  EnragedWalk = "rbxassetid://132653655520682";
+  EnragedRun = "rbxassetid://132653655520682";
+  Slash = "rbxassetid://126171487400618";
+  EnragedSlash = "rbxassetid://126171487400618";
+  EnragedStart = "rbxassetid://78583699549296";
+  Behead = "rbxassetid://83685305553364"
+}
+
+for i, v in NewAnims do
+  Anims[i] = v
+end
+
+Abilities.Behead.Callback = function(v)
+  if v.Rig:GetAttribute("SkinName") == "" then
+    v.Animations.Behead:Play(0.025)
+    v.Animations.Behead.TimePosition = 1.2
+  else
+    v.Animations.Behead:Play(0.025)
+  end
+  local v_u_38 = v_u_8:CreateSpeedMultiplier(v.Rig, 1, "BeheadAbility")
+  v_u_3:Create(v_u_38, TweenInfo.new(0.125), {
+    ["Value"] = v.State.isEnraged and v.Config.EnragedBeheadLunge or v.Config.BeheadLunge
+  }):Play()
+  task.delay(0.4, function()
+    v_u_3:Create(v_u_38, TweenInfo.new(0.3), {
+      ["Value"] = 0.2
+    }):Play()
+    task.wait(0.6)
+    v_u_3:Create(v_u_38, TweenInfo.new(0.3), {
+      ["Value"] = 1
+    }):Play()
+    v_u_5:AddItem(v_u_38, 0.3)
+  end)
+end
+
+Abilities.RagingPace.Callback = function(v)
+  if v.Rig:GetAttribute("SkinName") == "" then
+    v.Animations.EnragedStart:Play()
+    v.Animations.EnragedStart.TimePosition = 1.5
+    task.delay(1.4, function() v.Animations.EnragedStart:Stop() end)
+  else
+    v.Animations.EnragedStart:Play(0.025)
+  end
+  v.AnimationType = "Enraged"
+  v.MovementAnimSpeed = 1
+  v.State.isEnraged = true
+  v_u_11:FireConnection("DisableSprinting", "ENRAGED", true)
+  local v_u_44 = v_u_8:CreateFOVMultiplier(v.Player, 1, "RagingZoom")
+  v_u_3:Create(v_u_44, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0), {
+    ["Value"] = 0.925
+  }):Play()
+  v.Instances.SpeedModifier = v_u_8:CreateSpeedMultiplier(v.Rig, 1, "ENRAGED")
+  v_u_3:Create(v.Instances.SpeedModifier, TweenInfo.new(0.75, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+    ["Value"] = 0.1
+  }):Play()
+  task.delay(0.5, function()
+    v_u_3:Create(v.Instances.SpeedModifier, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+      ["Value"] = v.Config.EnragedSpeed / v.Config.Speed
+    }):Play()
+  end)
+  local v45 = v_u_8:GetClosestPlayerFromPosition(v.Rig.PrimaryPart.Position)
+  if v45 then
+    v.Meta.TargetedPlayer = v45
+    v_u_8:RevealPlayerAura(v45, v.Config.EnragedTime + 2)
+  end
+  if not v_u_8:GetSettingValue("EpilepsyMode") then
+    local v_u_46 = Instance.new("ColorCorrectionEffect")
+    v_u_46.Parent = game.Lighting
+    v_u_46.Name = "SlasherEvil"
+    v_u_46.Brightness = 0
+    v_u_46.Contrast = 0
+    v_u_46.Saturation = 0
+    v_u_46.TintColor = Color3.fromRGB(255, 255, 255)
+    v_u_46.Enabled = true
+    v_u_5:AddItem(v_u_46, 4)
+    v_u_3:Create(v_u_46, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+      ["TintColor"] = Color3.new(1, 0.894118, 0.894118)
+    }):Play()
+    v_u_3:Create(v_u_46, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+      ["Contrast"] = 0.05
+    }):Play()
+    v_u_3:Create(v_u_46, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+      ["Saturation"] = 0.1
+    }):Play()
+    task.delay(0.45, function()
+      v_u_3:Create(v_u_46, TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        ["TintColor"] = Color3.new(1, 0.6, 0.6)
+      }):Play()
+      v_u_3:Create(v_u_46, TweenInfo.new(0.1, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        ["Contrast"] = 0.25
+      }):Play()
+      v_u_3:Create(v_u_46, TweenInfo.new(0.1, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        ["Saturation"] = 0.5
+      }):Play()
+    end)
+    task.delay(0.55, function()
+      v_u_3:Create(v_u_46, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        ["Contrast"] = 0
+      }):Play()
+      v_u_3:Create(v_u_46, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        ["Saturation"] = 0
+      }):Play()
+      v_u_3:Create(v_u_46, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        ["TintColor"] = Color3.new(1, 1, 1)
+      }):Play()
+    end)
+  end
+  task.delay(0.5, function()
+    v_u_3:Create(v_u_44, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0), {
+      ["Value"] = 1
+    }):Play()
+  end)
+  task.delay(1, function()
+    v_u_5:AddItem(v_u_44, 1)
+    if v.State.Destroyed then
+      print("killer already destroyed")
+    else
+      local v_u_47 = os.clock()
+      local v_u_48 = nil
+      v_u_48 = v_u_2.Heartbeat:Connect(function(_)
+        local v49 = (os.clock() - v_u_47) / v.Config.EnragedStaminaCapLerpTime
+        local v50 = math.clamp(v49, 0, 1)
+        v_u_9.StaminaCap = v.Config.MaxStamina + (v.Config.EnragedStaminaCap - v.Config.MaxStamina) * v50
+        if not v.State.isEnraged then
+          v_u_48:Disconnect()
+          v_u_48 = nil
+          v_u_9.StaminaCap = v.Config.MaxStamina
+        end
+      end)
+      v.Maid:Add(v_u_48)
+    end
+  end)
+end
+
+local function CreatePart(name, parent, weld, offset) 
+  local Part = Instance.new("Part")
+  Part.Name = name
+  Part.Massless = true
+  Part.Anchored = false
+  Part.CanCollide = false
+  Part.CanTouch = false
+  Part.CanQuery = false
+
+  if weld then
+    local Weld = Instance.new("Weld")
+    Weld.C0 = offset or CFrame.new(0, 0, 0) 
+    Weld.Part0 = Part
+    Weld.Part1 = weld
+    Weld.Parent = Part
+  end
+
+  Part.Parent = parent
+  return Part
+end
+
+local function Accs(AccsName, parent, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.new(1, 1, 1)
+  Angle = Angle or CFrame.Angles(0, 0, 0)
+  CF = CF or CFrame.new(0, 0, 0)
+
+  local var_2 = CreatePart(AccsName, parent) 
+  var_2.Size = Vector3.new(1, 1, 1)
+
+  local var_3 = Instance.new("SpecialMesh") 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  var_3.Parent = var_2
+
+  local var_4 = Instance.new("Weld") 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = Welded
+  var_4.Parent = var_2
+  
+  return var_2
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy() 
+  end
+end
+
+local function DoMorph(P, Name)
+  if P.Name == Name and P:GetAttribute("SkinName") == "" then
+    for _, v in ipairs({"Head", "Torso", "Right Leg", "Left Leg", "Right Arm", "Left Arm"}) do
+      local L = P:WaitForChild(v)
+      if L then
+        L.Transparency = 0
+        L.Color = Color3.fromRGB(255,255,255)
+      end
+    end
+    D(P["Slasher Export"], P.Mask, P.Chainsaw, P.Machete.SurfaceAppearance)
+
+    P.Machete.MeshId = "http://www.roblox.com/asset/?id=12221720"
+    P.Machete.Color = Color3.new(0, 0, 0)
+    P.HumanoidRootPart.Machete.Part0 = P["Right Arm"]
+    P.HumanoidRootPart.Machete.C0 = CFrame.new(0, -1, -1.3) * CFrame.Angles(math.pi/2, 0, math.pi/2)
+
+    Cloth(nil, nil, "http://www.roblox.com/asset/?id=124081654376330", P)
+
+    local SpawnHalo = Accs("SpawnHalo", P, "rbxassetid://80997955487458", "rbxassetid://133186716283303", Vector3.new(1, 1, 1), CFrame.new(-0, -0.917, -0), P.Head, CFrame.Angles(-math.pi, 0, -math.pi))
+
+    for _, v in P:GetChildren() do
+      if v:IsA("CharacterMesh") then
+        v:Destroy()
+      end
+    end
+  end
+end
+
+Player.CharacterAdded:Connect(function(Rig)
+  DoMorph(Rig, "Slasher")
+end
