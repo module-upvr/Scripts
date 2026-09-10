@@ -1,0 +1,186 @@
+local Player = game:GetService("Players").LocalPlayer
+local TennaFolder = game:GetService("ReplicatedStorage").Assets.Skins.Killers.c00lkidd["#TvTimeC00l"]
+local coolcon = require(game:GetService("ReplicatedStorage").Assets.Killers.c00lkidd.Config)
+local Tennacon = require(TennaFolder.Config)
+local coolbeh = require(game:GetService("ReplicatedStorage").Assets.Killers.c00lkidd.Behavior)
+
+local CurrentRig = Player.Character
+
+local function import(link, name)
+  if not isfile(name) then
+    writefile(name, game:HttpGet(link))
+  end
+  return getcustomasset(name)
+end
+
+local TennaIntroS = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/TennaIntroS.mp3", "TennaIntroS.mp3")
+local TennaOutroS = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/TennaOutroS.mp3", "TennaOutroS.mp3")
+
+for i, v in Tennacon.Animations do
+  if typeof(v) == "table" then
+    for i2, v2 in v do
+      coolcon.Animations[i][i2] = v2
+    end
+  else
+    coolcon.Animations[i] = v
+  end
+end
+
+coolcon["ForcedIntroTime"] = 9
+
+local function CreatePart(name, parent, weld, offset) 
+  local Part = Instance.new("Part")
+  Part.Name = name
+  Part.Massless = true
+  Part.Anchored = false
+  Part.CanCollide = false
+  Part.CanTouch = false
+  Part.CanQuery = false
+
+  if weld then
+    local Weld = Instance.new("Weld")
+    Weld.C0 = offset or CFrame.new(0, 0, 0) 
+    Weld.Part0 = Part
+    Weld.Part1 = weld
+    Weld.Parent = Part
+  end
+
+  Part.Parent = parent
+  return Part
+end
+
+local function Accs(AccsName, parent, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.new(1, 1, 1)
+  Angle = Angle or CFrame.Angles(0, 0, 0)
+  CF = CF or CFrame.new(0, 0, 0)
+
+  local var_2 = CreatePart(AccsName, parent) 
+  var_2.Size = Vector3.new(1, 1, 1)
+
+  local var_3 = Instance.new("SpecialMesh") 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  var_3.Parent = var_2
+
+  local var_4 = Instance.new("Weld") 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = Welded
+  var_4.Parent = var_2
+  
+  return var_2
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy() 
+  end
+end
+
+local TennaRig = TennaFolder.Rig
+
+local function TennaAccs(path, parent, part)
+  local v1 = path:Clone()
+  v1.Parent = parent
+
+  if part == 0 then
+    v1.WeldConstraint.Part0 = nil
+  else
+    v1.WeldConstraint.Part1 = nil
+  end
+  
+  v1.CFrame = parent.CFrame * ((v1.CFrame:ToObjectSpace(part == 0 and path.WeldConstraint.Part0.CFrame or path.WeldConstraint.Part1.CFrame)):Inverse())
+
+  if part == 0 then
+    v1.WeldConstraint.Part0 = parent
+  else
+    v1.WeldConstraint.Part1 = parent
+  end
+end
+
+local C
+local C2
+local C3
+local C4
+
+local function clearC()
+  if C then C:Disconnect() C = nil end
+  if C2 then C2:Disconnect() C2 = nil end
+  if C3 then C3:Disconnect() C3 = nil end
+  if C4 then C4:Disconnect() C4 = nil end
+end
+
+local function DoMorph(P, Name)
+  if P.Name == Name and P:GetAttribute("SkinName") == "" then
+    for _, v in ipairs({"Torso", "Right Leg", "Left Leg", "Right Arm", "Left Arm"}) do
+      local L = P:WaitForChild(v)
+      if L then
+        L.Transparency = 0
+        L.Color = Color3.fromRGB(255,255,255)
+      end
+    end
+    D(P.cool)
+
+    Cloth("rbxassetid://136356323534619", "rbxassetid://134147376019751", nil, P)
+    
+    TennaAccs(TennaRig.Torso.Suit, P.Torso, 1)
+
+    local TennaHead = TennaRig.TennaHead:Clone()
+    TennaHead.Parent = P
+
+    for _, v in TennaHead:GetChildren() do
+      v.WeldConstraint.Part1 = nil
+      v.CFrame = P.Head.CFrame * ((v.CFrame:ToObjectSpace(TennaRig.Head.CFrame)):Inverse())
+      v.WeldConstraint.Part1 = P.Head
+    end
+
+    TennaAccs(TennaRig.Torso.Belt, P.Torso, 1)
+    
+    TennaAccs(TennaRig.Pin, P.Torso, 1)
+    
+    TennaAccs(TennaRig.LGlove, P["Left Arm"], 0)
+    
+    TennaAccs(TennaRig.RGlove, P["Right Arm"], 0)
+    
+    C = P.HumanoidRootPart.ChildAdded:Connect(function(v)
+      if v:IsA("Sound") and v.Name == "VoicelineSFX" then
+        v:Stop()
+        v:Destroy()
+      end
+    end)
+    
+    C2 = workspace.Sounds.ChildAdded:Connect(function(v)
+      if v.SoundId == coolcon.Sounds.Introduction then
+        v.SoundId = TennaIntroS
+        v:Play()
+      elseif v.SoundUd == coolcon.Sounds.VictoryTheme then
+        v.SoundId = TennaOutroS
+        v:Play()
+      end
+    end)
+    
+    C3 = P.Humanoid.Died:Once(clearC)
+    C4 = Player.CharacterAddes:Once(clearC)
+  end
+end
+
+Player.CharacterAdded:Connect(function(Rig)
+  DoMorph(Rig, "c00lkidd")
+end) 
