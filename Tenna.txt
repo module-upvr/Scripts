@@ -172,6 +172,7 @@ local function DoMorph(P, Name)
         v:Play()
       elseif v.SoundId == coolcon.Sounds.VictoryTheme then
         v.SoundId = TennaOutroS
+        v.Looped = true
         v:Play()
       end
     end)
