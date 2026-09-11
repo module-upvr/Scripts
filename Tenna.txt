@@ -170,14 +170,14 @@ local function DoMorph(P, Name)
       if v.SoundId == coolcon.Sounds.Introduction then
         v.SoundId = TennaIntroS
         v:Play()
-      elseif v.SoundUd == coolcon.Sounds.VictoryTheme then
+      elseif v.SoundId == coolcon.Sounds.VictoryTheme then
         v.SoundId = TennaOutroS
         v:Play()
       end
     end)
     
     C3 = P.Humanoid.Died:Once(clearC)
-    C4 = Player.CharacterAddes:Once(clearC)
+    C4 = Player.CharacterAdded:Once(clearC)
   end
 end
 
