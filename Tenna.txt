@@ -26,7 +26,7 @@ for i, v in Tennacon.Animations do
   end
 end
 
-coolcon["ForcedIntroTime"] = 9
+coolcon["ForcedIntroTime"] = 7.5
 
 local function CreatePart(name, parent, weld, offset) 
   local Part = Instance.new("Part")
