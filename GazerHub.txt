@@ -85,12 +85,11 @@ local IsCr = false
 local crouchThread = nil
 
 function Saken:Esp()
-  local function createESP(object, color, color2)
-    color = color or Color3.new(1, 0, 0)
-    color2 = color2 or Color3.new(1, 1, 1)
-    
+  local function createESP(object, color)
     if object:FindFirstChild("SakenLight") then return end
-
+    
+    color = color or Color3.new(1, 0, 0)
+    
     local highlight = Instance.new("Highlight")
     highlight.FillTransparency = 0.7
     highlight.OutlineTransparency = 1
@@ -101,20 +100,38 @@ function Saken:Esp()
     highlight.Adornee = object
   end
 
-  local plrESP
-  plrESP = function(object, color, color2)
+  local function plrESP(object, color)
     if not object or object:FindFirstChild("SakenLight") then return end
     if object:GetAttribute("Username") == Player.Name then return end
     
     color = color or Color3.new(1, 0, 0)
-    color2 = color2 or Color3.new(1, 1, 1)
-
+    
     local highlight = Instance.new("Highlight")
     highlight.Name = "SakenLight"
     highlight.FillTransparency = 0.8
     highlight.OutlineTransparency = 1
     highlight.FillColor = color
-    highlight.Parent = object  
+    highlight.Parent = object
+    
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Name = "UsernameBillboard"
+    billboardGui.Size = UDim2.new(7, 0, 7, 0)
+    billboardGui.StudsOffset = Vector3.new(0, 2.5, 0)
+    billboardGui.AlwaysOnTop = true
+  
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = object:GetAttribute("Username")
+    textLabel.TextColor3 = color
+    textLabel.TextScaled = true
+    textLabel.Font = Enum.Font.SourceSansBold
+  
+    textLabel.TextStrokeTransparency = 0
+    textLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+    
+    textLabel.Parent = billboardGui
+    billboardGui.Parent = object.Head
   end
 
   local function HandleGenESP(gen) 
@@ -211,20 +228,20 @@ function Saken:Config()
     require(Kill.Config).Speed += 1.5
     require(Kill.Config).SprintSpeed += 1.5
     if Kill.Name == "Noli" then
-      require(Kill.Config).VoidRushDashSpeed = 70
+      require(Kill.Config).VoidRushDashSpeed = 60
       require(Kill.Config).VoidRushTurnSpeed = 5
       require(Kill.Config).VoidRushInitialTurnDuration = 0
-      require(Kill.Config).VoidRushInitialTurnMult = 0
+      require(Kill.Config).VoidRushInitialTurnMult = 1
     elseif Kill.Name == "Slasher" then
       require(Kill.Config).EnragedSpeed += 15
     end
   end
 
   for _, Surv in Survivors do 
-    require(Surv.Config).Speed = 16
-    require(Surv.Config).SprintSpeed = 30
+    require(Surv.Config).Speed = 15.75
+    require(Surv.Config).SprintSpeed = 29.75
     if Surv.Name == "Veeronica" then
-      require(Surv.Config).Sk8TurnControl = 6
+      require(Surv.Config).Sk8TurnControl = 5
     elseif Surv.Name == "TwoTime" then
       require(Surv.Config).CrouchSpeed = 16
       require(Surv.Config).CrouchRunSpeed = 30
@@ -334,7 +351,7 @@ function Saken:Function()
     PC.SpeedMultipliers.DirectionalMovement:Destroy()
   end
   
-  Player.CameraMaxZoomDistance = 40
+  Player.CameraMaxZoomDistance = 35
   task.spawn(GuiSaken, Player.Character)
   Player.CharacterAdded:Connect(function(Rig)
     task.spawn(GuiSaken, Rig)
@@ -360,7 +377,7 @@ function Saken:Function()
         local targetId = arg1.Character.Invisible.AnimationId
         for _, track in Animator:GetPlayingAnimationTracks() do
           if track.Animation and string.find(track.Animation.AnimationId, targetId) then
-            track:Stop()
+            track:Stop(0)
           end
         end
       end
@@ -376,4 +393,4 @@ function Saken:Function()
   end)
 end
 
-return Saken
+return saken
