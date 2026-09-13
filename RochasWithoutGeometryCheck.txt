@@ -45,7 +45,7 @@ Config.IntroText = "SPREAD."
 Config.CollabInfo = nil
 Config.RenderImage = RochasRender
 Config.DisplayName = "Rochas"
-Config.Description = "<font color='rgb(255, 0, 0)'>SPREAD.</font>"
+Config.Description = "SPREAD."
 Player.PlayerGui.MainUI.Shop.Holder.Overlay.Preview.Description.RichText = true
 Config.Credits = "By: Stick_Gazer"
 
