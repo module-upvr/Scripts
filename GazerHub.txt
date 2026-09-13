@@ -101,7 +101,7 @@ function Saken:Esp()
   end
 
   local function plrESP(object, color)
-    if not object or object:FindFirstChild("Head") or object:FindFirstChild("SakenLight") then return end
+    if not object or not object:FindFirstChild("Head") or object:FindFirstChild("SakenLight") then return end
     if object:GetAttribute("Username") == Player.Name then return end
     
     color = color or Color3.new(1, 0, 0)
