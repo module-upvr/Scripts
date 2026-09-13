@@ -241,7 +241,7 @@ function Saken:Config()
     require(Surv.Config).Speed = 15.75
     require(Surv.Config).SprintSpeed = 29.75
     if Surv.Name == "Veeronica" then
-      require(Surv.Config).Sk8TurnControl = 5
+      require(Surv.Config).Sk8TurnControl = 2.5
     elseif Surv.Name == "TwoTime" then
       require(Surv.Config).CrouchSpeed = 16
       require(Surv.Config).CrouchRunSpeed = 30
