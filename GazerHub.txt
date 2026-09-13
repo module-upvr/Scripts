@@ -115,8 +115,8 @@ function Saken:Esp()
     
     local billboardGui = Instance.new("BillboardGui")
     billboardGui.Name = "UsernameBillboard"
-    billboardGui.Size = UDim2.new(7, 0, 7, 0)
-    billboardGui.StudsOffset = Vector3.new(0, 2.5, 0)
+    billboardGui.Size = UDim2.new(5.5, 0, 5.5, 0)
+    billboardGui.StudsOffset = object.Name == "Sixer" and Vector3.new(0, 4, 0) or Vector3.new(0, 2.5, 0)
     billboardGui.AlwaysOnTop = true
   
     local textLabel = Instance.new("TextLabel")
