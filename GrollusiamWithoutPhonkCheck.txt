@@ -1,0 +1,224 @@
+local Player = game:GetService("Players").LocalPlayer
+local insert = game:GetService("InsertService")
+local v_u_2 = require(game.ReplicatedStorage.Modules.Utilities.Util)
+local I = workspace.Map.Ingame
+local Survs = workspace.Players.Survivors
+
+local CurrentRig = Player.Character
+
+local function MakeBG(obj, img)
+  local bg = Instance.new("BillboardGui")
+  bg.Size = UDim2.new(1, 0, 1, 0)
+  bg.StudsOffset = Vector3.new(-3.5, 3.5, 0)
+  bg.Adornee = obj
+  local image = Instance.new("ImageLabel")
+  image.Image = img
+  image.Size = UDim2.new(8, 0, 8, 0)
+  image.BackgroundTransparency = 1
+  image.ImageColor3 = Color3.new(0, 1, 0)
+  image.Parent = bg
+  
+  bg.Parent = obj
+end
+
+local function import(link, name)
+  if not isfile(name) then
+    writefile(name, game:HttpGet(link))
+  end
+  return getcustomasset(name)
+end
+
+local function importinstance(asset, parent)
+  local _, imported = pcall(insert.LoadLocalAsset, insert, asset)
+  imported.Parent = parent
+  return imported
+end
+
+local GRig = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/Grollusiam.rbxm", "Grollusiam.rbxm")
+local GCT = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GChaseTheme.mp3", "GChaseTheme.mp3")
+local GLMS = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMS.mp3", "GLMS.mp3")
+local GLMS2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMS2.mp3", "GLMS2.mp3")
+local GE = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GEmote.mp3", "GEmote.mp3")
+local GE2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GEmote2.mp3", "GEmote2.mp3")
+local GE3 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GEmote3.mp3", "GEmote3.mp3")
+local GM = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GMinion.png", "GMinion.png")
+local GLMSShed = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSShed.mp3", "GLMSShed.mp3")
+local GLMSN7 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSN7.mp3", "GLMSN7.mp3")
+local GLMSCha = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSCha.mp3", "GLMSCha.mp3")
+
+local function CreatePart(name, parent, weld, offset) 
+  local Part = Instance.new("Part")
+  Part.Name = name
+  Part.Massless = true
+  Part.Anchored = false
+  Part.CanCollide = false
+  Part.CanTouch = false
+  Part.CanQuery = false
+
+  if weld then
+    local Weld = Instance.new("Weld")
+    Weld.C0 = offset or CFrame.new(0, 0, 0) 
+    Weld.Part0 = Part
+    Weld.Part1 = weld
+    Weld.Parent = Part
+  end
+
+  Part.Parent = parent
+  return Part
+end
+
+local function Accs(AccsName, parent, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.new(1, 1, 1)
+  Angle = Angle or CFrame.Angles(0, 0, 0)
+  CF = CF or CFrame.new(0, 0, 0)
+
+  local var_2 = CreatePart(AccsName, parent) 
+  var_2.Size = Vector3.new(1, 1, 1)
+
+  local var_3 = Instance.new("SpecialMesh") 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  var_3.Parent = var_2
+
+  local var_4 = Instance.new("Weld") 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = Welded
+  var_4.Parent = var_2
+  
+  return var_2
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy() 
+  end
+end
+
+local C
+local C2
+local C3
+local C4
+local C5
+local C6
+
+local function clearC()
+  if C then C:Disconnect() C = nil end
+  if C2 then C2:Disconnect() C2 = nil end
+  if C3 then C3:Disconnect() C3 = nil end
+  if C4 then C4:Disconnect() C4 = nil end
+  if C5 then C5:Disconnect() C5 = nil end
+  if C6 then C6:Disconnect() C6 = nil end
+end
+
+local function DoMorph(P, Name, SN)
+  if P.Name == Name and P:GetAttribute("SkinName") == SN then
+    for _, v in ipairs({"Head", "Torso", "Right Leg", "Left Leg", "Right Arm", "Left Arm"}) do
+      local L = P:WaitForChild(v)
+      if L then
+        L.Size = L.Size / 1.121
+      end
+    end
+    D(P.Grollusiam, P.heartgroll_rig)
+
+    P.firebrand.BrickColor = BrickColor.new("Lime")
+
+    for _, v in P.Torso:GetChildren() do
+      if v:IsA("Motor6D") then
+        v.C0 = v.C0 * CFrame.new(0, 0, 0)
+      end
+    end
+
+    local G = importinstance(GRig, P)
+    G.Name = "Grollusiam"
+    G.Humanoid.EvaluateStateMachine = false
+    G.NoclipDetector:Destroy()
+    G.firebrand:Destroy()
+    G.Highlight.Parent = P
+
+    for _, v in G:GetDescendants() do
+      if v:IsA("Motor6D") then
+        if P:FindFirstChild(v.Part1.Name) then
+          v.Enabled = false
+          v:Destroy()
+        end
+      elseif v:IsA("BasePart") then
+        v.Massless, v.CanCollide = true, false
+        if P:FindFirstChild(v.Name) then
+          local TBP = P[v.Name]
+          local Weld = Instance.new("Weld", TBP)
+          Weld.Part0 = v
+          Weld.Part1 = TBP
+        end
+      end
+    end
+
+    for _, v in G.coolkiddrblx:GetChildren() do
+      v.Color = Color3.new(0, 0, 0)
+    end
+    
+    C3 = workspace.Themes.ChildAdded:Connect(function(v)
+      if v.SoundId == "rbxassetid://109678757713623" then
+        v.SoundId = GCT
+        v:Play()
+      elseif v.Name == "LastSurvivor" then
+        if Survs:FindFirstChild("Shedletsky") then
+          v.SoundId = GLMSShed
+          v:Play()
+        elseif Survs:FindFirstChild("Chance") then
+          v.SoundId = GLMSCha
+          v:Play()
+        elseif Survs:FindFirstChild("007n7") then
+          v.SoundId = GLMSN7
+          v:Play()
+        else
+          v.SoundId = ({GLMS, GLMS2})[math.random(2)]
+          v:Play()
+        end
+      end
+    end)
+    
+    C4 = P.HumanoidRootPart.ChildAdded:Connect(function(v)
+      if v:IsA("Sound") then
+        if v.Name == "VoicelineSFX" then
+          v:Destroy()
+        elseif v.SoundId == "rbxassetid://78521681078063" then
+          v.SoundId = ({GE, GE2, GE3})[math.random(3)]
+          v:Play()
+        end
+      end
+    end)
+    
+    C5 = I.ChildAdded:Connect(function(v)
+      if v.Name == "Groll1" or v.Name == "Groll2" then
+        repeat task.wait() until v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Minion")
+        D(v.Minion)
+        MakeBG(v.HumanoidRootPart, GM)
+      end
+    end)
+    
+    C = P.Humanoid.Died:Once(clearC)
+    C2 = Player.CharacterAdded:Once(clearC)
+  end
+end
+
+Player.CharacterAdded:Connect(function(Rig)
+  DoMorph(Rig, "c00lkidd", "PhonkC00l")
+end)
