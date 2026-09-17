@@ -3,6 +3,8 @@ local insert = game:GetService("InsertService")
 local v_u_2 = require(game.ReplicatedStorage.Modules.Utilities.Util)
 local I = workspace.Map.Ingame
 local Survs = workspace.Players.Survivors
+local O1R = game:GetService("ReplicatedStorage").Assets.Skins.Killers["1x1x1x1"].Primordial1x1x1x1.Rig
+local PKCon = require(game:GetService("ReplicatedStorage").Assets.Skins.Killers.c00lkidd.PhonkC00l.Config)
 
 local CurrentRig = Player.Character
 
@@ -45,66 +47,10 @@ local GM = import("https://raw.githubusercontent.com/module-upvr/Others/refs/hea
 local GLMSShed = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSShed.mp3", "GLMSShed.mp3")
 local GLMSN7 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSN7.mp3", "GLMSN7.mp3")
 local GLMSCha = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSCha.mp3", "GLMSCha.mp3")
+local GRender = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GRender.png", "GRender.png")
 
-local function CreatePart(name, parent, weld, offset) 
-  local Part = Instance.new("Part")
-  Part.Name = name
-  Part.Massless = true
-  Part.Anchored = false
-  Part.CanCollide = false
-  Part.CanTouch = false
-  Part.CanQuery = false
-
-  if weld then
-    local Weld = Instance.new("Weld")
-    Weld.C0 = offset or CFrame.new(0, 0, 0) 
-    Weld.Part0 = Part
-    Weld.Part1 = weld
-    Weld.Parent = Part
-  end
-
-  Part.Parent = parent
-  return Part
-end
-
-local function Accs(AccsName, parent, Mesh, Texture, Scale, CF, Welded, Angle) 
-  Scale = Scale or Vector3.new(1, 1, 1)
-  Angle = Angle or CFrame.Angles(0, 0, 0)
-  CF = CF or CFrame.new(0, 0, 0)
-
-  local var_2 = CreatePart(AccsName, parent) 
-  var_2.Size = Vector3.new(1, 1, 1)
-
-  local var_3 = Instance.new("SpecialMesh") 
-  var_3.Name = "Mesh"
-  var_3.MeshId = Mesh
-  var_3.TextureId = Texture
-  var_3.Scale = Scale
-  var_3.Parent = var_2
-
-  local var_4 = Instance.new("Weld") 
-  var_4.C0 = CF * Angle
-  var_4.Part0 = var_2
-  var_4.Part1 = Welded
-  var_4.Parent = var_2
-  
-  return var_2
-end
-
-local function Cloth(Id1, Id2, Id3, Parent)
-  if Id1 ~= nil then
-    local S = Instance.new("Shirt", Parent)
-    S.ShirtTemplate = Id1
-  end
-  if Id2 ~= nil then
-    local P = Instance.new("Pants", Parent) 
-    P.PantsTemplate = Id2
-  end
-  if Id3 ~= nil then
-    local SG = Instance.new("ShirtGraphic", Parent)
-    SG.Graphic = Id3
-  end
-end
+PKCon.RenderImage = GRender
+PKCon.DisplayName = "Grollusiam"
 
 local function D(...)
   for _, v in ipairs({...}) do
@@ -117,7 +63,6 @@ local C2
 local C3
 local C4
 local C5
-local C6
 
 local function clearC()
   if C then C:Disconnect() C = nil end
@@ -132,8 +77,13 @@ local function DoMorph(P, Name, SN)
   if P.Name == Name and P:GetAttribute("SkinName") == SN then
     for _, v in ipairs({"Head", "Torso", "Right Leg", "Left Leg", "Right Arm", "Left Arm"}) do
       local L = P:WaitForChild(v)
-      if L then
-        L.Size = L.Size / 1.121
+      local L2 = O1R:FindFirstChild(v)
+
+      L.Size = L.Size / 1.121
+      for _, f in L2:GetChildren() do
+        if f:IsA("ParticleEmitter") and f.Enabled and f.Name ~= "Dust" and f.Name ~= "Decay" then
+          f:Clone().Parent = L
+        end
       end
     end
     D(P.Grollusiam, P.heartgroll_rig)
