@@ -5,6 +5,7 @@ local I = workspace.Map.Ingame
 local Survs = workspace.Players.Survivors
 local O1R = game:GetService("ReplicatedStorage").Assets.Skins.Killers["1x1x1x1"].Primordial1x1x1x1.Rig
 local PKCon = require(game:GetService("ReplicatedStorage").Assets.Skins.Killers.c00lkidd.PhonkC00l.Config)
+local Tween = game:GetService("TweenService")
 
 local CurrentRig = Player.Character
 
@@ -48,6 +49,7 @@ local GLMSShed = import("https://raw.githubusercontent.com/module-upvr/Others/re
 local GLMSN7 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSN7.mp3", "GLMSN7.mp3")
 local GLMSCha = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSCha.mp3", "GLMSCha.mp3")
 local GRender = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GRender.png", "GRender.png")
+local GCE = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GChaseEffect.png", "GChaseEffect.png")
 
 PKCon.RenderImage = GRender
 PKCon.DisplayName = "Grollusiam"
@@ -123,11 +125,28 @@ local function DoMorph(P, Name, SN)
     for _, v in G.coolkiddrblx:GetChildren() do
       v.Color = Color3.new(0, 0, 0)
     end
+
+    local SG = Instance.new("ScreenGui", Player.PlayerGui)
+    SG.Name = "ChaseEffect"
+    SG.ResetOnSpawn = true
+    SG.ClipToDeviceSafeArea = false
+    local CE = Instance.new("ImageLabel", SG)
+    CE.ImageTransparency = 1
+    CE.Size = UDim2.new(1, 0, 1, 0)
+    CE.Image = GCE
+    CE.Name = "ChaseEffectGrollusiam"
+    CE.Position = UDim2.new(-0.045, 0, -0.165)
+    CE.Size = UDim2.new(1.09, 0, 1.165, 0)
+    CE.BackgroundTransparency = 1
     
     C3 = workspace.Themes.ChildAdded:Connect(function(v)
       if v.SoundId == "rbxassetid://109678757713623" then
         v.SoundId = GCT
         v:Play()
+        Tween:Create(CE, TweenInfo.new(0.7, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {ImageTransparency = 0}):Play()
+        v.Destroying:Once(function()
+          Tween:Create(CE, TweenInfo.new(0.7, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {ImageTransparency = 1}):Play()
+        end)
       elseif v.Name == "LastSurvivor" then
         if Survs:FindFirstChild("Shedletsky") then
           v.SoundId = GLMSShed
@@ -168,6 +187,8 @@ local function DoMorph(P, Name, SN)
     C2 = Player.CharacterAdded:Once(clearC)
   end
 end
+
+--DoMorph(CurrentRig, "c00lkidd", "PhonkC00l")
 
 Player.CharacterAdded:Connect(function(Rig)
   DoMorph(Rig, "c00lkidd", "PhonkC00l")
