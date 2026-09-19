@@ -37,6 +37,14 @@ local function importinstance(asset, parent)
   return imported
 end
 
+if not isfile("GLMSUIDusekkar.png") then
+  game.StarterGui:SetCore("SendNotification", {
+    Title = "Stick Gazer",
+    Text = "Loading Grollusiam Assets, please wait..."
+   Duration = 5
+  })
+end
+
 local GRig = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/Grollusiam.rbxm", "Grollusiam.rbxm")
 local GCT = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GChaseTheme.mp3", "GChaseTheme.mp3")
 local GLMS = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMS.mp3", "GLMS.mp3")
@@ -50,6 +58,26 @@ local GLMSN7 = import("https://raw.githubusercontent.com/module-upvr/Others/refs
 local GLMSCha = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSCha.mp3", "GLMSCha.mp3")
 local GRender = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GRender.png", "GRender.png")
 local GCE = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GChaseEffect.png", "GChaseEffect.png")
+
+local GLMSUI = {
+  ["Noob"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUINoob.png", "GLMSUINoob.png"),
+  ["Shedletsky"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIShedletsky.png", "GLMSUIShedletsky.png"),
+  ["Elliot"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIElliot.png", "GLMSUIElliot.png"),
+  ["Taph"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUITaph.png", "GLMSUITaph.png"),
+  ["TwoTime"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUITwoTime.png", "GLMSUITwoTime.png"),
+  ["Veeronica"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIVeeronica.png", "GLMSUIVeeronica.png"),
+  ["Guest1337"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIGuest1337.png", "GLMSUIGuest1337.png"),
+  ["JaneDoe"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIJaneDoe.png", "GLMSUIJaneDoe.png"),
+  ["Chance"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIChance.png", "GLMSUIChance.png"),
+  ["007n7"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUI007n7.png", "GLMSUI007n7.png"),
+  ["Dusekkar"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIDusekkar.png", "GLMSUIDusekkar.png")
+}
+
+game.StarterGui:SetCore("SendNotification", {
+  Title = "Stick Gazer",
+  Text = "Every Grollusiam asset has loaded!",
+  Duration = 5
+})
 
 PKCon.RenderImage = GRender
 PKCon.DisplayName = "Grollusiam"
@@ -65,6 +93,7 @@ local C2
 local C3
 local C4
 local C5
+local C6
 
 local function clearC()
   if C then C:Disconnect() C = nil end
@@ -183,6 +212,16 @@ local function DoMorph(P, Name, SN)
       end
     end)
     
+    C6 = Player.PlayerGui.ChildAdded:Connect(function(v)
+      if v.Name == "UI" and v:FindFirstChild("LMSFrame") then
+        local lmsui = GLMSUI[Survs:FindFirstChildOfClass("Model").Name] or GLMSUI.Noob
+        
+        v.LMSFrame.BackgroundImage.ImageColor3 = Color3.new(0, 1, 0)
+        v.LMSFrame.LMSImage.Image = lmsui
+        v.LMSFrame.LMSImage.LMSImage.Image = lmsui
+      end
+    end)
+    
     C = P.Humanoid.Died:Once(clearC)
     C2 = Player.CharacterAdded:Once(clearC)
   end
@@ -192,4 +231,4 @@ end
 
 Player.CharacterAdded:Connect(function(Rig)
   DoMorph(Rig, "c00lkidd", "PhonkC00l")
-end)
+end
