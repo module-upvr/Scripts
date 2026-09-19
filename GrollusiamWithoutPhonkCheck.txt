@@ -40,7 +40,7 @@ end
 if not isfile("GLMSUIDusekkar.png") then
   game.StarterGui:SetCore("SendNotification", {
     Title = "Stick Gazer",
-    Text = "Loading Grollusiam Assets, please wait..."
+    Text = "Loading Grollusiam Assets, please wait...",
    Duration = 5
   })
 end
