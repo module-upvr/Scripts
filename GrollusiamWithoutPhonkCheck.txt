@@ -63,6 +63,7 @@ local GLMSUI = {
   ["Noob"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUINoob.png", "GLMSUINoob.png"),
   ["Shedletsky"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIShedletsky.png", "GLMSUIShedletsky.png"),
   ["Elliot"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIElliot.png", "GLMSUIElliot.png"),
+  ["Builerman"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIBuilderman.png", "GLMSUIBuilderman.png"),
   ["Taph"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUITaph.png", "GLMSUITaph.png"),
   ["TwoTime"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUITwoTime.png", "GLMSUITwoTime.png"),
   ["Veeronica"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIVeeronica.png", "GLMSUIVeeronica.png"),
