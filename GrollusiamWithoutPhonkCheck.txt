@@ -228,8 +228,6 @@ local function DoMorph(P, Name, SN)
   end
 end
 
---DoMorph(CurrentRig, "c00lkidd", "PhonkC00l")
-
 Player.CharacterAdded:Connect(function(Rig)
   DoMorph(Rig, "c00lkidd", "PhonkC00l")
 end)
