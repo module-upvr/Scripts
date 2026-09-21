@@ -77,7 +77,7 @@ local ChatConfig = game:GetService("TextChatService").ChatWindowConfiguration
 local Landing = Sys.Character.Miscellaneous.SlowOnLanding
 local Able = require(Rep.Assets.Survivors.TwoTime.Behavior).Abilities
 local Util = require(Modules.Utilities.Util)
-local NetworkModule = require(game.ReplicatedStorage.Modules.Network.Network)
+local NetworkModule = require(aModules.Network.Network)
 local Sounds = require(Modules.Rendering.Sounds)
 local PlayerFolder = game.workspace.Players
 local MapFolder = workspace.Map.Ingame
@@ -269,7 +269,7 @@ function Saken:Config()
     linearVelocity.Attachment0 = attachment
     linearVelocity.MaxForce = math.huge
     linearVelocity.VelocityConstraintMode = Enum.VelocityConstraintMode.Vector
-    linearVelocity.VectorVelocity = rootPart.CFrame.LookVector * 300
+    linearVelocity.VectorVelocity = rootPart.CFrame.LookVector * 50
     linearVelocity.Parent = rootPart
   
     game.Debris:AddItem(linearVelocity, duration or 0.25)
@@ -318,7 +318,7 @@ function Saken:Config()
       return
     else
       p10.Animations.Stab:Play(0)
-      DoLunge(p10, 0.45)
+      task.delay(0.15, DoLunge, p10, 0.45)
       task.wait(0.45)
       game.TweenService:Create(TwoTimeStab, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), { Value = 1 }):Play()
     end
