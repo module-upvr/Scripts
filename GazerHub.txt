@@ -262,11 +262,16 @@ function Saken:Config()
     linearVelocity.Attachment0 = attachment
     linearVelocity.MaxForce = math.huge
     linearVelocity.VelocityConstraintMode = Enum.VelocityConstraintMode.Vector
-    linearVelocity.VectorVelocity = rootPart.CFrame.LookVector * 50
+    linearVelocity.VectorVelocity = rootPart.CFrame.LookVector * 100
     linearVelocity.Parent = rootPart
   
-    game.Debris:AddItem(linearVelocity, duration or 0.25)
-    game.Debris:AddItem(attachment, duration or 0.25)
+    local lungeTime = duration or 0.25
+    local tweenInfo = TweenInfo.new(lungeTime, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+    local tween = game.TweenService:Create(linearVelocity, tweenInfo, { VectorVelocity = Vector3.zero })
+    tween:Play()
+  
+    game.Debris:AddItem(linearVelocity, lungeTime)
+    game.Debris:AddItem(attachment, lungeTime)
   end
   
   Able.Dagger.Callback = function(p10, p11)
@@ -286,6 +291,7 @@ function Saken:Config()
       p10.Animations.LungeStart:Play(0)
       task.delay(p10.Animations.LungeStart.Length, function() 
         p10.Animations.LungeLoop:Play(0)
+        DoLunge(p10.Rig, 1)
         task.delay(0.6, function() 
           if v24 then
             v26 = true
@@ -416,4 +422,4 @@ function Saken:Function()
 end
 
 return Saken
---v2
+--v3
