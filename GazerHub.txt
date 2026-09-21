@@ -77,7 +77,7 @@ local ChatConfig = game:GetService("TextChatService").ChatWindowConfiguration
 local Landing = Sys.Character.Miscellaneous.SlowOnLanding
 local Able = require(Rep.Assets.Survivors.TwoTime.Behavior).Abilities
 local Util = require(Modules.Utilities.Util)
-local NetworkModule = require(aModules.Network.Network)
+local NetworkModule = require(Modules.Network.Network)
 local Sounds = require(Modules.Rendering.Sounds)
 local PlayerFolder = game.workspace.Players
 local MapFolder = workspace.Map.Ingame
@@ -249,13 +249,6 @@ function Saken:Config()
       require(Surv.Config).CrouchRunSpeed = 30
     end
   end
-    
-  local function stopTimer()
-    if crouchThread then
-      task.cancel(crouchThread)
-      crouchThread = nil
-    end
-  end
 
   local function DoLunge(arg1, duration)
     local character = arg1 and arg1.Rig
@@ -275,8 +268,7 @@ function Saken:Config()
     game.Debris:AddItem(linearVelocity, duration or 0.25)
     game.Debris:AddItem(attachment, duration or 0.25)
   end
-
-
+  
   Able.Dagger.Callback = function(p10, p11)
     local v22: number = if p11 then (p10.Config.DaggerCrouchEndlag or 0.225) + (p10.Config.DaggerCrouchEndlagTweenTime or 0.15) + 0.1 else 1
     Util:ToggleSprinting("TwoTimeStab", false, if p11 then p10.Config.DaggerCrouchSprintLockTime or v22 else p10.Config.DaggerUncrouchedSprintLockTime or 1)
@@ -318,7 +310,7 @@ function Saken:Config()
       return
     else
       p10.Animations.Stab:Play(0)
-      task.delay(0.15, DoLunge, p10, 0.45)
+      task.delay(0.15, function() DoLunge(p10, 0.45) end)
       task.wait(0.45)
       game.TweenService:Create(TwoTimeStab, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), { Value = 1 }):Play()
     end
@@ -424,3 +416,4 @@ function Saken:Function()
 end
 
 return Saken
+--v2
