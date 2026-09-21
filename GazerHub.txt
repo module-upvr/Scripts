@@ -77,12 +77,10 @@ local ChatConfig = game:GetService("TextChatService").ChatWindowConfiguration
 local Landing = Sys.Character.Miscellaneous.SlowOnLanding
 local Able = require(Rep.Assets.Survivors.TwoTime.Behavior).Abilities
 local Util = require(Modules.Utilities.Util)
+local NetworkModule = require(game.ReplicatedStorage.Modules.Network.Network)
 local Sounds = require(Modules.Rendering.Sounds)
 local PlayerFolder = game.workspace.Players
 local MapFolder = workspace.Map.Ingame
-
-local IsCr = false
-local crouchThread = nil
 
 function Saken:Esp()
   local function createESP(object, color)
@@ -259,45 +257,71 @@ function Saken:Config()
     end
   end
 
-  local function DoLunge(arg1)
-    local Lunge = Util:ApplyVelocity(arg1.Rig, 300)
-    game.TweenService:Create(Lunge, TweenInfo.new(0.2), {
-      ["LineVelocity"] = Lunge.LineVelocity / 3
-    }):Play()
-    game.Debris:AddItem(Lunge, 0.2) 
+  local function DoLunge(arg1, duration)
+    local character = arg1 and arg1.Rig
+    local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+    if not rootPart then return end
+  
+    local attachment = Instance.new("Attachment")
+    attachment.Parent = rootPart
+  
+    local linearVelocity = Instance.new("LinearVelocity")
+    linearVelocity.Attachment0 = attachment
+    linearVelocity.MaxForce = math.huge
+    linearVelocity.VelocityConstraintMode = Enum.VelocityConstraintMode.Vector
+    linearVelocity.VectorVelocity = rootPart.CFrame.LookVector * 300
+    linearVelocity.Parent = rootPart
+  
+    game.Debris:AddItem(linearVelocity, duration or 0.25)
+    game.Debris:AddItem(attachment, duration or 0.25)
   end
 
-  Able.Dagger.Callback = function(arg1)
-    local Anims = arg1.Animations
-    if IsCr then
-      Anims.LungeStart:Play(0)
-      task.delay(Anims.LungeStart.Length, function()
-        Anims.LungeLoop:Play(0)
-      end) 
-      task.delay(0.6, function()
-        Anims.LungeEnd:Play() 
-        Anims.LungeStart:Stop(0)
-        Anims.LungeLoop:Stop(0) 
-      end) 
-      IsCr = false
-      stopTimer()
+
+  Able.Dagger.Callback = function(p10, p11)
+    local v22: number = if p11 then (p10.Config.DaggerCrouchEndlag or 0.225) + (p10.Config.DaggerCrouchEndlagTweenTime or 0.15) + 0.1 else 1
+    Util:ToggleSprinting("TwoTimeStab", false, if p11 then p10.Config.DaggerCrouchSprintLockTime or v22 else p10.Config.DaggerUncrouchedSprintLockTime or 1)
+    local TwoTimeStab = Util:CreateSpeedMultiplier(p10.Rig, 1, "TwoTimeStab", v22)
+    game.TweenService:Create(TwoTimeStab, TweenInfo.new(0.35), { Value = 0.1 }):Play()
+        
+    if p11 then
+      local v24 = true
+      local v25 = false
+      local v26 = false
+      NetworkModule:SetConnection(`{p10.Player.Name}TTCollision`, "REMOTE_EVENT", function(p12)
+        v25 = p12
+        v24 = false
+      end)
+      p10.Animations.LungeStart:Play(0)
+      task.delay(p10.Animations.LungeStart.Length, function() 
+        p10.Animations.LungeLoop:Play(0)
+        task.delay(0.6, function() 
+          if v24 then
+            v26 = true
+          end
+        end)
+        repeat
+          task.wait()
+        until v24 == false or v26
+        NetworkModule:RemoveConnection(`{p10.Player.Name}TTCollision`, "REMOTE_EVENT")
+        p10.Animations.LungeStart:Stop(0)
+        p10.Animations.LungeLoop:Stop(0)
+        
+        if not v26 then
+          p10.Animations.LungeEnd:AdjustSpeed(if v25 then 2.5 else 1)
+          p10.Animations.LungeEnd:Play(0)
+        end
+        local DaggerCrouchEndlag = p10.Config.DaggerCrouchEndlag or 0.225
+        local DaggerCrouchEndlagTweenTime = p10.Config.DaggerCrouchEndlagTweenTime or 0.15
+        task.wait(if v25 then 0.12 else DaggerCrouchEndlag)
+        game.TweenService:Create(TwoTimeStab, TweenInfo.new(if v25 then 0.15 else DaggerCrouchEndlagTweenTime, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Value = 1 }):Play()
+      end)
+      return
     else
-      Anims.Stab:Play(0)
-      task.delay(0.15, function() 
-        DoLunge(arg1) 
-      end) 
+      p10.Animations.Stab:Play(0)
+      DoLunge(p10, 0.45)
+      task.wait(0.45)
+      game.TweenService:Create(TwoTimeStab, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), { Value = 1 }):Play()
     end
-  end
-
-  Able.Crouch.Callback = function(arg1)
-    stopTimer() 
-    IsCr = true
-    crouchThread = task.delay(15, function()
-      if IsCr then
-        IsCr = false
-        crouchThread = nil
-      end
-    end)
   end
 end
 
