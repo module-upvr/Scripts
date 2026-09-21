@@ -74,7 +74,7 @@ local ragdolls = require(Modules.Rendering.Ragdolls)
 local blind = require(Modules.Schematics.StatusEffects.Blindness)
 local Undetect = require(Modules.Schematics.StatusEffects.Undetectable)
 local ChatConfig = game:GetService("TextChatService").ChatWindowConfiguration
-local Landing = Sys.Character.Miscellaneous.SlowOnLanding
+local Landing = Sys.Character.Miscellaneous:FindFirstChild("SlowOnLanding")
 local Able = require(Rep.Assets.Survivors.TwoTime.Behavior).Abilities
 local Util = require(Modules.Utilities.Util)
 local NetworkModule = require(Modules.Network.Network)
@@ -262,7 +262,7 @@ function Saken:Config()
     linearVelocity.Attachment0 = attachment
     linearVelocity.MaxForce = math.huge
     linearVelocity.VelocityConstraintMode = Enum.VelocityConstraintMode.Vector
-    linearVelocity.VectorVelocity = rootPart.CFrame.LookVector * 100
+    linearVelocity.VectorVelocity = rootPart.CFrame.LookVector * 200
     linearVelocity.Parent = rootPart
   
     local lungeTime = duration or 0.25
@@ -289,9 +289,9 @@ function Saken:Config()
         v24 = false
       end)
       p10.Animations.LungeStart:Play(0)
+      task.delay(p10.Animations.LungeStart.Length - 0.2, function() DoLunge(p10, 1) end)
       task.delay(p10.Animations.LungeStart.Length, function() 
         p10.Animations.LungeLoop:Play(0)
-        DoLunge(p10.Rig, 1)
         task.delay(0.6, function() 
           if v24 then
             v26 = true
@@ -316,7 +316,7 @@ function Saken:Config()
       return
     else
       p10.Animations.Stab:Play(0)
-      task.delay(0.15, function() DoLunge(p10, 0.45) end)
+      task.delay(0.15, function() DoLunge(p10, 0.7) end)
       task.wait(0.45)
       game.TweenService:Create(TwoTimeStab, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), { Value = 1 }):Play()
     end
@@ -339,7 +339,7 @@ function Saken:Function()
     Block.AnimationId = "rbxassetid://72722244508749"
     Block.Name = "FakeBlock"
     
-    local Animator = PC.Humanoid.Animator
+    local Animator = PC:WaitForChild("Humanoid"):WaitForChild("Animator")
 
     local JerkAnim = Animator:LoadAnimation(Jerk) 
     JerkAnim.Looped = true
@@ -422,4 +422,4 @@ function Saken:Function()
 end
 
 return Saken
---v3
+--v4
