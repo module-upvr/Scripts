@@ -1,0 +1,297 @@
+local Player = game:GetService("Players").LocalPlayer
+local MC = require(game:GetService("ReplicatedStorage").Assets.Skins.Killers.c00lkidd.MafiosoC00l.Config)
+local MB = require(game:GetService("ReplicatedStorage").Assets.Skins.Killers.c00lkidd.MafiosoC00l.Behavior)
+local CB = require(game:GetService("ReplicatedStorage").Assets.Killers.c00lkidd.Behavior)
+local CurrentRig = Player.Character
+local TweenService = game:GetService("TweenService")
+
+local function import(link, name)
+  if not isfile(name) then
+    writefile(name, game:HttpGet(link))
+  end
+  return getcustomasset(name)
+end
+
+local MCT = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/MChaseTheme.mp3", "MChaseTheme.mp3")
+local MIntroS = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/MIntroS.mp3", "MIntroS.mp3")
+
+MC.Sounds.Introduction = MIntroS
+MC["ForcedIntroTime"] = 2
+
+local Voicelines = {
+  Kill = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/MHP.mp3", "MHP.mp3"),
+  PD = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/MHWG.mp3", "MHWG.mp3"),
+  WOH = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/MKT.mp3", "MKT.mp3"),
+  WOM = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/MND.mp3", "MND.mp3"),
+  Stun = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/MNP.mp3", "MNP.mp3"),
+  PD2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/MPizza.mp3", "MPizza.mp3"),
+  Kill2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/MRQ.mp3", "MRQ.mp3"),
+  PD3 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/MSH.mp3", "MSH.mp3"),
+  Kill3 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/MShort.mp3", "MShort.mp3"),
+  Kill4 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/MSURQ.mp3", "MSURQ.mp3"),
+  CN = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/MYM.mp3", "MYM.mp3"),
+}
+
+print("All Mafioso assets loaded")
+
+local NewAnims = {
+  ["Idle"] = "rbxassetid://93179551282576",
+  ["Walk"] = "rbxassetid://90878063243908",
+  ["Run"] = "rbxassetid://90878063243908",
+  ["InjuredIdle"] = "rbxassetid://93179551282576",
+  ["InjuredWalk"] = "rbxassetid://90878063243908",
+  ["InjuredRun"] = "rbxassetid://90878063243908",
+  ["WalkspeedOverrideStart"] = "rbxassetid://137488556769630",
+  ["WalkspeedOverrideLoop"] = "rbxassetid://137488556769630",
+  ["WalkspeedOverrideHit"] = "rbxassetid://90750159558178",
+  ["WalkspeedOverrideMiss"] = "rbxassetid://134030301152023",
+  ["Attack"] = "rbxassetid://80277760801310"
+}
+
+CB.Abilities.CorruptNature.Callback = function(v)
+  if v.Rig:GetAttribute("SkinName") == "MafiosoC00l" then return end
+  v.Animations.CorruptNature:Play(0.025)
+end
+
+MB.OnIntroduction = function(_, p3, _, p5)
+  local PlayerGui = Player.PlayerGui
+  local S = workspace.Sounds
+  local v22 = false
+  task.delay(p5, function() 
+    v22 = true
+  end)
+  local MafiasoIntro = Instance.new("ScreenGui")
+  MafiasoIntro.DisplayOrder = 999
+  MafiasoIntro.IgnoreGuiInset = true
+  MafiasoIntro.Name = "MafiasoIntro"
+  MafiasoIntro.Parent = PlayerGui
+  local Label = Instance.new("TextLabel")
+  Label.Size = UDim2.fromScale(1, 1)
+  Label.Position = UDim2.fromScale(0.5, 0.5)
+  Label.BackgroundColor3 = Color3.new(0, 0, 0)
+  Label.TextColor3 = Color3.new(1, 1, 1)
+  Label.BackgroundTransparency = 1
+  Label.TextTransparency = 1
+  Label.AnchorPoint = Vector2.new(0.5, 0.5)
+  Label.TextSize = 36
+  Label.Font = Enum.Font.Legacy
+  Label.Text = "Sleeping"
+  Label.TextXAlignment = Enum.TextXAlignment.Center
+  Label.TextYAlignment = Enum.TextYAlignment.Center
+  Label.Parent = MafiasoIntro
+  TweenService:Create(Label, TweenInfo.new(0.35), { TextTransparency = 0, BackgroundTransparency = 0 }):Play()
+  task.spawn(function() 
+    local v25 = 4
+    repeat
+      if v25 <= 0 then
+        v25 = 4
+      end
+      Label.Text = ("Sleeping..."):sub(1, 12 - v25)
+      task.wait(0.5)
+      v25 -= 1
+    until v22
+    local v26 = TweenService:Create(Label, TweenInfo.new(1), { TextTransparency = 1, BackgroundTransparency = 1 })
+    v26:Play()
+    v26.Completed:Once(function() 
+      MafiasoIntro:Destroy()
+    end)
+  end)
+  local Intros = S:WaitForChild("VoicelineSFX")
+  Intros.SoundId = MIntroS
+  Intros:Play()
+end
+
+for i, v in NewAnims do
+  MC.Animations[i] = v
+end
+
+MC.RenderImage = "rbxassetid://118885317814535"
+
+local Kill = {
+  "rbxassetid://106991973720957", "rbxassetid://110136703532043",
+  "rbxassetid://127400428423463", "rbxassetid://91029414776851",
+  "rbxassetid://118836865755954", "rbxassetid://108290752252329",
+  "rbxassetid://110292460108562", "rbxassetid://77704626972735",
+  "rbxassetid://109091774963362", "rbxassetid://81645514987266",
+  "rbxassetid://140244007889725", "rbxassetid://113778578754149",
+  "rbxassetid://130682574994142", "rbxassetid://101547115067043",
+  "rbxassetid://140502647710513", "rbxassetid://95826072509698",
+  "rbxassetid://70827186205144", "rbxassetid://99818468440031",
+  "rbxassetid://119886631468081", "rbxassetid://109317488551706",
+  "rbxassetid://76632198575362"
+}
+
+local CN = {
+  "rbxassetid://77772986039216", "rbxassetid://79018425642776",
+  "rbxassetid://131025354670534", "rbxassetid://107930204924286",
+  "rbxassetid://72716938933512", "rbxassetid://119587632892619",
+  "rbxassetid://137143328123005"
+}
+
+local PD = {
+  "rbxassetid://106013915796756", "rbxassetid://107774071837724",
+  "rbxassetid://124225832378552", "rbxassetid://79956207479895",
+  "rbxassetid://71592947125030", "rbxassetid://117935077469660",
+  "rbxassetid://77146726911882", "rbxassetid://101957046095436",
+  "rbxassetid://129648163855265"
+}
+
+local WOH = {
+  "rbxassetid://73208075751305",
+  "rbxassetid://115337202312481",
+  "rbxassetid://94731493023258",
+  "rbxassetid://130814932709145",
+  "rbxassetid://116594850113107"
+}
+
+local WOM = {
+  "rbxassetid://97710422930563", "rbxassetid://99878217280983",
+  "rbxassetid://90376303964839", "rbxassetid://111265128779745",
+  "rbxassetid://136637133703291", "rbxassetid://106090774054279",
+  "rbxassetid://136830776696969", "rbxassetid://111305604436505",
+  "rbxassetid://104846774001495","rbxassetid://127483255329627",
+  "rbxassetid://109756994179563", "rbxassetid://104481832974563",
+  "rbxassetid://81008505245181"
+}
+
+local function CreatePart(name, parent, weld, offset) 
+  local Part = Instance.new("Part")
+  Part.Name = name
+  Part.Massless = true
+  Part.Anchored = false
+  Part.CanCollide = false
+  Part.CanTouch = false
+  Part.CanQuery = false
+
+  if weld then
+    local Weld = Instance.new("Weld")
+    Weld.C0 = offset or CFrame.new(0, 0, 0) 
+    Weld.Part0 = Part
+    Weld.Part1 = weld
+    Weld.Parent = Part
+  end
+
+  Part.Parent = parent
+  return Part
+end
+
+local function Accs(AccsName, parent, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.zero
+  Angle = Angle or CFrame.identity
+  CF = CF or CFrame.identity
+
+  local var_2 = CreatePart(AccsName, parent) 
+  var_2.Size = Vector3.new(1, 1, 1)
+
+  local var_3 = Instance.new("SpecialMesh") 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  var_3.Parent = var_2
+
+  local var_4 = Instance.new("Weld") 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = Welded
+  var_4.Parent = var_2
+
+  return var_2
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy() 
+  end
+end
+
+local C
+local C2
+local C3
+
+local function clearC(v)
+  if typeof(v) == "RBXScriptConnection" then
+    v:Disconnect()
+    v = nil
+  else
+    if C then C:Disconnect() C = nil end
+    if C2 then C2:Disconnect() C2 = nil end
+    if C3 then C3:Disconnect() C3 = nil end
+  end
+end
+
+local mf = Color3.fromRGB(27, 42, 53)
+
+local function DoMorph(P, Name, SN)
+  if P.Name == Name and P:GetAttribute("SkinName") == SN then
+    for _, v in ipairs({"Torso", "Right Leg", "Left Leg", "Right Arm", "Left Arm"}) do
+      local L = P:WaitForChild(v)
+      if L then
+        local Suits = CreatePart("SuitPart", L, L)
+        Suits.Size = L.Size
+        Suits.Color = mf
+        Suits.Material = Enum.Material.Air
+        L.Transparency = 1
+      end
+    end
+    D(P.Mafioso, P.Head:FindFirstChildOfClass("MeshPart"), P:FindFirstChild("Clothing"), P.Clothing, P.HumanoidRootPart["rbxassetid://98541221291764"])
+
+    P.Head.Transparency = 0
+    P.Head.Color = Color3.fromRGB(245, 205, 48)
+    P.Head.face.Texture = "rbxasset://textures/face.png"
+
+    local Fed = Accs("Fedora", P, "http://www.roblox.com/asset/?id=1029012", "", Vector3.new(1.213, 1.213, 1.213), CFrame.new(0, -0.675, 0.055), P.Head, nil)
+    Fed.Mesh.TextureId = ""
+    Fed.Color = mf
+
+    C3 = P.HumanoidRootPart.ChildAdded:Connect(function(v)
+      if v:IsA("Sound") then
+        if v.SoundId == "rbxassetid://88325606095183" then
+          v.SoundId = MCT
+          v:Play()
+        elseif v.Name == "VoicelineSFX" then
+          if table.find(Kill, v.SoundId) then
+            v.SoundId = ({Voicelines.Kill, Voicelines.Kill2, Voicelines.Kill3, Voicelines.Kill4})[math.random(4)]
+            v:Play()
+          elseif table.find(CN, v.SoundId) then
+            v.SoundId = Voicelines.CN
+            v:Play()
+          elseif table.find(PD, v.SoundId) then
+            v.SoundId = ({Voicelines.PD, Voicelines.PD2, Voicelines.PD3})[math.random(3)]
+            v:Play()
+          elseif table.find(WOH, v.SoundId) then
+            v.SoundId = Voicelines.WOH
+            v:Play()
+          elseif table.find(WOM, v.SoundId) then
+            v.SoundId = Voicelines.WOM
+            v:Play()
+          else
+            v:Stop()
+          end
+        end
+      end
+    end)
+
+    C = P.Humanoid.Died:Once(clearC)
+    C2 = Player.CharacterAdded:Once(clearC)
+  end
+end
+
+Player.CharacterAdded:Connect(function(Rig)
+  DoMorph(Rig, "c00lkidd", "MafiosoC00l")
+end)
