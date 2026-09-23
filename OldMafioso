@@ -1,0 +1,11 @@
+local skins = game:GetService("Players").LocalPlayer.PlayerData.Purchased.Skins
+              
+if skins:FindFirstChild("MafiosoC00l") then
+  loadstring(game:HttpGet("https://raw.githubusercontent.com/module-upvr/Scripts/refs/heads/main/OldMafiosoWithoutMafiosoCheck.txt"))() 
+else
+  game.StarterGui:SetCore("SendNotification", {
+    Title = "Stick Gazer",
+    Text = "Buy Mafioso First then execute again",
+    Duration = 5
+  })
+end
