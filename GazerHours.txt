@@ -1,0 +1,434 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Player = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+
+local Ui = Player.PlayerGui
+local Rep1 = game:GetService("ReplicatedFirst") 
+local Rep = game:GetService("ReplicatedStorage")
+local PlaceId = game.PlaceId
+local Infos = game:GetService("MarketplaceService"):GetProductInfo(PlaceId)
+local PlaceName = Infos.Name
+
+local TEXT_FONT = Font.new("rbxassetid://12187375716")
+
+local function import(link, name)
+  if not isfile(name) then
+    writefile(name, game:HttpGet(link))
+  end
+  return getcustomasset(name)
+end
+
+local Sound = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/Jarona.mp3", "Jarona.mp3")
+local png = import("https://raw.githubusercontent.com/module-upvr/Scripts/refs/heads/main/StickGazerTU.png", "StickGazerTU.png")
+
+local IntroSound = Instance.new("Sound", game.SoundService)
+IntroSound.SoundId = Sound
+IntroSound.Volume = 2.5
+
+local activeFrame = nil
+local activeTweenOut = nil
+
+local function Notify(title, text, font, image, duration)
+  if activeFrame then
+    if activeTweenOut then
+      activeTweenOut:Cancel()
+    end
+    activeFrame:Destroy()
+    activeFrame = nil
+    activeTweenOut = nil
+  end
+
+  local playerGui = Player.PlayerGui
+  local screenGui = playerGui:FindFirstChild("NotifyGui")
+  if not screenGui then
+    screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "NotifyGui"
+    screenGui.ResetOnSpawn = false
+    screenGui.DisplayOrder = 10
+    screenGui.Parent = playerGui
+  end
+  
+  local frame = Instance.new("Frame")
+  frame.Size = UDim2.new(0.6, 0, 0.15, 0)
+  frame.Position = UDim2.new(0.5, 0, -0.5, 0) 
+  frame.AnchorPoint = Vector2.new(0.5, 0.5)
+  frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+  frame.BorderSizePixel = 0
+  frame.ZIndex = 10
+  frame.Parent = screenGui
+  activeFrame = frame
+  
+  local aspectRatio = Instance.new("UIAspectRatioConstraint")
+  aspectRatio.AspectRatio = 3.46
+  aspectRatio.AspectType = Enum.AspectType.ScaleWithParentSize
+  aspectRatio.DominantAxis = Enum.DominantAxis.Width
+  aspectRatio.Parent = frame
+  
+  local uiCorner = Instance.new("UICorner")
+  uiCorner.CornerRadius = UDim.new(0, 8)
+  uiCorner.Parent = frame
+  
+  local titleLabel = Instance.new("TextLabel")
+  titleLabel.Size = UDim2.new(1, -50, 0, 22)
+  titleLabel.Position = UDim2.new(0, 10, 0, 5)
+  titleLabel.BackgroundTransparency = 1
+  titleLabel.Text = title
+  titleLabel.TextSize = 16
+  titleLabel.Font = Enum.Font.SourceSansBold
+  titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+  titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+  titleLabel.ZIndex = 10
+  titleLabel.Parent = frame
+  if font then
+    titleLabel.FontFace = font
+  end
+  
+  local textLabel = Instance.new("TextLabel")
+  textLabel.Size = UDim2.new(1, -20, 1, -32)
+  textLabel.Position = UDim2.new(0, 10, 0, 25)
+  textLabel.BackgroundTransparency = 1
+  textLabel.Text = text
+  textLabel.TextSize = 13
+  textLabel.Font = Enum.Font.SourceSans
+  textLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+  textLabel.TextXAlignment = Enum.TextXAlignment.Left
+  textLabel.TextYAlignment = Enum.TextYAlignment.Top
+  textLabel.TextWrapped = true
+  textLabel.ZIndex = 10
+  textLabel.Parent = frame
+  if font then
+    textLabel.FontFace = font
+  end
+
+  if image then
+    local iconLabel = Instance.new("ImageLabel")
+    iconLabel.Size = UDim2.new(0, 20, 0, 20)
+    iconLabel.Position = UDim2.new(1, -10, 0, 6)
+    iconLabel.AnchorPoint = Vector2.new(1, 0)
+    iconLabel.BackgroundTransparency = 1
+    iconLabel.Image = image
+    iconLabel.ZIndex = 10
+    iconLabel.Parent = frame
+
+    local iconRatio = Instance.new("UIAspectRatioConstraint")
+    iconRatio.AspectRatio = 1
+    iconRatio.AspectType = Enum.AspectType.FitWithinMaxSize
+    iconRatio.Parent = iconLabel
+  end
+  
+  local targetPositionIn = UDim2.new(0.5, 0, 0.4, 0)
+  local tweenInfoIn = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+  local tweenIn = TweenService:Create(frame, tweenInfoIn, {Position = targetPositionIn})
+  tweenIn:Play()
+  
+  task.delay(duration, function()
+    
+    if activeFrame == frame then
+      local targetPositionOut = UDim2.new(0.5, 0, -0.5, 0)
+      local tweenInfoOut = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+      activeTweenOut = TweenService:Create(frame, tweenInfoOut, {Position = targetPositionOut})
+      activeTweenOut:Play()
+      
+      activeTweenOut.Completed:Connect(function()
+        if activeFrame == frame then
+          frame:Destroy()
+          activeFrame = nil
+          activeTweenOut = nil
+        end
+      end)
+    end
+  end)
+end
+
+local function Intro()
+  Notify(PlaceName .. " Hax, loadepd!", "Jarona! I JUST WANT TO LET YOU KNOW, THANK YOU FOR USING MY SCRIPT!!!! YEYEYEYEYEYEYEYEYEYY", TEXT_FONT, png, 5)
+  IntroSound:Play()
+  IntroSound.Ended:Once(function() IntroSound:Destroy() end)
+end
+
+local function DED(h, t, o, p1, p2)
+  local distance = (p1.Position - p2.Position).Magnitude
+  
+  local trans = math.clamp(0.5 + ((distance - 50) / 100) * 0.45, 0.5, 0.95)
+  local trans2 = math.clamp((distance - 50) / 100, 0, 1)
+  
+  h.FillTransparency = trans
+  t.TextTransparency = trans2
+  o.Transparency = trans2
+end
+
+local function Esp(obj, Color)
+  Color = Color or Color3.new(1, 1, 1)
+  
+  local C
+  local Rig = Player.Character
+  
+  if not obj.PrimaryPart then
+    task.wait(2.5)
+  end
+  
+  local Height = (obj:IsA("Model") and obj:GetExtentsSize() or obj.Size).Y
+  local Adornee = obj.PrimaryPart or obj
+  local H = obj:FindFirstChildOfClass("Highlight")
+  
+  if obj.Name == "Alex" then
+    local body = obj:WaitForChild("Body")
+    for _, v in body:GetChildren() do
+      if v:IsA("SurfaceGui") then v.AlwaysOnTop = true end
+    end
+  elseif obj.Name == "AngryMunci" then
+    local renderBody = obj:WaitForChild("Renderbody")
+    for _, v in renderBody:GetChildren() do
+      if v:IsA("SurfaceGui") then v.AlwaysOnTop = true end
+    end
+  elseif H then
+    H.FillColor = Color
+    H.FillTransparency = 0.7
+    H.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+  else
+    H = Instance.new("Highlight")
+    H.Name = "ModifiedESP"
+    H.FillColor = Color
+    H.FillTransparency = 0.7
+    H.OutlineTransparency = 1
+    H.Adornee = obj
+    H.Parent = obj
+  end
+  
+  local BBG = Instance.new("BillboardGui")
+  BBG.Size = UDim2.new(0, 100, 0, 50)
+  BBG.AlwaysOnTop = true
+  BBG.Adornee = Adornee
+  BBG.Active = true
+  BBG.StudsOffsetWorldSpace = Vector3.new(0, Height, 0)
+  
+  local Tag = Instance.new("TextLabel")
+  Tag.Text = obj.Name
+  Tag.Size = UDim2.new(0, 100, 0, 50)
+  Tag.TextSize = 20
+  Tag.BackgroundTransparency = 1
+  Tag.TextColor3 = Color
+  Tag.ZIndex = 10
+  Tag.TextYAlignment = Enum.TextYAlignment.Bottom
+  Tag.FontFace = TEXT_FONT
+  Tag.Parent = BBG
+  
+  local OL = Instance.new("UIStroke")
+  OL.Thickness = 1
+  OL.Parent = Tag
+
+  BBG.Parent = Adornee
+  
+  C = game:GetService("RunService").Heartbeat:Connect(function()
+    local hrp = Player.Character and Player.Character.PrimaryPart
+    if hrp then DED(H, Tag, OL, hrp, Adornee) end
+  end)
+  
+  obj.Destroying:Once(function()
+    C:Disconnect()
+    C = nil
+  end)
+end
+
+local Buttons = {}
+local Bools = {}
+local buttonCount = 0
+
+local function CreateButton(Text, Name, Parent, Callback)
+  Text = Text or "TestButton"
+  Name = Name or Text
+  Callback = Callback or function() print("TestButton is pressed") end
+  
+  local column = buttonCount % 3
+  local row = math.floor(buttonCount / 3)
+  
+  local Button = Instance.new("TextButton")
+  Button.Position = UDim2.new(column * 0.1, 0, row * 0.1, 0)
+  Button.Name = Name
+  Button.Text = Text
+  Button.Size = UDim2.new(0.1, 0, 0.1, 0)
+  Button.TextWrapped = true
+  Button.Parent = Parent
+  Button.MouseButton1Click:Connect(Callback)
+  Buttons[Name] = Button
+  buttonCount = buttonCount + 1
+end
+
+local function CreateToggleButton(Text, Name, Parent, CallbackTrue, CallbackFalse)
+  Text = Text or "TestButton:"
+  Name = Name or Text
+  CallbackFalse = CallbackFalse or function() print("TestButton is set to False") end
+  CallbackTrue = CallbackTrue or function() print("TestButton is set to True") end
+  
+  Bools[Name] = false
+  
+  local column = buttonCount % 3
+  local row = math.floor(buttonCount / 3)
+  
+  local Button = Instance.new("TextButton")
+  Button.Position = UDim2.new(column * 0.1, 0, row * 0.1, 0)
+  Button.Name = Name
+  Button.Size = UDim2.new(0.1, 0, 0.1, 0)
+  Button.TextWrapped = true
+  Button.Text = string.format("%s false", Text)
+  Button.Parent = Parent
+  Button.MouseButton1Click:Connect(function()
+    if Bools[Name] == false then
+      CallbackTrue()
+      Bools[Name] = true
+    elseif Bools[Name] == true then
+      CallbackFalse()
+      Bools[Name] = false
+    end
+    Button.Text = string.format("%s %s", Text, tostring(Bools[Name]))
+  end)
+  Buttons[Name] = Button
+  buttonCount = buttonCount + 1
+end
+local Enty = workspace.Entities
+local Ent = Enty:GetChildren() 
+local Effects = workspace.Effects
+local Round = workspace.MapFolder.Round
+local v_u_7 = {
+  ["Sprint"] = 1,
+  ["Walk"] = 0.7,
+  ["Crouch"] = 0.35
+}
+local CharacterModule = require(game:GetService("ReplicatedStorage").Shared.Classes.SharedCharacter)
+local T = require(game:GetService("ReplicatedStorage").Shared.Classes.SharedCharacter.Normal)
+local oldDeplete = CharacterModule.DepleteStamina
+local Corpses = workspace.Characters.PlayerCorpses
+local Client = workspace.Client
+local OldSpeedFunc = T.StepMovementSpeed
+local NewSpeedFunc = function(p19, p20)
+  local Rig = Player.Character
+  if not Rig then return end
+  local Humanoid = Rig:FindFirstChildOfClass("Humanoid")
+  local v21 = p19:GetMovementInput()
+  local v22 = v_u_7[v21] or 0.7 
+    
+  local moveVector = p19.SharedCharacterObject.State.Input.MoveVector
+        
+  local magnitude = moveVector and moveVector.Magnitude or 0
+    
+  local v23 = magnitude <= 0.1 and 0.1 or (p19.CurrentSubState == "Climb" and 0.35 or v22)
+  local v24 = p20 / 0.016666666666666666
+    
+  if v24 > 0 and p19.Speed then
+    local v25 = v23 - p19.Speed
+    local v26
+    if v21 == "Sprint" then
+      v26 = v25 / 10
+    elseif v21 == "Normal" then
+      v26 = v25 / 20
+    else
+      v26 = v25 / 35
+    end
+    p19.Speed = p19.Speed + v26 * v24
+  end
+  local SpeedMultiplier = 3.8
+  if Humanoid and p19.Speed then
+    Humanoid.WalkSpeed = (p19.Speed * 16) * SpeedMultiplier
+  end
+end
+  
+local SHOn = function()
+  T.StepMovementSpeed = NewSpeedFunc
+end
+  
+local SHOff = function()
+  T.StepMovementSpeed = OldSpeedFunc
+end
+  
+local function LoadGui()
+  buttonCount = 0
+  local oldGui = Ui:FindFirstChild("__DarkestHoursHacks")
+  if oldGui then oldGui:Destroy() end
+    
+  for i, v in Buttons do
+    v:Destroy()
+  end
+  Buttons = {}
+  Bools = {}
+    
+  local SG = Instance.new("ScreenGui", Ui)
+  SG.ResetOnSpawn = true
+  SG.Name = "__DarkestHoursHacks"
+    
+  CreateToggleButton("Speedhacks:", "SH", SG, SHOn, SHOff)
+end
+  
+LoadGui()
+Player.CharacterAdded:Connect(LoadGui)
+
+for _, v in Round:GetChildren() do
+  if v:IsA("Model") and v.Name == "ControlPoint" then
+    Esp(v, Color3.new(0, 0.75, 0))
+  end
+end
+Round.ChildAdded:Connect(function(v) 
+  if v:IsA("Model") and v.Name == "ControlPoint" then
+    Esp(v, Color3.new(0, 0.75, 0))
+  end
+end) 
+for _, v in Corpses:GetChildren() do
+  v:Destroy()
+end
+Corpses.ChildAdded:Connect(function(v)
+  task.delay(0.05, function() v:Destroy() end)
+end) 
+for _, v in Client:GetChildren() do
+  if v.Name == "Ragdoll" then v:Destroy() end
+end
+Client.ChildAdded:Connect(function(v)
+  task.delay(0.05, function()
+    if v.Name == "Ragdoll" then v:Destroy() end
+  end)
+end)
+Effects.ChildAdded:Connect(function(v) 
+  task.delay(0.05, function() v:Destroy() end) 
+end) 
+  
+CharacterModule.DepleteStamina = function(self, ...)
+  if self.IsLocalPlayer then
+    self.State.Stamina = 100
+    self.State.BadStamina = false
+    self.State.StaminaCooldown = 0
+    return
+  end
+  return oldDeplete(self, ...)
+end
+
+Rep1.Assets.UI.Main.UI.StaminaVignette.Position = UDim2.new(5, 0, 0, 0)
+Player.CameraMaxZoomDistance = 40
+
+for _, v in Ent do
+  if v:IsA("Model") then
+    Esp(v)
+  elseif v:IsA("Folder") then
+    for _, f in v:GetChildren() do
+      if f:IsA("Model") then
+        Esp(f)
+      end
+    end
+    v.ChildAdded:Connect(function(f)
+      if f:IsA("Model") then Esp(f) end
+    end)
+  end
+end
+
+Enty.ChildAdded:Connect(function(v)
+  if v:IsA("Model") then
+    Esp(v)
+  elseif v:IsA("Folder") then
+    task.wait(0.1)
+    for _, f in v:GetChildren() do
+      if f:IsA("Model") then Esp(f) end
+    end
+    v.ChildAdded:Connect(function(f) 
+      if f:IsA("Model") then Esp(f) end
+    end) 
+  end
+end)
+Intro()
