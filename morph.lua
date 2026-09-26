@@ -128,8 +128,8 @@ function MorphSystem:Morph(username)
     if C3 then C3:Disconnect() C3 = nil end
   end
   
-  C2 = humanoid.Died:Connect(cleanup)
-  C3 = Player.CharacterAdded:Connect(cleanup)
+  C2 = character.Destroying:Once(cleanup)
+  C3 = Player.CharacterAdded:Once(cleanup)
 end
 
 return MorphSystem
