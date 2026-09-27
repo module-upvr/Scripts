@@ -1,6 +1,6 @@
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
-Player.AutoJumpEnabled = false
+
 local MorphSystem = {}
 
 local function clearCharacterAssets(character)
@@ -29,14 +29,23 @@ end
 
 local function setupMorphPhysics(morphModel)
   local morphHumanoid = morphModel.Humanoid
+  
   morphHumanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+  morphHumanoid.EvaluateStateMachine = false
+  
+  for _, state in Enum.HumanoidStateType:GetEnumItems() do
+    if state ~= Enum.HumanoidStateType.None then
+      morphHumanoid:SetStateEnabled(state, false)
+    end
+  end
+  morphHumanoid:ChangeState(Enum.HumanoidStateType.None)
+  
   for _, v in morphModel:GetDescendants() do
     if v:IsA("BasePart") then
       v.Massless = true
       v.CanCollide = false
       v.CanTouch = false
       v.CanQuery = false
-      v.CustomPhysicalProperties = PhysicalProperties.new(0.0001, 0.0001, 0.0001, 0.0001, 0.0001)
     elseif v:IsA("Motor6D") then
       v.Enabled = false
     end
@@ -44,26 +53,9 @@ local function setupMorphPhysics(morphModel)
 
   if morphModel:FindFirstChild("HumanoidRootPart") then morphModel.HumanoidRootPart:Destroy() end
   if morphModel:FindFirstChild("Animate") then morphModel.Animate:Destroy() end
-	
-  morphHumanoid.EvaluateStateMachine = false
-
-  local statesToDisable = {
-    Enum.HumanoidStateType.FallingDown, Enum.HumanoidStateType.Running,
-    Enum.HumanoidStateType.Climbing, Enum.HumanoidStateType.Jumping,
-    Enum.HumanoidStateType.Swimming, Enum.HumanoidStateType.Landed,
-    Enum.HumanoidStateType.Ragdoll, Enum.HumanoidStateType.GettingUp
-  }
-
-  for _, state in statesToDisable do
-    morphHumanoid:SetStateEnabled(state, false)
-  end
-
-  morphHumanoid:ChangeState(Enum.HumanoidStateType.Physics)
 end
 
-local C
-local C2
-local C3
+local C2, C3
 
 function MorphSystem:Morph(username)
   username = username or "souldrivenlove_simp"
@@ -102,19 +94,22 @@ function MorphSystem:Morph(username)
 
     if targetLimb and morphLimb then
       targetLimb.Size = morphLimb.Size
-      targetLimb.CanCollide = false 
 
       local weld = Instance.new("Weld")
       weld.Part0 = targetLimb
       weld.Part1 = morphLimb
-      weld.C0, weld.C1 = CFrame.new(), CFrame.new()
       weld.Parent = targetLimb
 
       targetLimb.Transparency = 1
-      C = targetLimb:GetPropertyChangedSignal("Transparency"):Connect(function() 
-        C:Disconnect()
+      
+      local C
+      C = targetLimb:GetPropertyChangedSignal("Transparency"):Connect(function()
+        if not targetLimb or targetLimb.Parent then
+          C:Disconnect()
+          return
+        end
+        
         targetLimb.Transparency = 1
-        C:Connect()
       end)
     end
   end
@@ -123,7 +118,6 @@ function MorphSystem:Morph(username)
     if morphModel then
       morphModel:Destroy()
     end
-    if C then C:Disconnect() C = nil end
     if C2 then C2:Disconnect() C2 = nil end
     if C3 then C3:Disconnect() C3 = nil end
   end
