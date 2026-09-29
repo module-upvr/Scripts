@@ -327,7 +327,7 @@ function Saken:Function()
     local PC = Rig
     
     local Invis = Instance.new("Animation", PC)
-    Invis.AnimationId = "rbxassetid://106838261914685"
+    Invis.AnimationId = "rbxassetid://97039674665952"
     Invis.Name = "Invisible"
 
     local Jerk = Instance.new("Animation", PC)
