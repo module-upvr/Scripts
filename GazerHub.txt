@@ -230,8 +230,7 @@ function Saken:Config()
     require(Kill.Config).Speed += 1.8
     require(Kill.Config).SprintSpeed += 1.8
     if Kill.Name == "Noli" then
-      require(Kill.Config).VoidRushDashSpeed = 60
-      require(Kill.Config).VoidRushTurnSpeed = 5
+      require(Kill.Config).VoidRushTurnSpeed = math.huge
       require(Kill.Config).VoidRushInitialTurnDuration = 0
       require(Kill.Config).VoidRushInitialTurnMult = 1
     elseif Kill.Name == "Slasher" then
