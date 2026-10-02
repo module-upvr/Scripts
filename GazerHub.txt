@@ -335,7 +335,7 @@ function Saken:Function()
     BlockAnim = Util:LoadAnimationFromID(Rig, "rbxassetid://72722244508749", false) 
     BlockAnim.Priority = Enum.AnimationPriority.Action4
 
-    InvisAnim = Util:LoadAnimationFromID(arg1.Character, "rbxassetid://97039674665952", false)
+    InvisAnim = Util:LoadAnimationFromID(Rig, "rbxassetid://97039674665952", false)
     InvisAnim.Priority = Enum.AnimationPriority.Action4
 
     local Gui = PlayerG:FindFirstChild("SakenGui") or Instance.new("ScreenGui", PlayerG) 
