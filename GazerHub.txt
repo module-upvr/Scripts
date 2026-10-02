@@ -396,7 +396,7 @@ function Saken:Function()
   end)
 end
 
-StarterGui:SetCore("SendNotification", {
+game.StarterGui:SetCore("SendNotification", {
   Title = "Stick Gazer Scripts",
   Text = "Thank you for using my hub!! >:)",
   --Icon = "rbxassetid://0"
