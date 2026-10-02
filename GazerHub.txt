@@ -323,43 +323,34 @@ function Saken:Config()
 end
 
 function Saken:Function()
+  local JerkAnim, BlockAnim, InvisAnim
   local function GuiSaken(Rig)
-    local PC = Rig
     
-    local Invis = Instance.new("Animation", PC)
-    Invis.AnimationId = "rbxassetid://97039674665952"
-    Invis.Name = "Invisible"
+    local Animator = Rig:WaitForChild("Humanoid"):WaitForChild("Animator")
 
-    local Jerk = Instance.new("Animation", PC)
-    Jerk.AnimationId = "rbxassetid://72042024"
-    Jerk.Name = "Goon"
-
-    local Block = Instance.new("Animation", PC) 
-    Block.AnimationId = "rbxassetid://72722244508749"
-    Block.Name = "FakeBlock"
-    
-    local Animator = PC:WaitForChild("Humanoid"):WaitForChild("Animator")
-
-    local JerkAnim = Animator:LoadAnimation(Jerk) 
+    JerkAnim = Util:LoadAnimationFromID(Rig, "rbxassetid://72042024", false) 
     JerkAnim.Looped = true
     JerkAnim.Priority = Enum.AnimationPriority.Action4
 
-    local BlockAnim = Animator:LoadAnimation(Block) 
+    BlockAnim = Util:LoadAnimationFromID(Rig, "rbxassetid://72722244508749", false) 
     BlockAnim.Priority = Enum.AnimationPriority.Action4
+
+    InvisAnim = Util:LoadAnimationFromID(arg1.Character, "rbxassetid://97039674665952", false)
+    InvisAnim.Priority = Enum.AnimationPriority.Action4
 
     local Gui = PlayerG:FindFirstChild("SakenGui") or Instance.new("ScreenGui", PlayerG) 
     Gui.Name = "SakenGui"
     Gui.ResetOnSpawn = true
     
     local RagTrue = function()
-      PC.Humanoid.PlatformStand = true
-      Sounds:Play("ragdolledLol", {Parent = PC.PrimaryPart})
-      pcall(function() ragdolls.EnableRagdoll(PC) end)
+      Rig.Humanoid.PlatformStand = true
+      Sounds:Play("ragdolledLol", {Parent = Rig.PrimaryPart})
+      pcall(function() ragdolls.EnableRagdoll(Rig) end)
     end
     
     local RagFalse = function()
-      ragdolls.DisableRagdoll(PC)
-      PC.Humanoid.PlatformStand = false
+      ragdolls.DisableRagdoll(Rig)
+      Rig.Humanoid.PlatformStand = false
     end
     
     Buttons = {}
@@ -372,8 +363,8 @@ function Saken:Function()
     
     local TextButton3 = CreateToggleButton("Ragdoll:", nil, Gui, RagTrue, RagFalse)
 
-    repeat task.wait() until PC:FindFirstChild("SpeedMultipliers") and PC.SpeedMultipliers:FindFirstChild("DirectionalMovement")
-    PC.SpeedMultipliers.DirectionalMovement:Destroy()
+    repeat task.wait() until Rig:FindFirstChild("SpeedMultipliers") and Rig.SpeedMultipliers:FindFirstChild("DirectionalMovement")
+    Rig.SpeedMultipliers.DirectionalMovement:Destroy()
   end
   
   Player.CameraMaxZoomDistance = 35
@@ -385,29 +376,14 @@ function Saken:Function()
   blind.Applied = function() end
   blind.Removed = function() end
   
-  Undetect.Applied = function(arg1)
-    if arg1.Character then
-      local InvisAnim = arg1.Character.Humanoid.Animator:LoadAnimation(arg1.Character.Invisible)
-      InvisAnim:Play(0)
-      InvisAnim:AdjustSpeed(0)
-    end
+  --[[Undetect.Applied = function()
+    InvisAnim:Play(0)
+    InvisAnim:AdjustSpeed(0)
   end
   
-  Undetect.Removed = function(arg1)
-    if arg1.Character then
-      local Humanoid = arg1.Character:FindFirstChildOfClass("Humanoid")
-      local Animator = Humanoid and Humanoid:FindFirstChildOfClass("Animator")
-      
-      if Animator then
-        local targetId = arg1.Character.Invisible.AnimationId
-        for _, track in Animator:GetPlayingAnimationTracks() do
-          if string.find(track.Animation.AnimationId, targetId) then
-            track:Stop(0)
-          end
-        end
-      end
-    end
-  end
+  Undetect.Removed = function()
+    InvisAnim:Stop(0)
+  end]]
     
   if Landing then Landing:Destroy() end
   
@@ -420,5 +396,10 @@ function Saken:Function()
   end)
 end
 
+StarterGui:SetCore("SendNotification", {
+  Title = "Stick Gazer Scripts",
+  Text = "Thank you for using my hub!! >:)",
+  --Icon = "rbxassetid://0"
+})
+
 return Saken
---v4
