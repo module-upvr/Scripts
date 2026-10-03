@@ -399,7 +399,7 @@ end
 game.StarterGui:SetCore("SendNotification", {
   Title = "Stick Gazer Scripts",
   Text = "Thank you for using my hub!! >:)",
-  --Icon = "rbxassetid://0"
+  Icon = 114171924985882
 })
 
 return Saken
