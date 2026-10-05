@@ -21,7 +21,7 @@ end
 local module = require(AssetFolder.Config)
 local behavior = require(AssetFolder.Behavior) 
 
-behavior.Abilities.Punch.Callback = function(p5)
+behavior.Abilities.Tag.Callback = function(p5)
   p5.Animations.Attack:Play(0.025) 
   p5.Animations.Attack:AdjustSpeed(5) 
   task.delay(0.1, function() p5.Animations.Attack:AdjustSpeed(1) end)
