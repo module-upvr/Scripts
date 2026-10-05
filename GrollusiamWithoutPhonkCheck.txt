@@ -25,10 +25,29 @@ local function MakeBG(obj, img)
 end
 
 local function import(link, name)
-  if not isfile(name) then
-    writefile(name, game:HttpGet(link))
+  local folder = "StickGazerStuffs"
+  local fullPath = folder .. "/" .. name
+  
+  if not isfolder(folder) then
+    makefolder(folder)
   end
-  return getcustomasset(name)
+  
+  if not isfile(fullPath) then
+    writefile(fullPath, game:HttpGet(link))
+  end
+  
+  local baseName = name:match("([^%.]+)%.%w+$") or name
+  local ext = name:match("^.+(%..+)$") or ""
+  local tempName = baseName .. "_tempread" .. ext
+  
+  writefile(tempName, readfile(fullPath))
+  local redasset = getcustomasset(tempName)
+  
+  if isfile(tempName) then
+    delfile(tempName)
+  end
+  
+  return redasset
 end
 
 local function importinstance(asset, parent)
@@ -37,11 +56,10 @@ local function importinstance(asset, parent)
   return imported
 end
 
-if not isfile("GLMSUIDusekkar.png") then
+if not isfile("StickGazerStuffs/GLMSUIDusekkar.png") then
   game.StarterGui:SetCore("SendNotification", {
     Title = "Stick Gazer",
     Text = "Loading Grollusiam Assets, please wait...",
-   Duration = 5
   })
 end
 
@@ -49,21 +67,59 @@ local GRig = import("https://raw.githubusercontent.com/module-upvr/Others/refs/h
 local GCT = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GChaseTheme.mp3", "GChaseTheme.mp3")
 local GLMS = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMS.mp3", "GLMS.mp3")
 local GLMS2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMS2.mp3", "GLMS2.mp3")
-local GE = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GEmote.mp3", "GEmote.mp3")
-local GE2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GEmote2.mp3", "GEmote2.mp3")
-local GE3 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GEmote3.mp3", "GEmote3.mp3")
 local GM = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GMinion.png", "GMinion.png")
 local GLMSShed = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSShed.mp3", "GLMSShed.mp3")
 local GLMSN7 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSN7.mp3", "GLMSN7.mp3")
 local GLMSCha = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSCha.mp3", "GLMSCha.mp3")
 local GRender = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GRender.png", "GRender.png")
 local GCE = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GChaseEffect.png", "GChaseEffect.png")
+local GCN = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GCN.mp3", "GCN.mp3")
+local GCN2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GCN2.mp3", "GCN2.mp3")
+local GPDH = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GPDH.mp3", "GPDH.mp3")
+local GWO = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWO.mp3", "GWO.mp3")
+local GWO2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWO2.mp3", "GWO2.mp3")
+local GWOH = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWOH.mp3", "GWOH.mp3")
+local GWOH2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWOH2.mp3", "GWOH2.mp3")
+local GWOM = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWOM.mp3", "GWOM.mp3")
+local GWOM2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWOM2.mp3", "GWOM2.mp3")
+local GLMSV = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSV.mp3", "GLMSV.mp3")
+local GWOS = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWOS.mp3", "GWOS.mp3")
+
+local GPizzaDeliveries = {
+  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GPD.mp3", "GPD.mp3"),
+  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GPD2.mp3", "GPD2.mp3"),
+  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GPD3.mp3", "GPD3.mp3")
+}
+
+local GEmotes = {
+  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GEmote.mp3", "GEmote.mp3"),
+  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GEmote2.mp3", "GEmote2.mp3"),
+  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GEmote3.mp3", "GEmote3.mp3")
+}
+
+local GKills = {
+  ["007n7"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GN7Kill.mp3", "GN7Kill.mp3"),
+  ["Chance"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GChaKill.mp3", "GChaKill.mp3"),
+  ["Dusekkar"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GDusKill.mp3", "GDusKill.mp3"),
+  ["Guest1337"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GGuestKill.mp3", "GGuestKill.mp3"),
+  ["TwoTime"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GTTKill.mp3", "GTTKill.mp3"),
+  ["Kill"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GKill.mp3", "GKill.mp3"),
+  ["Kill2"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GKill2.mp3", "GKill2.mp3")
+}
+
+local GStuns = {
+  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GStun.mp3", "GStun.mp3"),
+  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GStun2.mp3", "GStun2.mp3"),
+  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GStun3.mp3", "GStun3.mp3"),
+  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GStun4.mp3", "GStun4.mp3"),
+  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GStun5.mp3", "GStun5.mp3")
+}
 
 local GLMSUI = {
   ["Noob"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUINoob.png", "GLMSUINoob.png"),
   ["Shedletsky"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIShedletsky.png", "GLMSUIShedletsky.png"),
   ["Elliot"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIElliot.png", "GLMSUIElliot.png"),
-  ["Builerman"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIBuilderman.png", "GLMSUIBuilderman.png"),
+  ["Builderman"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIBuilderman.png", "GLMSUIBuilderman.png"),
   ["Taph"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUITaph.png", "GLMSUITaph.png"),
   ["TwoTime"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUITwoTime.png", "GLMSUITwoTime.png"),
   ["Veeronica"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIVeeronica.png", "GLMSUIVeeronica.png"),
@@ -77,7 +133,6 @@ local GLMSUI = {
 game.StarterGui:SetCore("SendNotification", {
   Title = "Stick Gazer",
   Text = "Every Grollusiam asset has loaded!",
-  Duration = 5
 })
 
 PKCon.RenderImage = GRender
@@ -89,12 +144,49 @@ local function D(...)
   end
 end
 
-local C
-local C2
-local C3
-local C4
-local C5
-local C6
+local function GetFarthestSurv(c)
+  local furthest
+  local max = -1
+  
+  for _, v in Survs:GetChildren() do
+    local dis = (c.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
+    if dis > max then
+      max = dis
+      furthest = v
+    end
+  end
+  return furthest
+end
+
+local function GetClosestSurv(c)
+  local closest
+  local max = math.huge
+  
+  for _, v in Survs:GetChildren() do
+    local dis = (c.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
+    if dis < max then
+      max = dis
+      closest = v
+    end
+  end
+  return closest
+end
+
+local function GetClosestNPC(char)
+  local nearest, minDistance = nil, math.huge
+  for _, desc in workspace:GetDescendants() do
+    if desc:IsA("Humanoid") and desc.Parent:IsA("Model") then
+      local root = desc.Parent.PrimaryPart or desc.Parent:FindFirstChild("HumanoidRootPart")
+      if root and (root.Position - char.HumanoidRootPart.Position).Magnitude < minDistance then
+        minDistance = (root.Position - char.HumanoidRootPart.Position).Magnitude
+        nearest = desc.Parent
+      end
+    end
+  end
+  return nearest
+end
+
+local C, C2, C3, C4, C5, C6
 
 local function clearC()
   if C then C:Disconnect() C = nil end
@@ -178,17 +270,18 @@ local function DoMorph(P, Name, SN)
           Tween:Create(CE, TweenInfo.new(0.7, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {ImageTransparency = 1}):Play()
         end)
       elseif v.Name == "LastSurvivor" then
-        if Survs:FindFirstChild("Shedletsky") then
+        local FS = GetFarthestSurv(P)
+        if FS.Name == "Shedletsky" then
           v.SoundId = GLMSShed
           v:Play()
-        elseif Survs:FindFirstChild("Chance") then
+        elseif FS.Name == "Chance" then
           v.SoundId = GLMSCha
           v:Play()
-        elseif Survs:FindFirstChild("007n7") then
+        elseif FS.Name == "007n7" then
           v.SoundId = GLMSN7
           v:Play()
         else
-          v.SoundId = ({GLMS, GLMS2})[math.random(2)]
+          v.SoundId = (math.random(2) == 1 and GLMS or GLMS2)
           v:Play()
         end
       end
@@ -197,9 +290,50 @@ local function DoMorph(P, Name, SN)
     C4 = P.HumanoidRootPart.ChildAdded:Connect(function(v)
       if v:IsA("Sound") then
         if v.Name == "VoicelineSFX" then
-          v:Destroy()
+          if v.SoundId == "rbxassetid://94280216409144" or v.SoundId == "rbxassetid://89166263302634" or v.SoundId == "rbxassetid://119654940672996" then
+            v.SoundId = (math.random(2) == 1 and GCN or GCN2)
+            v:Play()
+          elseif v.SoundId == "rbxassetid://94775124136102" or v.SoundId == "rbxassetid://71115712369563" then
+            v.SoundId = GPizzaDeliveries[math.random(3)]
+            v:Play()
+          elseif v.SoundId == "rbxassetid://86503311766285" or v.SoundId == "rbxassetid://96969604114372" then
+            v.SoundId = GPDH
+            v:Play()
+          elseif v.SoundId == "rbxassetid://112213294183113" or v.SoundId == "rbxassetid://140158035857983" then
+            v.SoundId = GStuns[math.random(5)]
+            v:Play()
+          elseif v.SoundId == "rbxassetid://98407797585850" then
+            v.SoundId = (math.random(2) == 1 and GWO or GWO2)
+            v:Play()
+          elseif v.SoundId == "rbxassetid://93577408384369" or v.SoundId == "rbxassetid://119217235677624" or v.SoundId == "rbxassetid://111615666341384" or v.SoundId == "rbxassetid://118362658002276" then
+            v.SoundId = (math.random(2) == 1 and GWOH or GWOH2)
+            v:Play()
+          elseif v.SoundId == "rbxassetid://140481230101764" or v.SoundId == "rbxassetid://131533026361969" or v.SoundId == "rbxassetid://119118223949436" then
+            v.SoundId = (math.random(2) == 1 and GWOM or GWOM2)
+            v:Play()
+          elseif v.SoundId == "rbxassetid://132410989538841" or v.SoundId == "rbxassetid://104574249827014" or v.SoundId == "rbxassetid://135322441907730" or v.SoundId == "rbxassetid://93308303506054" or v.SoundId == "rbxassetid://129759626778535" then
+            v.SoundId = GLMSV
+            v:Play()
+          else
+            v:Destroy()
+          end
+        elseif v.SoundId == "rbxassetid://131715684989678" or v.SoundId == "rbxassetid://73949534251226" then
+          local CS = GetClosestSurv(P) or GetClosestNPC(P)
+          local clone = v:Clone()
+          clone.Name = "GKillSFX"
+          clone.SoundGroup = game.SoundService.Voicelines
+          
+          local CKill = GKills[CS.Name] or (math.random(2) == 1 and GKills.Kill or GKills.Kill2)
+          
+          clone.SoundId = CKill
+          clone.Parent = v.Parent
+          clone:Play()
+          game.Debris:AddItem(clone, 10)
         elseif v.SoundId == "rbxassetid://78521681078063" then
-          v.SoundId = ({GE, GE2, GE3})[math.random(3)]
+          v.SoundId = GEmotes[math.random(3)]
+          v:Play()
+        elseif v.SoundId == "rbxassetid://75467546215199" then
+          v.SoundId = GWOS
           v:Play()
         end
       end
@@ -215,7 +349,8 @@ local function DoMorph(P, Name, SN)
     
     C6 = Player.PlayerGui.ChildAdded:Connect(function(v)
       if v.Name == "UI" and v:FindFirstChild("LMSFrame") then
-        local lmsui = GLMSUI[Survs:FindFirstChildOfClass("Model").Name] or GLMSUI.Noob
+        local FS = GetFarthestSurv(P)
+        local lmsui = GLMSUI[FS.Name] or GLMSUI.Noob
         
         v.LMSFrame.BackgroundImage.ImageColor3 = Color3.new(0, 1, 0)
         v.LMSFrame.LMSImage.Image = lmsui
