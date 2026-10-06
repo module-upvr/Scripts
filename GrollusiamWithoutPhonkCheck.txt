@@ -289,31 +289,36 @@ local function DoMorph(P, Name, SN)
     
     C4 = P.HumanoidRootPart.ChildAdded:Connect(function(v)
       if v:IsA("Sound") then
+        if v.Name == "GVSFX" or v.Name == "GKillSFX" then return end
         if v.Name == "VoicelineSFX" then
+          local newSoundId
+
           if v.SoundId == "rbxassetid://94280216409144" or v.SoundId == "rbxassetid://89166263302634" or v.SoundId == "rbxassetid://119654940672996" then
-            v.SoundId = (math.random(2) == 1 and GCN or GCN2)
-            v:Play()
+            newSoundId = (math.random(2) == 1 and GCN or GCN2)
           elseif v.SoundId == "rbxassetid://94775124136102" or v.SoundId == "rbxassetid://71115712369563" then
-            v.SoundId = GPizzaDeliveries[math.random(3)]
-            v:Play()
+            newSoundId = GPizzaDeliveries[math.random(3)]
           elseif v.SoundId == "rbxassetid://86503311766285" or v.SoundId == "rbxassetid://96969604114372" then
-            v.SoundId = GPDH
-            v:Play()
+            newSoundId = GPDH
           elseif v.SoundId == "rbxassetid://112213294183113" or v.SoundId == "rbxassetid://140158035857983" then
-            v.SoundId = GStuns[math.random(5)]
-            v:Play()
+            newSoundId = GStuns[math.random(5)]
           elseif v.SoundId == "rbxassetid://98407797585850" then
-            v.SoundId = (math.random(2) == 1 and GWO or GWO2)
-            v:Play()
+            newSoundId = (math.random(2) == 1 and GWO or GWO2)
           elseif v.SoundId == "rbxassetid://93577408384369" or v.SoundId == "rbxassetid://119217235677624" or v.SoundId == "rbxassetid://111615666341384" or v.SoundId == "rbxassetid://118362658002276" then
-            v.SoundId = (math.random(2) == 1 and GWOH or GWOH2)
-            v:Play()
+            newSoundId = (math.random(2) == 1 and GWOH or GWOH2)
           elseif v.SoundId == "rbxassetid://140481230101764" or v.SoundId == "rbxassetid://131533026361969" or v.SoundId == "rbxassetid://119118223949436" then
-            v.SoundId = (math.random(2) == 1 and GWOM or GWOM2)
-            v:Play()
+            newSoundId = (math.random(2) == 1 and GWOM or GWOM2)
           elseif v.SoundId == "rbxassetid://132410989538841" or v.SoundId == "rbxassetid://104574249827014" or v.SoundId == "rbxassetid://135322441907730" or v.SoundId == "rbxassetid://93308303506054" or v.SoundId == "rbxassetid://129759626778535" then
-            v.SoundId = GLMSV
-            v:Play()
+            newSoundId = GLMSV
+          end
+
+          if newSoundId then
+            local c = v:Clone()
+            c.SoundId = newSoundId
+            c.Name = "GVSFX"
+            c.Parent = v.Parent
+            v:Destroy()
+            c:Play()
+            game.Debris:AddItem(c, 7)
           else
             v:Destroy()
           end
