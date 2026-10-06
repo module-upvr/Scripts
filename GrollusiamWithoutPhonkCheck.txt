@@ -145,22 +145,20 @@ local function D(...)
 end
 
 local function GetFarthestSurv(c)
-  local furthest
-  local max = -1
+  local farthest, minDis = nil, -1
   
   for _, v in Survs:GetChildren() do
     local dis = (c.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
-    if dis > max then
-      max = dis
-      furthest = v
+    if dis > 0 and dis > minDis then
+      minDis = dis
+      farthest = v
     end
   end
-  return furthest
+  return farthest
 end
 
 local function GetClosestSurv(c)
-  local closest
-  local max = math.huge
+  local closest, max = nil, math.huge
   
   for _, v in Survs:GetChildren() do
     local dis = (c.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
@@ -328,8 +326,10 @@ local function DoMorph(P, Name, SN)
           clone.Name = "GKillSFX"
           clone.SoundGroup = game.SoundService.Voicelines
           
-          local CKill = GKills[CS.Name] or (math.random(2) == 1 and GKills.Kill or GKills.Kill2)
+          local r = math.random(2)
+          local CKill = GKills[CS.Name] or (r == 1 and GKills.Kill or GKills.Kill2)
           
+          if r == 2 then clone.Volume = 5 end
           clone.SoundId = CKill
           clone.Parent = v.Parent
           clone:Play()
