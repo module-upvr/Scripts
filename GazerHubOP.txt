@@ -1,0 +1,364 @@
+local Saken = {}
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local Debris = game:GetService("Debris")
+local TextChatService = game:GetService("TextChatService")
+local StarterGui = game:GetService("StarterGui")
+local Player = Players.LocalPlayer
+local PlayerGui = Player.PlayerGui
+local workspace = workspace
+local Buttons = {}
+local Bools = {}
+local buttonCount = 0
+local loopConnection = nil
+local Modules = ReplicatedStorage:WaitForChild("Modules")
+local Sys = ReplicatedStorage:WaitForChild("Systems")
+local Assets = ReplicatedStorage:WaitForChild("Assets")
+local Sprinting = require(Sys.Character.Game.Sprinting)
+local ragdolls = require(Modules.Rendering.Ragdolls)
+local blind = require(Modules.Schematics.StatusEffects.Blindness)
+local Undetect = require(Modules.Schematics.StatusEffects.Undetectable)
+local Util = require(Modules.Utilities.Util)
+local NetworkModule = require(Modules.Network.Network)
+local Sounds = require(Modules.Rendering.Sounds)
+local Able = require(Assets.Survivors.TwoTime.Behavior).Abilities
+local ChatConfig = TextChatService.ChatWindowConfiguration
+local Landing = Sys.Character.Miscellaneous:FindFirstChild("SlowOnLanding")
+local PlayerFolder = workspace:WaitForChild("Players")
+local MapFolder = workspace:WaitForChild("Map"):WaitForChild("Ingame")
+local COLOR_RED = Color3.fromRGB(255, 0, 0)
+local COLOR_GREEN = Color3.fromRGB(0, 255, 0)
+local COLOR_BLUE = Color3.fromRGB(0, 0, 255)
+local COLOR_YELLOW = Color3.fromRGB(255, 255, 0)
+local COLOR_MAGENTA = Color3.fromRGB(255, 0, 255)
+local COLOR_BLACK = Color3.fromRGB(0, 0, 0)
+local VECTOR_SIXER = Vector3.new(0, 4, 0)
+local VECTOR_NORMAL = Vector3.new(0, 2.5, 0)
+local function applyButtonLayout(button, text)
+local column = buttonCount % 3
+local row = math.floor(buttonCount / 3)
+button.Position = UDim2.new(column * 0.1, 0, row * 0.1, 0)
+button.Size = UDim2.new(0.1, 0, 0.1, 0)
+button.TextWrapped = true
+button.Text = text
+buttonCount = buttonCount + 1
+end
+local function CreateButton(Text, Name, Parent, Callback)
+Text = Text or "TestButton"
+Name = Name or Text
+Callback = Callback or function() print("TestButton is pressed") end
+local Button = Instance.new("TextButton")
+Button.Name = Name
+applyButtonLayout(Button, Text)
+Button.Parent = Parent
+Button.MouseButton1Click:Connect(Callback)
+Buttons[Name] = Button
+return Button
+end
+local function CreateToggleButton(Text, Name, Parent, CallbackTrue, CallbackFalse)
+Text = Text or "TestButton:"
+Name = Name or Text
+CallbackFalse = CallbackFalse or function() print("TestButton is set to False") end
+CallbackTrue = CallbackTrue or function() print("TestButton is set to True") end
+Bools[Name] = false
+local Button = Instance.new("TextButton")
+Button.Name = Name
+applyButtonLayout(Button, string.format("%s false", Text))
+Button.Parent = Parent
+Button.MouseButton1Click:Connect(function()
+local newState = not Bools[Name]
+Bools[Name] = newState
+if newState then
+CallbackTrue()
+else
+CallbackFalse()
+end
+Button.Text = string.format("%s %s", Text, tostring(newState))
+end)
+Buttons[Name] = Button
+return Button
+end
+function Saken:Esp()
+local function createESP(object, color)
+if object:FindFirstChild("SakenLight") then return end
+local highlight = Instance.new("Highlight")
+highlight.Name = "SakenLight"
+highlight.FillTransparency = 0.7
+highlight.OutlineTransparency = 1
+highlight.FillColor = color or COLOR_RED
+highlight.OutlineColor = color or COLOR_RED
+highlight.Adornee = object
+highlight.Parent = object
+end
+local function plrESP(object, color)
+if not object or object:FindFirstChild("SakenLight") then return end
+local head = object:FindFirstChild("Head")
+if not head then return end
+if object:GetAttribute("Username") == Player.Name then return end
+color = color or COLOR_RED
+local H = object:FindFirstChildOfClass("Highlight")
+if H then H:Destroy() end
+local highlight = Instance.new("Highlight")
+highlight.Name = "SakenLight"
+highlight.FillTransparency = 0.8
+highlight.OutlineTransparency = 1
+highlight.FillColor = color
+highlight.Parent = object
+local billboardGui = Instance.new("BillboardGui")
+billboardGui.Name = "UsernameBillboard"
+billboardGui.Size = UDim2.new(5.5, 0, 5.5, 0)
+billboardGui.StudsOffset = (object.Name == "Sixer") and VECTOR_SIXER or VECTOR_NORMAL
+billboardGui.AlwaysOnTop = true
+local textLabel = Instance.new("TextLabel")
+textLabel.Size = UDim2.new(1, 0, 1, 0)
+textLabel.BackgroundTransparency = 1
+textLabel.Text = string.format("%s (%s)", tostring(object:GetAttribute("Username")), object.Name)
+textLabel.TextColor3 = color
+textLabel.TextScaled = true
+textLabel.Font = Enum.Font.SourceSansBold
+textLabel.TextStrokeTransparency = 0
+textLabel.TextStrokeColor3 = COLOR_BLACK
+textLabel.Parent = billboardGui
+billboardGui.Parent = head
+end
+local function HandleGenESP(gen)
+local Progress = gen:FindFirstChild("Progress")
+local Esp = gen:FindFirstChild("SakenLight")
+if not Esp or not Progress then return end
+Progress:GetPropertyChangedSignal("Value"):Connect(function()
+if Progress.Value == 100 then
+Esp.Enabled = false
+end
+end)
+end
+local function updateESP()
+for _, v in MapFolder:GetDescendants() do
+if v:IsA("Tool") then
+if v.Name == "Medkit" then
+createESP(v, COLOR_YELLOW)
+elseif v.Name == "BloxyCola" then
+createESP(v, COLOR_BLUE)
+end
+elseif v:IsA("Model") and v.Name == "Generator" and v.Parent and v.Parent.Name ~= "Instances" then
+createESP(v, COLOR_MAGENTA)
+HandleGenESP(v)
+end
+end
+end
+updateESP()
+Player.CharacterAdded:Connect(function()
+task.wait(4)
+updateESP()
+end)
+local lastUpdate = 0
+RunService.Heartbeat:Connect(function()
+local now = os.clock()
+if now - lastUpdate < 0.2 then return end
+lastUpdate = now
+local survivors = PlayerFolder:FindFirstChild("Survivors")
+if survivors then
+for _, v in survivors:GetChildren() do
+plrESP(v, COLOR_GREEN)
+end
+end
+local killers = PlayerFolder:FindFirstChild("Killers")
+if killers then
+for _, v in killers:GetChildren() do
+plrESP(v, COLOR_RED)
+end
+end
+end)
+end
+function Saken:AutoGen()
+local function solvgen()
+local ingameMap = workspace.Map.Ingame:FindFirstChild("Map")
+if not ingameMap then return end
+for _, v in ingameMap:GetDescendants() do
+if v:IsA("RemoteEvent") then
+v:FireServer()
+end
+end
+end
+if loopConnection then
+loopConnection:Disconnect()
+loopConnection = nil
+end
+local nextActionTime = 0
+local rng = Random.new()
+local function getRandomDelay()
+return rng:NextNumber(2.5, 3.5)
+end
+loopConnection = RunService.Heartbeat:Connect(function()
+local ui = PlayerGui:FindFirstChild("PuzzleUI")
+if ui then
+local now = os.clock()
+if nextActionTime == 0 then
+nextActionTime = now + getRandomDelay()
+elseif now >= nextActionTime then
+solvgen()
+nextActionTime = now + getRandomDelay()
+end
+else
+if nextActionTime ~= 0 then
+nextActionTime = 0
+end
+end
+end)
+end
+function Saken:Config()
+Sprinting.DefaultConfig.MinStamina = -math.huge
+for _, Kill in Assets.Killers:GetChildren() do
+local configMod = Kill:FindFirstChild("Config")
+if not configMod then continue end
+local config = require(configMod)
+if config.SprintSpeed then
+config.Speed = (config.Speed or 0) + 1.8
+config.SprintSpeed = config.SprintSpeed + 1.8
+end
+if Kill.Name == "Noli" then
+config.VoidRushTurnSpeed = math.huge
+config.VoidRushInitialTurnDuration = 0
+config.VoidRushInitialTurnMult = 1
+elseif Kill.Name == "Slasher" then
+config.EnragedSpeed = (config.EnragedSpeed or 0) + 15
+end
+end
+for _, Surv in Assets.Survivors:GetChildren() do
+local configMod = Surv:FindFirstChild("Config")
+if not configMod then continue end
+local config = require(configMod)
+config.Speed = 15.5
+config.SprintSpeed = 29.5
+if Surv.Name == "Veeronica" then
+config.Sk8TurnControl = 2.5
+elseif Surv.Name == "TwoTime" then
+config.CrouchSpeed = 16
+config.CrouchRunSpeed = 30
+end
+end
+local function DoLunge(arg1, duration)
+local character = arg1 and arg1.Rig
+local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+if not rootPart then return end
+local attachment = Instance.new("Attachment")
+attachment.Parent = rootPart
+local linearVelocity = Instance.new("LinearVelocity")
+linearVelocity.Attachment0 = attachment
+linearVelocity.MaxForce = math.huge
+linearVelocity.VelocityConstraintMode = Enum.VelocityConstraintMode.Vector
+linearVelocity.VectorVelocity = rootPart.CFrame.LookVector * 200
+linearVelocity.Parent = rootPart
+local lungeTime = duration or 0.25
+local tweenInfo = TweenInfo.new(lungeTime, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+local tween = TweenService:Create(linearVelocity, tweenInfo, { VectorVelocity = Vector3.zero })
+tween:Play()
+Debris:AddItem(linearVelocity, lungeTime)
+Debris:AddItem(attachment, lungeTime)
+end
+Able.Dagger.Callback = function(p10, p11)
+local dCrouchEndlag = p10.Config.DaggerCrouchEndlag or 0.225
+local dCrouchEndlagTween = p10.Config.DaggerCrouchEndlagTweenTime or 0.15
+local v22 = if p11 then dCrouchEndlag + dCrouchEndlagTween + 0.1 else 1
+local lockTime = if p11 then p10.Config.DaggerCrouchSprintLockTime or v22 else p10.Config.DaggerUncrouchedSprintLockTime or 1
+Util:ToggleSprinting("TwoTimeStab", false, lockTime)
+local TwoTimeStab = Util:CreateSpeedMultiplier(p10.Rig, 1, "TwoTimeStab", v22)
+TweenService:Create(TwoTimeStab, TweenInfo.new(0.35), { Value = 0.1 }):Play()
+if p11 then
+local v24 = true
+local v25 = false
+local v26 = false
+local connName = string.format("%sTTCollision", p10.Player.Name)
+NetworkModule:SetConnection(connName, "REMOTE_EVENT", function(p12)
+v25 = p12
+v24 = false
+end)
+p10.Animations.LungeStart:Play(0)
+task.delay(p10.Animations.LungeStart.Length - 0.2, function() DoLunge(p10, 1) end)
+task.delay(p10.Animations.LungeStart.Length, function()
+p10.Animations.LungeLoop:Play(0)
+task.delay(0.6, function()
+if v24 then v26 = true end
+end)
+repeat task.wait() until v24 == false or v26
+NetworkModule:RemoveConnection(connName, "REMOTE_EVENT")
+p10.Animations.LungeStart:Stop(0)
+p10.Animations.LungeLoop:Stop(0)
+if not v26 then
+p10.Animations.LungeEnd:AdjustSpeed(if v25 then 2.5 else 1)
+p10.Animations.LungeEnd:Play(0)
+end
+task.wait(if v25 then 0.12 else dCrouchEndlag)
+TweenService:Create(TwoTimeStab, TweenInfo.new(if v25 then 0.15 else dCrouchEndlagTween, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Value = 1 }):Play()
+end)
+return
+else
+p10.Animations.Stab:Play(0)
+task.delay(0.15, function() DoLunge(p10, 0.7) end)
+task.wait(0.45)
+TweenService:Create(TwoTimeStab, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), { Value = 1 }):Play()
+end
+end
+end
+function Saken:Function()
+local JerkAnim, BlockAnim, InvisAnim
+local function GuiSaken(Rig)
+local humanoid = Rig:WaitForChild("Humanoid")
+local animator = humanoid:WaitForChild("Animator")
+JerkAnim = Util:LoadAnimationFromID(Rig, "rbxassetid://72042024", false)
+JerkAnim.Looped = true
+JerkAnim.Priority = Enum.AnimationPriority.Action4
+BlockAnim = Util:LoadAnimationFromID(Rig, "rbxassetid://72722244508749", false)
+BlockAnim.Priority = Enum.AnimationPriority.Action4
+InvisAnim = Util:LoadAnimationFromID(Rig, "rbxassetid://97039674665952", false)
+InvisAnim.Priority = Enum.AnimationPriority.Action4
+local Gui = PlayerGui:FindFirstChild("SakenGui")
+if not Gui then
+Gui = Instance.new("ScreenGui")
+Gui.Name = "SakenGui"
+Gui.ResetOnSpawn = true
+Gui.Parent = PlayerGui
+end
+local RagTrue = function()
+humanoid.PlatformStand = true
+Sounds:Play("ragdolledLol", {Parent = Rig.PrimaryPart})
+pcall(ragdolls.EnableRagdoll, Rig)
+end
+local RagFalse = function()
+pcall(ragdolls.DisableRagdoll, Rig)
+humanoid.PlatformStand = false
+end
+Buttons = {}
+Bools = {}
+buttonCount = 0
+CreateToggleButton("Goon:", nil, Gui, function() JerkAnim:Play() end, function() JerkAnim:Stop() end)
+CreateButton("FakeBlock", nil, Gui, function() BlockAnim:Play() end)
+CreateToggleButton("Ragdoll:", nil, Gui, RagTrue, RagFalse)
+local speedMultipliers = Rig:WaitForChild("SpeedMultipliers", 5)
+if speedMultipliers then
+local dirMovement = speedMultipliers:WaitForChild("DirectionalMovement", 5)
+if dirMovement then dirMovement:Destroy() end
+end
+end
+Player.CameraMaxZoomDistance = 35
+if Player.Character then task.spawn(GuiSaken, Player.Character) end
+Player.CharacterAdded:Connect(function(Rig)
+task.spawn(GuiSaken, Rig)
+end)
+blind.Applied = function() end
+blind.Removed = function() end
+if Landing then Landing:Destroy() end
+ChatConfig.Enabled = true
+ChatConfig:GetPropertyChangedSignal("Enabled"):Connect(function()
+if not ChatConfig.Enabled then
+ChatConfig.Enabled = true
+end
+end)
+end
+StarterGui:SetCore("SendNotification", {
+Title = "Stick Gazer Scripts",
+Text = "Thank you for using my hub!! >:)",
+Icon = "rbxassetid://114171924985882"
+})
+return Saken
