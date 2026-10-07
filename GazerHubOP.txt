@@ -100,7 +100,7 @@ if object:GetAttribute("Username") == Player.Name then return end
 color = color or COLOR_RED
 local H = object:FindFirstChildOfClass("Highlight")
 if H then H:Destroy() end
-local highlight = Instance.new("Highlight")
+local highlight = object:FindFirstChildOfClass("Highlight") or Instance.new("Highlight")
 highlight.Name = "SakenLight"
 highlight.FillTransparency = 0.8
 highlight.OutlineTransparency = 1
