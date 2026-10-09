@@ -14,7 +14,7 @@ local function MakeBG(obj, img)
   bg.Size = UDim2.new(1, 0, 1, 0)
   bg.StudsOffset = Vector3.new(-3.5, 3.5, 0)
   bg.Adornee = obj
-  bg.Brightness = 5 -- 
+  bg.Brightness = 5
   local image = Instance.new("ImageLabel")
   image.Image = img
   image.Size = UDim2.new(8, 0, 8, 0)
