@@ -14,7 +14,7 @@ local function MakeBG(obj, img)
   bg.Size = UDim2.new(1, 0, 1, 0)
   bg.StudsOffset = Vector3.new(-3.5, 3.5, 0)
   bg.Adornee = obj
-  bg.Brightness = 5
+  bg.Brightness = 10
   local image = Instance.new("ImageLabel")
   image.Image = img
   image.Size = UDim2.new(8, 0, 8, 0)
@@ -85,6 +85,7 @@ local GWOM = import("https://raw.githubusercontent.com/module-upvr/Others/refs/h
 local GWOM2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWOM2.mp3", "GWOM2.mp3")
 local GLMSV = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSV.mp3", "GLMSV.mp3")
 local GWOS = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWOS.mp3", "GWOS.mp3")
+local GIntroS = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GIntroS.mp3", "GIntroS.mp3")
 
 local GPizzaDeliveries = {
   import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GPD.mp3", "GPD.mp3"),
@@ -314,6 +315,7 @@ local function DoMorph(P, Name, SN)
             local c = v:Clone()
             c.SoundId = newSoundId
             c.Name = "GVSFX"
+            if newSoundId == GLMSV then c.Volume = 2 end
             c.Parent = v.Parent
             v:Destroy()
             c:Play()
@@ -330,7 +332,7 @@ local function DoMorph(P, Name, SN)
           local r = math.random(2)
           local CKill = GKills[CS.Name] or (r == 1 and GKills.Kill or GKills.Kill2)
           
-          if r == 2 then clone.Volume = 5 end
+          if CKill == GKills.Kill2 then clone.Volume = 5 end
           clone.SoundId = CKill
           clone.Parent = v.Parent
           clone:Play()
@@ -368,6 +370,18 @@ local function DoMorph(P, Name, SN)
         v.LMSFrame.BackgroundImage.ImageColor3 = Color3.new(0, 1, 0)
         v.LMSFrame.LMSImage.Image = lmsui
         v.LMSFrame.LMSImage.LMSImage.Image = lmsui
+      end
+    end)
+
+    workspace.Sounds.ChildAdded:Once(function(v)
+      if v:IsA("Sound") and v.SoundId == "rbxassetid://76550997341572" then
+        local c = v:Clone()
+        c.Name = "GIntroS"
+        c.SoundId = GIntroS
+        c.Volume = 2
+        c.Parent = v.Parent
+        c:Play()
+        game.Debris:AddItem(c, 5)
       end
     end)
     
