@@ -14,7 +14,7 @@ local function MakeBG(obj, img)
   local bg = Instance.new("BillboardGui")
   bg.Size = UDim2.new(1, 0, 1, 0)
   bg.StudsOffset = Vector3.new(-3.5, 3.5, 0)
-  bg.StudsWorldSpaceOffset = Vector3.new(0, 10, 0)
+  bg.StudsWorldSpaceOffset = Vector3.new(0, 20, 0)
   bg.Adornee = obj
   local image = Instance.new("ImageLabel")
   image.Image = img
@@ -145,7 +145,8 @@ PKCon.DisplayName = "Grollusiam"
 
 PKConNR.Rig:Destroy()
 local GSR = importinstance(GRig, PKConNR)
-GSR.HumanoidRootPart.RootJoint.C1 = CFrame.Angles(0, 0, 0)
+GSR.HumanoidRootPart["rbxassetid://81488188518324"]:Destroy()
+GSR.HumanoidRootPart.RootJoint.C0 = CFrame.Angles(-math.rad(80), 0, math.rad(190))
 GSR.Name = "Rig"
 
 for _, v in GSR.coolkiddrblx:GetChildren() do
@@ -253,6 +254,8 @@ local function DoMorph(P, Name, SN)
           Weld.Part0 = v
           Weld.Part1 = TBP
         end
+      elseif v:IsA("Sound") then
+        v:Destroy()
       end
     end
 
