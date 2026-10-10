@@ -5,6 +5,7 @@ local I = workspace.Map.Ingame
 local Survs = workspace.Players.Survivors
 local O1R = game:GetService("ReplicatedStorage").Assets.Skins.Killers["1x1x1x1"].Primordial1x1x1x1.Rig
 local PKCon = require(game:GetService("ReplicatedStorage").Assets.Skins.Killers.c00lkidd.PhonkC00l.Config)
+local PKConNR = game:GetService("ReplicatedStorage").Assets.Skins.Killers.c00lkidd.PhonkC00l
 local Tween = game:GetService("TweenService")
 
 local CurrentRig = Player.Character
@@ -13,8 +14,8 @@ local function MakeBG(obj, img)
   local bg = Instance.new("BillboardGui")
   bg.Size = UDim2.new(1, 0, 1, 0)
   bg.StudsOffset = Vector3.new(-3.5, 3.5, 0)
+  bg.StudsWorldSpaceOffset = Vector3.new(0, 10, 0)
   bg.Adornee = obj
-  bg.Brightness = 10
   local image = Instance.new("ImageLabel")
   image.Image = img
   image.Size = UDim2.new(8, 0, 8, 0)
@@ -23,6 +24,8 @@ local function MakeBG(obj, img)
   image.Parent = bg
   
   bg.Parent = obj
+  
+  Tween:Create(bg, TweenInfo.new(1, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {StudsOffsetWorldSpace = Vector3.zero}):Play()
 end
 
 local function import(link, name)
@@ -139,6 +142,15 @@ game.StarterGui:SetCore("SendNotification", {
 
 PKCon.RenderImage = GRender
 PKCon.DisplayName = "Grollusiam"
+
+PKConNR.Rig:Destroy()
+local GSR = importinstance(GRig, PKConNR)
+GSR.HumanoidRootPart.RootJoint.C1 = CFrame.Angles(0, 0, 0)
+GSR.Name = "Rig"
+
+for _, v in GSR.coolkiddrblx:GetChildren() do
+  v.Color = Color3.new(0, 0, 0)
+end
 
 local function D(...)
   for _, v in ipairs({...}) do
@@ -314,12 +326,26 @@ local function DoMorph(P, Name, SN)
           if newSoundId then
             local c = v:Clone()
             c.SoundId = newSoundId
-            c.Name = "GVSFX"
-            if newSoundId == GLMSV then c.Volume = 2 end
+            c.Name = "GVoiceline"
+            
+            if newSoundId == GLMSV then
+              c.Volume = 1
+            elseif newSoundId == GWOH or GWOH2 or GWOM or GWOM2 then
+              local found
+              for _, f in P.HumanoidRootPart:GetChildren() do
+                if f.Name == "GVoiceline" then
+                  if f.SoundId == GWO or f.SoundId == GWO2 then
+                    found = f
+                    break
+                  end
+                end
+              end
+              if found then found:Destroy() end
+            end
             c.Parent = v.Parent
             v:Destroy()
             c:Play()
-            game.Debris:AddItem(c, 7)
+            game.Debris:AddItem(c, 10)
           else
             v:Destroy()
           end
