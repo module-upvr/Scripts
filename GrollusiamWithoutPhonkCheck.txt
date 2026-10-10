@@ -14,7 +14,7 @@ local function MakeBG(obj, img)
   local bg = Instance.new("BillboardGui")
   bg.Size = UDim2.new(1, 0, 1, 0)
   bg.StudsOffset = Vector3.new(-3.5, 3.5, 0)
-  bg.StudsWorldSpaceOffset = Vector3.new(0, 20, 0)
+  bg.StudsOffsetWorldSpace = Vector3.new(0, 20, 0)
   bg.Adornee = obj
   local image = Instance.new("ImageLabel")
   image.Image = img
@@ -379,12 +379,10 @@ local function DoMorph(P, Name, SN)
     C5 = I.ChildAdded:Connect(function(v)
       if v.Name == "Groll1" or v.Name == "Groll2" then
         v.Name = "OldGroll"
-        repeat task.wait() until v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Minion")
-        D(v.Minion)
-        MakeBG(v.HumanoidRootPart, GM)
+        D(v:WaitForChild("Minion"))
+        MakeBG(v:WaitForChild("HumanoidRootPart"), GM)
       elseif v.Name == "HumanoidRootProjectile" then
-        repeat task.wait() until v:FindFirstChildOfClass("Highlight") and v:FindFirstChild("VFX_Attachment") and v:FindFirstChild("SurfaceAppearance")
-        D(v.Highlight, v.VFX_Attachment, v.SurfaceAppearance)
+        D(v:WaitForChild("Highlight"), v:WaitForChild("VFX_Attachment"), v:WaitForChild("SurfaceAppearance"))
         v.Size = Vector3.new(1, 2, 1)
         v.MeshId = "rbxassetid://17286730725"
         v.TextureID = "rbxassetid://17286730732"
