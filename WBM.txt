@@ -1,0 +1,119 @@
+local Player = game:GetService("Players").LocalPlayer
+local CurrentRig = Player.Character
+local JDCon = require(game:GetService("ReplicatedStorage").Assets.Killers.JohnDoe.Config)
+
+local NewAnims = {
+  Idle = "rbxassetid://85165308914564",
+  Walk = "rbxassetid://124316306736993",
+  Run = "rbxassetid://91871080077140",
+  InjuredIdle = "rbxassetid://85165308914564",
+  InjuredWalk = "rbxassetid://124316306736993",
+  InjuredRun = "rbxassetid://91871080077140",
+  Slash = "rbxassetid://88970503168421"
+}
+
+for i, v in NewAnims do
+  JDCon.Animations[i] = v
+end
+
+JDCon.IntroText = "Is it me trapped, or is it you?"
+
+local function CreatePart(name, parent, weld, offset) 
+  local Part = Instance.new("Part")
+  Part.Name = name
+  Part.Massless = true
+  Part.Anchored = false
+  Part.CanCollide = false
+  Part.CanTouch = false
+  Part.CanQuery = false
+
+  if weld then
+    local Weld = Instance.new("Weld")
+    Weld.C0 = offset or CFrame.new(0, 0, 0) 
+    Weld.Part0 = Part
+    Weld.Part1 = weld
+    Weld.Parent = Part
+  end
+
+  Part.Parent = parent
+  return Part
+end
+
+local function Accs(AccsName, parent, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.zero
+  Angle = Angle or CFrame.identity
+  CF = CF or CFrame.identity
+
+  local var_2 = CreatePart(AccsName, parent) 
+  var_2.Size = Vector3.new(1, 1, 1)
+
+  local var_3 = Instance.new("SpecialMesh") 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  var_3.Parent = var_2
+
+  local var_4 = Instance.new("Weld") 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = Welded
+  var_4.Parent = var_2
+
+  return var_2
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy() 
+  end
+end
+
+local C, C2, C3
+
+local function clearC()
+  if C then C:Disconnect() C = nil end
+  if C2 then C2:Disconnect() C2 = nil end
+  if C3 then C3:Disconnect() C3 = nil end
+end
+
+local function DoMorph(P, Name)
+  if P.Name == Name then
+    for _, v in ipairs({"Right Leg", "Left Leg", "Right Arm"}) do
+      local limb = P[v]
+      limb.Transparency = 0
+    end
+    D(P.John)
+
+    Cloth("http://www.roblox.com/asset/?id=77974582887393", "http://www.roblox.com/asset/?id=116229141757093", nil, P)
+
+    local WBH = Accs("WBH", P, "rbxassetid://81250779933260", "http://www.roblox.com/asset/?id=120531871533018", Vector3.new(1.25, 1.25, 1.25), CFrame.new(0, -0.835, 0.364), P.Head, nil)
+    local WBHE = Accs("WBHE", P, "rbxassetid://82418383856368", "http://www.roblox.com/asset/?id=71284834204568", Vector3.new(1.25, 1.25, 1.25), CFrame.new(0, -0.835, 0.278), P.Head, nil)
+    local WBT = Accs("WBT", P, "rbxassetid://112610015187845", "http://www.roblox.com/asset/?id=121971883834435", Vector3.new(1.25, 1.25, 1.25), CFrame.new(-0.011, -0.319, 0.153), P.Torso, nil)
+    local WBA = Accs("WBA", P, "rbxassetid://102091340744120", "http://www.roblox.com/asset/?id=103786818825198", Vector3.new(1.25, 1.25, 1.25), CFrame.new(0.014, -0.457, -0.009), P["Right Arm"], nil)
+    local WBW = Accs("WBW", P, "rbxassetid://108734789447616", "http://www.roblox.com/asset/?id=88748267463119", Vector3.new(1.25, 1.25, 1.25), CFrame.new(0, 0.844, 0.079), P.Torso, nil)
+    local WBAW = Accs("WBAW", P, "rbxassetid://127824005149531", "http://www.roblox.com/asset/?id=86975935336047", Vector3.new(1.25, 1.25, 1.25), CFrame.new(0, 0.078, 0.019), P.Torso, nil)
+
+    C = P.Humanoid.Died:Once(clearC)
+    C2 = Player.CharacterAdded:Once(clearC)
+  end
+end
+
+Player.CharacterAdded:Connect(function(Rig)
+  DoMorph(Rig, "JohnDoe")
+end)
