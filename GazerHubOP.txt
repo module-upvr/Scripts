@@ -145,7 +145,7 @@ function Saken:Esp()
         else
           createESP(v, COLOR_ORANGE)
         end
-      elseif v:IsA("Model") and v.Name == "Generator" v.Parent.Name ~= "Instances" then
+      elseif v:IsA("Model") and v.Name == "Generator" and v.Parent.Name ~= "Instances" then
         createESP(v, COLOR_MAGENTA)
         HandleGenESP(v)
       end
