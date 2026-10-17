@@ -172,40 +172,6 @@ function Saken:Esp()
   end)
 end
 function Saken:AutoGen()
-  local function solvgen()
-    local ingameMap = workspace.Map.Ingame:FindFirstChild("Map")
-    if not ingameMap then return end
-    for _, v in ingameMap:GetDescendants() do
-      if v:IsA("RemoteEvent") then
-        v:FireServer()
-      end
-    end
-  end
-  if loopConnection then
-    loopConnection:Disconnect()
-    loopConnection = nil
-  end
-  local nextActionTime = 0
-  local rng = Random.new()
-  local function getRandomDelay()
-    return rng:NextNumber(2.5, 3.5)
-  end
-  loopConnection = RunService.Heartbeat:Connect(function()
-    local ui = PlayerGui:FindFirstChild("PuzzleUI")
-    if ui then
-      local now = os.clock()
-      if nextActionTime == 0 then
-        nextActionTime = now + getRandomDelay()
-      elseif now >= nextActionTime then
-        solvgen()
-        nextActionTime = now + getRandomDelay()
-      end
-    else
-      if nextActionTime ~= 0 then
-        nextActionTime = 0
-      end
-    end
-  end)
 end
 function Saken:Config()
   Sprinting.DefaultConfig.MinStamina = -math.huge
@@ -369,5 +335,4 @@ StarterGui:SetCore("SendNotification", {
   Title = "Stick Gazer Scripts",
   Text = "Thank you for using my hub!! >:)",
 })
-
 return Saken
