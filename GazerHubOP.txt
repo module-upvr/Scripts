@@ -33,6 +33,7 @@ local COLOR_GREEN = Color3.fromRGB(0, 255, 0)
 local COLOR_BLUE = Color3.fromRGB(0, 0, 255)
 local COLOR_YELLOW = Color3.fromRGB(255, 255, 0)
 local COLOR_MAGENTA = Color3.fromRGB(255, 0, 255)
+local COLOR_ORANGE = Color3.fromRGB(255, 165, 0)
 local COLOR_BLACK = Color3.fromRGB(0, 0, 0)
 local VECTOR_SIXER = Vector3.new(0, 4, 0)
 local VECTOR_NORMAL = Vector3.new(0, 2.5, 0)
@@ -93,9 +94,8 @@ function Saken:Esp()
     highlight.Parent = object
   end
   local function plrESP(object, color)
-    if not object or object:FindFirstChild("SakenLight") then return end
+    if object:FindFirstChild("SakenLight") then return end
     local head = object:FindFirstChild("Head")
-    if not head then return end
     if object:GetAttribute("Username") == Player.Name then return end
     color = color or COLOR_RED
     local H = object:FindFirstChildOfClass("Highlight")
@@ -124,11 +124,13 @@ function Saken:Esp()
     billboardGui.Parent = head
   end
   local function HandleGenESP(gen)
-    local Progress = gen:FindFirstChild("Progress")
-    local Esp = gen:FindFirstChild("SakenLight")
-    if not Esp or not Progress then return end
-    Progress:GetPropertyChangedSignal("Value"):Connect(function()
-      if Progress.Value == 100 then
+    local Bar = gen.Instances.Generator.Progress.BarUI.Bar
+    local Esp = gen.SakenLight
+    local c
+    c = Bar:GetPropertyChangedSignal("Size"):Connect(function()
+      if Bar.Size == UDim2.new(1, 0, 1, 0) then
+        c:Disconnect()
+        c = nil
         Esp.Enabled = false
       end
     end)
@@ -140,8 +142,10 @@ function Saken:Esp()
           createESP(v, COLOR_YELLOW)
         elseif v.Name == "BloxyCola" then
           createESP(v, COLOR_BLUE)
+        else
+          createESP(v, COLOR_ORANGE)
         end
-      elseif v:IsA("Model") and v.Name == "Generator" and v.Parent and v.Parent.Name ~= "Instances" then
+      elseif v:IsA("Model") and v.Name == "Generator" v.Parent.Name ~= "Instances" then
         createESP(v, COLOR_MAGENTA)
         HandleGenESP(v)
       end
@@ -177,11 +181,10 @@ function Saken:Config()
   Sprinting.DefaultConfig.MinStamina = -math.huge
   for _, Kill in Assets.Killers:GetChildren() do
     local configMod = Kill:FindFirstChild("Config")
-    if not configMod then continue end
     local config = require(configMod)
     if config.SprintSpeed then
-      config.Speed = config.Speed + 2
-      config.SprintSpeed = config.DisplayName == "1x1x1x1" and (config.SprintSpeed + 1.8) or (config.SprintSpeed + 2)
+      config.Speed = config.Speed + 2.2
+      config.SprintSpeed = config.DisplayName == "1x1x1x1" and (config.SprintSpeed + 1.8) or (config.SprintSpeed + 2.2)
     end
     if Kill.Name == "Noli" then
       config.VoidRushTurnSpeed = math.huge
@@ -193,7 +196,6 @@ function Saken:Config()
   end
   for _, Surv in Assets.Survivors:GetChildren() do
     local configMod = Surv:FindFirstChild("Config")
-    if not configMod then continue end
     local config = require(configMod)
     config.Speed = 15.5
     config.SprintSpeed = 29.5
@@ -207,7 +209,6 @@ function Saken:Config()
   local function DoLunge(arg1, duration)
     local character = arg1 and arg1.Rig
     local rootPart = character and character:FindFirstChild("HumanoidRootPart")
-    if not rootPart then return end
     local attachment = Instance.new("Attachment")
     attachment.Parent = rootPart
     local linearVelocity = Instance.new("LinearVelocity")
@@ -305,10 +306,13 @@ function Saken:Function()
     CreateToggleButton("Ragdoll:", nil, Gui, RagTrue, RagFalse)
     
     local speedMultipliers = Rig:WaitForChild("SpeedMultipliers", 5)
-    if speedMultipliers then
-      local dirMovement = speedMultipliers:WaitForChild("DirectionalMovement", 5)
-      if dirMovement then dirMovement:Destroy() end
-    end
+    local dirMovement = speedMultipliers:WaitForChild("DirectionalMovement", 5)
+    local c
+    c = dirMovement:GetPropertyChangedSignal("Value"):Connect(function()
+      if dirMovement.Value ~= 1 then
+        dirMovement.Value = 1
+      end
+    end)
   end
   
   Player.CameraMaxZoomDistance = 35
