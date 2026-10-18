@@ -186,10 +186,10 @@ function Saken:AutoGen()
     local AkhirY = BlobAkhir.AbsolutePosition.Y + 70
     
     VIM:SendMouseButtonEvent(AwalX, AwalY, 0, true, game, 1)
-    task.wait(0.05)
+    task.wait()
     
     local JarakPiksel = math.sqrt((AkhirX - AwalX)^2 + (AkhirY - AwalY)^2)
-    local KecepatanPikselPerFrame = 15
+    local KecepatanPikselPerFrame = 20
     local KerapatanJalur = math.max(2, math.round(JarakPiksel / KecepatanPikselPerFrame))
     
     for i = 1, KerapatanJalur do
@@ -200,15 +200,14 @@ function Saken:AutoGen()
       VIM:SendMouseMoveEvent(CurrentX, CurrentY, game)
       task.wait()
     end
-    task.wait(0.05)
+    task.wait()
     
     VIM:SendMouseButtonEvent(AkhirX, AkhirY, 0, false, game, 1)
     task.wait(0.1)
   end
   
-  local NumbTbl = {}
-  
   local function solvgenBlob(Blobs)
+    local NumbTbl = {}
     for _, v in pairs(Blobs:GetChildren()) do
       local Numb = v.Number.Text
       if not NumbTbl[Numb] then
@@ -226,7 +225,6 @@ function Saken:AutoGen()
         task.wait(0.1)
       end
     end
-    table.clear(NumbTbl)
   end
   
   PlayerGui.ChildAdded:Connect(function(v)
