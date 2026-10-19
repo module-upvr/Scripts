@@ -185,29 +185,28 @@ function Saken:AutoGen()
     local AkhirX = BlobAkhir.AbsolutePosition.X + 55
     local AkhirY = BlobAkhir.AbsolutePosition.Y + 70
     
-    VIM:SendMouseButtonEvent(AwalX, AwalY, 0, true, game, 1)
-    task.wait()
+    VIM:SendMouseButtonEvent(AwalX, AwalY, 0, true, PlayerGui, 1)
     
     local JarakPiksel = math.sqrt((AkhirX - AwalX)^2 + (AkhirY - AwalY)^2)
     local KecepatanPikselPerFrame = 20
     local KerapatanJalur = math.max(2, math.round(JarakPiksel / KecepatanPikselPerFrame))
     
     for i = 1, KerapatanJalur do
+      if not BlobAwal or not BlobAkhir then return end
       local Progress = i / KerapatanJalur
       local CurrentX = AwalX + (AkhirX - AwalX) * Progress
       local CurrentY = AwalY + (AkhirY - AwalY) * Progress
       
-      VIM:SendMouseMoveEvent(CurrentX, CurrentY, game)
+      VIM:SendMouseMoveEvent(CurrentX, CurrentY, PlayerGui, 1)
       task.wait()
     end
-    task.wait()
     
-    VIM:SendMouseButtonEvent(AkhirX, AkhirY, 0, false, game, 1)
-    task.wait(0.1)
+    VIM:SendMouseButtonEvent(AkhirX, AkhirY, 0, false, PlayerGui, 1)
   end
   
   local function solvgenBlob(Blobs)
     local NumbTbl = {}
+    task.wait(0.3)
     for _, v in pairs(Blobs:GetChildren()) do
       local Numb = v.Number.Text
       if not NumbTbl[Numb] then
@@ -216,13 +215,13 @@ function Saken:AutoGen()
       table.insert(NumbTbl[Numb], v.Button)
     end
     
-    for Angka, Pasangan in pairs(NumbTbl) do
+    for Angka, Pasangan in NumbTbl do
       if #Pasangan == 2 then
         local pair1 = Pasangan[1]
         local pair2 = Pasangan[2]
         
         Drag(pair1, pair2)
-        task.wait(0.1)
+        task.wait(0.05)
       end
     end
   end
