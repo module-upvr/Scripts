@@ -3,7 +3,6 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
-local VIM = game:GetService("VirtualInputManager")
 local Debris = game:GetService("Debris")
 local TextChatService = game:GetService("TextChatService")
 local StarterGui = game:GetService("StarterGui")
@@ -176,64 +175,6 @@ function Saken:Esp()
   end)
 end
 function Saken:AutoGen()
-  local function Drag(BlobAwal, BlobAkhir, par)
-    if not BlobAwal or not BlobAkhir then return end
-    
-    local AwalX = BlobAwal.AbsolutePosition.X + 55
-    local AwalY = BlobAwal.AbsolutePosition.Y + 70
-    
-    local AkhirX = BlobAkhir.AbsolutePosition.X + 55
-    local AkhirY = BlobAkhir.AbsolutePosition.Y + 70
-    
-    VIM:SendMouseButtonEvent(AwalX, AwalY, 0, true, par, 1)
-    
-    local JarakPiksel = math.sqrt((AkhirX - AwalX)^2 + (AkhirY - AwalY)^2)
-    local KecepatanPikselPerFrame = 20
-    local KerapatanJalur = math.max(2, math.round(JarakPiksel / KecepatanPikselPerFrame))
-    
-    for i = 1, KerapatanJalur do
-      if not BlobAwal or not BlobAkhir then return end
-      local Progress = i / KerapatanJalur
-      local CurrentX = AwalX + (AkhirX - AwalX) * Progress
-      local CurrentY = AwalY + (AkhirY - AwalY) * Progress
-      
-      VIM:SendMouseMoveEvent(CurrentX, CurrentY, par, 1)
-      task.wait()
-    end
-    
-    VIM:SendMouseButtonEvent(AkhirX, AkhirY, 0, false, par, 1)
-  end
-  
-  local function solvgenBlob(Blobs)
-    local NumbTbl = {}
-    task.wait(0.3)
-    for _, v in pairs(Blobs:GetChildren()) do
-      local Numb = v.Number.Text
-      if not NumbTbl[Numb] then
-        NumbTbl[Numb] = {}
-      end
-      table.insert(NumbTbl[Numb], v.Button)
-    end
-    
-    for Angka, Pasangan in NumbTbl do
-      if #Pasangan == 2 then
-        local pair1 = Pasangan[1]
-        local pair2 = Pasangan[2]
-        
-        Drag(pair1, pair2, Blobs)
-        task.wait(0.05)
-      end
-    end
-  end
-  
-  PlayerGui.ChildAdded:Connect(function(v)
-    if v.Name == "PuzzleUI" then
-      local Grid = v.Container.GridHolder.Grid
-      if Grid:FindFirstChild("Blobs") then
-        solvgenBlob(Grid.Blobs)
-      end
-    end
-  end)
 end
 function Saken:Config()
   Sprinting.DefaultConfig.MinStamina = -math.huge
