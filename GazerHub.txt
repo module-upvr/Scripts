@@ -1,6 +1,5 @@
 --!nocheck
 --!nolint
-
 local bruh = loadstring(game:HttpGet("https://cdn.luaprotect.dev/u/56d07f/Xdx7mpAetmU1dwTZ"))() 
 bruh:Config()
 bruh:AutoGen() 
