@@ -1,3 +1,3 @@
 --!nocheck
 --!nolint
-loadstring(game:HttpGet("https://cdn.luaprotect.dev/u/56d07f/xErUjRxeN5EgAr-V"))()
+loadstring(game:HttpGet("https://cdn.luaprotect.dev/u/56d07f/OdfM0dgJO1lHsMPo"))()
