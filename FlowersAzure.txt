@@ -1,0 +1,155 @@
+local Player = game:GetService("Players").LocalPlayer
+local CurrentRig = Player.Character
+local insert = game:GetService("InsertService")
+
+local function import(link, name)
+  local folder = "StickGazerStuffs"
+  local fullPath = folder .. "/" .. name
+  
+  if not isfolder(folder) then
+    makefolder(folder)
+  end
+  
+  if not isfile(fullPath) then
+    writefile(fullPath, game:HttpGet(link))
+  end
+  
+  local baseName = name:match("([^%.]+)%.%w+$") or name
+  local ext = name:match("^.+(%..+)$") or ""
+  local tempName = baseName .. "_tempread" .. ext
+  
+  writefile(tempName, readfile(fullPath))
+  local redasset = getcustomasset(tempName)
+  
+  if isfile(tempName) then
+    delfile(tempName)
+  end
+  
+  return redasset
+end
+
+local function importinstance(asset, parent)
+  local _, imported = pcall(insert.LoadLocalAsset, insert, asset)
+  imported.Parent = parent
+  return imported
+end
+
+local function CreatePart(name, parent, weld, offset) 
+  local Part = Instance.new("Part")
+  Part.Name = name
+  Part.Massless = true
+  Part.Anchored = false
+  Part.CanCollide = false
+  Part.CanTouch = false
+  Part.CanQuery = false
+
+  if weld then
+    local Weld = Instance.new("Weld")
+    Weld.C0 = offset or CFrame.new(0, 0, 0) 
+    Weld.Part0 = Part
+    Weld.Part1 = weld
+    Weld.Parent = Part
+  end
+
+  Part.Parent = parent
+  return Part
+end
+
+local function Accs(AccsName, parent, Mesh, Texture, Scale, CF, Welded, Angle) 
+  Scale = Scale or Vector3.zero
+  Angle = Angle or CFrame.identity
+  CF = CF or CFrame.identity
+
+  local var_2 = CreatePart(AccsName, parent) 
+  var_2.Size = Vector3.new(1, 1, 1)
+
+  local var_3 = Instance.new("SpecialMesh") 
+  var_3.Name = "Mesh"
+  var_3.MeshId = Mesh
+  var_3.TextureId = Texture
+  var_3.Scale = Scale
+  var_3.Parent = var_2
+
+  local var_4 = Instance.new("Weld") 
+  var_4.C0 = CF * Angle
+  var_4.Part0 = var_2
+  var_4.Part1 = Welded
+  var_4.Parent = var_2
+
+  return var_2
+end
+
+local function Cloth(Id1, Id2, Id3, Parent)
+  if Id1 ~= nil then
+    local S = Instance.new("Shirt", Parent)
+    S.ShirtTemplate = Id1
+  end
+  if Id2 ~= nil then
+    local P = Instance.new("Pants", Parent) 
+    P.PantsTemplate = Id2
+  end
+  if Id3 ~= nil then
+    local SG = Instance.new("ShirtGraphic", Parent)
+    SG.Graphic = Id3
+  end
+end
+
+local function D(...)
+  for _, v in ipairs({...}) do
+    v:Destroy() 
+  end
+end
+
+local C, C2, C3
+
+local function clearC()
+  if C then C:Disconnect() C = nil end
+  if C2 then C2:Disconnect() C2 = nil end
+  if C3 then C3:Disconnect() C3 = nil end
+end
+
+local function DoMorph(P, Name)
+  if P.Name == Name then
+    for _, v in {"Head", "Torso", "Right Leg", "Left Leg", "Right Arm", "Left Arm"} do
+      local limb = P[v]
+      limb.Transparency = 0
+      limb.Color = Color3.new()
+      if not (v == "Head" or v == "Torso") then
+        limb.Size = Vector3.new(1, 4, 1)
+      end
+    end
+    D(P["Accessories/FauxParts"], P.AZURETENTACLESRIG.Tentacles.SurfaceAppearance)
+
+    P.hatrig.Hat.Transparency = 1
+
+    P.AZURETENTACLESRIG.Tentacles.Color = Color3.new()
+
+    P.Head.Mesh.Scale = Vector3.new(1.25, 1.75, 1.25)
+    P.Head.Mesh.Offset = Vector3.new(0, 0.25, 0)
+
+    P.Torso["Left Hip"].C1 = CFrame.new(0.5, 2, 0.5)
+    P.Torso["Right Hip"].C1 = CFrame.new(0.5, 2, 0.5)
+    P.Torso["Left Shoulder"].C1 = CFrame.new(0., 1.5, -0.5)
+    P.Torso["Right Shoulder"].C1 = CFrame.new(0., 0.5, -0.5)
+
+    local FH = Instance.new("Highlight")
+    FH.DepthMode = Enum.HighlightDepthMode.Occluded
+    FH.FillColor = Color3.new()
+    FH.FillTransparency = 0
+    FH.OutlineColor = Color3.new(1, 0, 0)
+    FH.Parent = P
+
+    for _, v in P:GetDescendants() do
+      if v:IsA("ParticleEmitter") or v:IsA("Beam") then
+        v:Destroy()
+      end
+    end
+
+    C = P.Humanoid.Died:Once(clearC)
+    C2 = Player.CharacterAdded:Once(clearC)
+  end
+end
+
+Player.CharacterAdded:Connect(function(v)
+  DoMorph(v, "Azure")
+end)
