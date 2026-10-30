@@ -3,9 +3,7 @@ local insert = game:GetService("InsertService")
 local v_u_2 = require(game.ReplicatedStorage.Modules.Utilities.Util)
 local I = workspace.Map.Ingame
 local Survs = workspace.Players.Survivors
-local O1R = game:GetService("ReplicatedStorage").Assets.Skins.Killers["1x1x1x1"].Primordial1x1x1x1.Rig
 local PKCon = require(game:GetService("ReplicatedStorage").Assets.Skins.Killers.c00lkidd.PhonkC00l.Config)
-local PKConNR = game:GetService("ReplicatedStorage").Assets.Skins.Killers.c00lkidd.PhonkC00l
 local Tween = game:GetService("TweenService")
 
 local CurrentRig = Player.Character
@@ -143,16 +141,6 @@ game.StarterGui:SetCore("SendNotification", {
 PKCon.RenderImage = GRender
 PKCon.DisplayName = "Grollusiam"
 
-PKConNR.Rig:Destroy()
-local GSR = importinstance(GRig, PKConNR)
-GSR.HumanoidRootPart["rbxassetid://81488188518324"]:Destroy()
-GSR.HumanoidRootPart.RootJoint.C0 = CFrame.Angles(-math.rad(80), 0, math.rad(190))
-GSR.Name = "Rig"
-
-for _, v in GSR.coolkiddrblx:GetChildren() do
-  v.Color = Color3.new(0, 0, 0)
-end
-
 local function D(...)
   for _, v in ipairs({...}) do
     v:Destroy() 
@@ -214,14 +202,8 @@ local function DoMorph(P, Name, SN)
   if P.Name == Name and P:GetAttribute("SkinName") == SN then
     for _, v in ipairs({"Head", "Torso", "Right Leg", "Left Leg", "Right Arm", "Left Arm"}) do
       local L = P:WaitForChild(v)
-      local L2 = O1R:FindFirstChild(v)
 
       L.Size = L.Size / 1.121
-      for _, f in L2:GetChildren() do
-        if f:IsA("ParticleEmitter") and f.Enabled and f.Name ~= "Dust" and f.Name ~= "Decay" then
-          f:Clone().Parent = L
-        end
-      end
     end
     D(P.Grollusiam, P.heartgroll_rig)
 
