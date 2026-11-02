@@ -130,7 +130,8 @@ local GLMSUI = {
   ["JaneDoe"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIJaneDoe.png", "GLMSUIJaneDoe.png"),
   ["Chance"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIChance.png", "GLMSUIChance.png"),
   ["007n7"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUI007n7.png", "GLMSUI007n7.png"),
-  ["Dusekkar"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIDusekkar.png", "GLMSUIDusekkar.png")
+  ["Dusekkar"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIDusekkar.png", "GLMSUIDusekkar.png"),
+  ["Helperbot"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIDusekkar.png", "GLMSUIHelperbot.png")
 }
 
 game.StarterGui:SetCore("SendNotification", {
