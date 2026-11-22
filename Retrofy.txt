@@ -1,0 +1,117 @@
+local RunService = game:GetService("RunService")
+local Player = game:GetService("Players").LocalPlayer
+local animator
+
+local isr = true   
+
+local screen = Instance.new("ScreenGui")
+screen.ResetOnSpawn = false
+screen.Parent = cloneref(game.CoreGui)
+
+local btn = Instance.new("TextButton")
+btn.Size = UDim2.new(0, 60, 0, 60)
+btn.Position = UDim2.new(0.05, 0, 0.55, 0)
+btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+btn.Text = "IsRetro: true"
+btn.Active = true
+btn.Draggable = true
+btn.Parent = screen
+
+local ar = Instance.new("UIAspectRatioConstraint")
+ar.AspectRatio = 1
+ar.Parent = btn
+
+btn.MouseButton1Click:Connect(function()
+  local b = not isr
+  isr = b
+  btn.Text = string.format("IsRetro: %s", tostring(b))
+end)
+
+local function animListener(v)
+  if not isr then
+    animator = nil
+    return
+  end
+  local hum = v:WaitForChild("Humanoid")
+  animator = hum:WaitForChild("Animator")
+  hum.Died:Once(function()
+    animator = nil
+  end)
+end
+
+Player.CharacterAdded:Connect(function(Rig)
+  animListener(Rig)
+end)
+
+animListener(Player.Character)
+
+local function Retro(fps)
+  local step = 1 / fps
+  local accumulator = 0
+  local trackTimes = {}
+  local data = {}
+  
+  RunService.RenderStepped:Connect(function(dt)
+    if not animator then return end
+    
+    if not isr then
+      if next(trackTimes) ~= nil then
+        for track in trackTimes do
+          if track.IsPlaying then
+            track:AdjustSpeed(1)
+          end
+        end
+        table.clear(trackTimes)
+        return
+      end
+    end
+
+    accumulator += dt
+    local shouldStep = accumulator >= step
+    if shouldStep then
+      accumulator %= step
+    end
+
+    local activeSet = {}
+    local playing = animator:GetPlayingAnimationTracks()
+
+    for _, track in playing do
+      activeSet[track] = true
+
+      if trackTimes[track] == nil then
+        trackTimes[track] = track.TimePosition
+      end
+
+      if track.Speed ~= 0 then
+        track:AdjustSpeed(0)
+      end
+
+      if shouldStep then
+        local nextTime = trackTimes[track] + step
+        if track.Length > 0 then
+          if track.Looped then
+            nextTime %= track.Length
+          elseif nextTime >= track.Length then
+            trackTimes[track] = nil
+            track.TimePosition = 0
+            track:Stop(0)
+            activeSet[track] = nil
+            continue
+          end
+        end
+
+        trackTimes[track] = nextTime
+        track.TimePosition = nextTime
+      end
+    end
+
+    for track in trackTimes do
+      if not activeSet[track] then
+        trackTimes[track] = nil
+      end
+    end
+  end)
+end
+
+Retro(math.clamp(RetroAnimationFPS or 6, 2, 16))
