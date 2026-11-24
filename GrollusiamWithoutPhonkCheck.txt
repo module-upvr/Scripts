@@ -57,7 +57,7 @@ local function MakeBG(obj, img)
 
   bg.Destroying:Once(cleanup)
 
-  Tween:Create(bg, TweenInfo.new(1, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {StudsOffsetWorldSpace = Vector3.zero}):Play()
+  Tween:Create(bg, TweenInfo.new(1, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {StudsOffsetWorldSpace = Vector3.new(0, 1, 0)}):Play()
 end
 
 local base = "https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/"
