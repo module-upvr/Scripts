@@ -5,8 +5,11 @@ local I = workspace.Map.Ingame
 local Survs = workspace.Players.Survivors
 local PKCon = require(game:GetService("ReplicatedStorage").Assets.Skins.Killers.c00lkidd.PhonkC00l.Config)
 local Tween = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 
 local CurrentRig = Player.Character
+
+local FRAME_TIME = 1 / 12
 
 local function MakeBG(obj, img)
   local bg = Instance.new("BillboardGui")
@@ -14,17 +17,50 @@ local function MakeBG(obj, img)
   bg.StudsOffset = Vector3.new(-3.5, 3.5, 0)
   bg.StudsOffsetWorldSpace = Vector3.new(0, 20, 0)
   bg.Adornee = obj
+
   local image = Instance.new("ImageLabel")
-  image.Image = img
+  image.Image = img[1] or ""
   image.Size = UDim2.new(8, 0, 8, 0)
   image.BackgroundTransparency = 1
   image.ImageColor3 = Color3.new(0, 1, 0)
   image.Parent = bg
-  
+
   bg.Parent = obj
-  
+
+  local currentIndex = 1
+  local accumulator = 0
+  local lastClock = os.clock()
+
+  local connection
+  connection = RunService.Heartbeat:Connect(function(dt)
+    local now = os.clock()
+    local elapsed = dt or (now - lastClock)
+    lastClock = now
+
+    accumulator += math.clamp(elapsed, 0, 0.5)
+    if accumulator >= FRAME_TIME then
+      accumulator -= FRAME_TIME
+      currentIndex += 1
+      if currentIndex > #img then
+        currentIndex = 1
+      end
+      image.Image = img[currentIndex]
+    end
+  end)
+
+  local function cleanup()
+    if connection then
+      connection:Disconnect()
+      connection = nil
+    end
+  end
+
+  bg.Destroying:Once(cleanup)
+
   Tween:Create(bg, TweenInfo.new(1, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {StudsOffsetWorldSpace = Vector3.zero}):Play()
 end
+
+local base = "https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/"
 
 local function import(link, name)
   local folder = "StickGazerStuffs"
@@ -65,73 +101,81 @@ if not isfile("StickGazerStuffs/GLMSUIDusekkar.png") then
   })
 end
 
-local GRig = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/Grollusiam.rbxm", "Grollusiam.rbxm")
-local GCT = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GChaseTheme.mp3", "GChaseTheme.mp3")
-local GLMS = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMS.mp3", "GLMS.mp3")
-local GLMS2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMS2.mp3", "GLMS2.mp3")
-local GM = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GMinion.png", "GMinion.png")
-local GLMSShed = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSShed.mp3", "GLMSShed.mp3")
-local GLMSN7 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSN7.mp3", "GLMSN7.mp3")
-local GLMSCha = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSCha.mp3", "GLMSCha.mp3")
-local GRender = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GRender.png", "GRender.png")
-local GCE = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GChaseEffect.png", "GChaseEffect.png")
-local GCN = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GCN.mp3", "GCN.mp3")
-local GCN2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GCN2.mp3", "GCN2.mp3")
-local GPDH = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GPDH.mp3", "GPDH.mp3")
-local GWO = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWO.mp3", "GWO.mp3")
-local GWO2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWO2.mp3", "GWO2.mp3")
-local GWOH = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWOH.mp3", "GWOH.mp3")
-local GWOH2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWOH2.mp3", "GWOH2.mp3")
-local GWOM = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWOM.mp3", "GWOM.mp3")
-local GWOM2 = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWOM2.mp3", "GWOM2.mp3")
-local GLMSV = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSV.mp3", "GLMSV.mp3")
-local GWOS = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GWOS.mp3", "GWOS.mp3")
-local GIntroS = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GIntroS.mp3", "GIntroS.mp3")
+local GRig = import(base.."Grollusiam.rbxm", "Grollusiam.rbxm")
+local GCT = import(base.."GChaseTheme.mp3", "GChaseTheme.mp3")
+local GLMS = import(base.."GLMS.mp3", "GLMS.mp3")
+local GLMS2 = import(base.."GLMS2.mp3", "GLMS2.mp3")
+local GLMSShed = import(base.."GLMSShed.mp3", "GLMSShed.mp3")
+local GLMSN7 = import(base.."GLMSN7.mp3", "GLMSN7.mp3")
+local GLMSCha = import(base.."GLMSCha.mp3", "GLMSCha.mp3")
+local GRender = import(base.."GRender.png", "GRender.png")
+local GCE = import(base.."GChaseEffect.png", "GChaseEffect.png")
+local GCN = import(base.."GCN.mp3", "GCN.mp3")
+local GCN2 = import(base.."GCN2.mp3", "GCN2.mp3")
+local GPDH = import(base.."GPDH.mp3", "GPDH.mp3")
+local GWO = import(base.."GWO.mp3", "GWO.mp3")
+local GWO2 = import(base.."GWO2.mp3", "GWO2.mp3")
+local GWOH = import(base.."GWOH.mp3", "GWOH.mp3")
+local GWOH2 = import(base.."GWOH2.mp3", "GWOH2.mp3")
+local GWOM = import(base.."GWOM.mp3", "GWOM.mp3")
+local GWOM2 = import(base.."GWOM2.mp3", "GWOM2.mp3")
+local GLMSV = import(base.."GLMSV.mp3", "GLMSV.mp3")
+local GWOS = import(base.."GWOS.mp3", "GWOS.mp3")
+local GIntroS = import(base.."GIntroS.mp3", "GIntroS.mp3")
 
 local GPizzaDeliveries = {
-  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GPD.mp3", "GPD.mp3"),
-  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GPD2.mp3", "GPD2.mp3"),
-  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GPD3.mp3", "GPD3.mp3")
+  import(base.."GPD.mp3", "GPD.mp3"),
+  import(base.."GPD2.mp3", "GPD2.mp3"),
+  import(base.."GPD3.mp3", "GPD3.mp3")
 }
 
 local GEmotes = {
-  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GEmote.mp3", "GEmote.mp3"),
-  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GEmote2.mp3", "GEmote2.mp3"),
-  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GEmote3.mp3", "GEmote3.mp3")
+  import(base.."GEmote.mp3", "GEmote.mp3"),
+  import(base.."GEmote2.mp3", "GEmote2.mp3"),
+  import(base.."GEmote3.mp3", "GEmote3.mp3")
 }
 
 local GKills = {
-  ["007n7"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GN7Kill.mp3", "GN7Kill.mp3"),
-  ["Chance"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GChaKill.mp3", "GChaKill.mp3"),
-  ["Dusekkar"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GDusKill.mp3", "GDusKill.mp3"),
-  ["Guest1337"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GGuestKill.mp3", "GGuestKill.mp3"),
-  ["TwoTime"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GTTKill.mp3", "GTTKill.mp3"),
-  ["Kill"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GKill.mp3", "GKill.mp3"),
-  ["Kill2"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GKill2.mp3", "GKill2.mp3")
+  ["007n7"] = import(base.."GN7Kill.mp3", "GN7Kill.mp3"),
+  ["Chance"] = import(base.."GChaKill.mp3", "GChaKill.mp3"),
+  ["Dusekkar"] = import(base.."GDusKill.mp3", "GDusKill.mp3"),
+  ["Guest1337"] = import(base.."GGuestKill.mp3", "GGuestKill.mp3"),
+  ["TwoTime"] = import(base.."GTTKill.mp3", "GTTKill.mp3"),
+  ["Kill"] = import(base.."GKill.mp3", "GKill.mp3"),
+  ["Kill2"] = import(base.."GKill2.mp3", "GKill2.mp3")
 }
 
 local GStuns = {
-  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GStun.mp3", "GStun.mp3"),
-  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GStun2.mp3", "GStun2.mp3"),
-  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GStun3.mp3", "GStun3.mp3"),
-  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GStun4.mp3", "GStun4.mp3"),
-  import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GStun5.mp3", "GStun5.mp3")
+  import(base.."GStun.mp3", "GStun.mp3"),
+  import(base.."GStun2.mp3", "GStun2.mp3"),
+  import(base.."GStun3.mp3", "GStun3.mp3"),
+  import(base.."GStun4.mp3", "GStun4.mp3"),
+  import(base.."GStun5.mp3", "GStun5.mp3")
+}
+
+local GMTable = {
+  import(base.."GMinion.png", "GMinion.png"),
+  import(base.."GMinion.png", "GMinion2.png"),
+  import(base.."GMinion3.png", "GMinion3.png"),
+  import(base.."GMinion4.png", "GMinion4.png"),
+  import(base.."GMinion5.png", "GMinion5.png"),
+  import(base.."GMinion6.png", "GMinion6.png"),
 }
 
 local GLMSUI = {
-  ["Noob"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUINoob.png", "GLMSUINoob.png"),
-  ["Shedletsky"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIShedletsky.png", "GLMSUIShedletsky.png"),
-  ["Elliot"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIElliot.png", "GLMSUIElliot.png"),
-  ["Builderman"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIBuilderman.png", "GLMSUIBuilderman.png"),
-  ["Taph"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUITaph.png", "GLMSUITaph.png"),
-  ["TwoTime"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUITwoTime.png", "GLMSUITwoTime.png"),
-  ["Veeronica"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIVeeronica.png", "GLMSUIVeeronica.png"),
-  ["Guest1337"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIGuest1337.png", "GLMSUIGuest1337.png"),
-  ["JaneDoe"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIJaneDoe.png", "GLMSUIJaneDoe.png"),
-  ["Chance"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIChance.png", "GLMSUIChance.png"),
-  ["007n7"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUI007n7.png", "GLMSUI007n7.png"),
-  ["Dusekkar"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIDusekkar.png", "GLMSUIDusekkar.png"),
-  ["Helperbot"] = import("https://raw.githubusercontent.com/module-upvr/Others/refs/heads/main/GLMSUIDusekkar.png", "GLMSUIHelperbot.png")
+  ["Noob"] = import(base.."GLMSUINoob.png", "GLMSUINoob.png"),
+  ["Shedletsky"] = import(base.."GLMSUIShedletsky.png", "GLMSUIShedletsky.png"),
+  ["Elliot"] = import(base.."GLMSUIElliot.png", "GLMSUIElliot.png"),
+  ["Builderman"] = import(base.."GLMSUIBuilderman.png", "GLMSUIBuilderman.png"),
+  ["Taph"] = import(base.."GLMSUITaph.png", "GLMSUITaph.png"),
+  ["TwoTime"] = import(base.."GLMSUITwoTime.png", "GLMSUITwoTime.png"),
+  ["Veeronica"] = import(base.."GLMSUIVeeronica.png", "GLMSUIVeeronica.png"),
+  ["Guest1337"] = import(base.."GLMSUIGuest1337.png", "GLMSUIGuest1337.png"),
+  ["JaneDoe"] = import(base.."GLMSUIJaneDoe.png", "GLMSUIJaneDoe.png"),
+  ["Chance"] = import(base.."GLMSUIChance.png", "GLMSUIChance.png"),
+  ["007n7"] = import(base.."GLMSUI007n7.png", "GLMSUI007n7.png"),
+  ["Dusekkar"] = import(base.."GLMSUIDusekkar.png", "GLMSUIDusekkar.png"),
+  ["Helperbot"] = import(base.."GLMSUIDusekkar.png", "GLMSUIHelperbot.png")
 }
 
 game.StarterGui:SetCore("SendNotification", {
@@ -363,7 +407,7 @@ local function DoMorph(P, Name, SN)
       if v.Name == "Groll1" or v.Name == "Groll2" then
         v.Name = "OldGroll"
         D(v:WaitForChild("Minion"))
-        MakeBG(v:WaitForChild("HumanoidRootPart"), GM)
+        MakeBG(v:WaitForChild("HumanoidRootPart"), GMTable)
       elseif v.Name == "HumanoidRootProjectile" then
         D(v:WaitForChild("Highlight"), v:WaitForChild("VFX_Attachment"), v:WaitForChild("SurfaceAppearance"))
         v.Size = Vector3.new(1, 2, 1)
